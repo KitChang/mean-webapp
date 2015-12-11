@@ -3,10 +3,36 @@ var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 var config = require('../config/env');
 
+
 var UserSchema = new mongoose.Schema({
-  username: {type: String, lowercase: true, unique: true},
+  username: {
+    type: String,
+    unique: 'Username already exists',
+    required: 'Please fill in a username',
+    lowercase: true,
+    trim: true
+  },
   hash: String,
-  salt: String
+  salt: String,
+  profileImageURL: {
+    type: String,
+    default: 'public/images/default.png'
+  },
+  roles: {
+    type: [{
+      type: String,
+      enum: ['user', 'admin']
+    }],
+    default: ['user'],
+    required: 'Please provide at least one role'
+  },
+  updated: {
+    type: Date
+  },
+  created: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 UserSchema.methods.setPassword = function(password){
@@ -30,6 +56,7 @@ UserSchema.methods.generateJWT = function() {
 
   return jwt.sign({
     _id: this._id,
+    roles: this.roles,
     username: this.username,
     exp: parseInt(exp.getTime() / 1000),
   }, config.secret);

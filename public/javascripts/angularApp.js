@@ -15,8 +15,26 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 	  	if(token){
 	    	var payload = JSON.parse($window.atob(token.split('.')[1]));
-
+	    
 	    	return payload.exp > Date.now() / 1000;
+	  	} else {
+	    	return false;
+	  	}
+	};
+
+	auth.isAdmin = function(){
+		var token = auth.getToken();
+
+	  	if(token){
+	  		if (auth.isLoggedIn()) {
+	  			var payload = JSON.parse($window.atob(token.split('.')[1]));
+	    		console.log(payload.roles.indexOf('admin'));
+	    		return payload.roles.indexOf('admin') != -1;
+	  		}
+	  		else {
+	  			return false;
+	  		}
+	    	
 	  	} else {
 	    	return false;
 	  	}
@@ -82,6 +100,7 @@ app.controller('MainCtrl',[
 	'auth',
 	function($scope, auth){
 	  $scope.isLoggedIn = auth.isLoggedIn;
+	  $scope.isAdmin = auth.isAdmin;
 	  $scope.currentUser = auth.currentUser;
 	  $scope.logOut = auth.logOut;
 }]);
