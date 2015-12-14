@@ -1,5 +1,51 @@
 var app = angular.module('meanWebApp',['ui.router']);
 
+app.config([
+'$stateProvider',
+'$urlRouterProvider',
+function($stateProvider, $urlRouterProvider) {
+
+  $stateProvider
+    .state('home', {
+      url: '/home',
+      templateUrl: '/home.html',
+      controller: 'MainCtrl'
+    })
+    .state('login', {
+	  url: '/login',
+	  templateUrl: '/login.html',
+	  controller: 'AuthCtrl',
+	  onEnter: ['$state', 'auth', function($state, auth){
+	    if(auth.isLoggedIn()){
+	      $state.go('home');
+	    }
+	  }]
+	})
+	.state('register', {
+	  url: '/register',
+	  templateUrl: '/register.html',
+	  controller: 'AuthCtrl',
+	  onEnter: ['$state', 'auth', function($state, auth){
+	    if(auth.isLoggedIn()){
+	      $state.go('home');
+	    }
+	  }]
+	})
+	.state('user', {
+		url: '/user',
+		templateUrl: '/user.html',
+		controller: 'UserCtrl',
+		resolve: {
+			userPromise : ['users', function (users) {
+				console.log('resolve')
+				return users.getAll();
+			}]
+		}
+	});
+
+  $urlRouterProvider.otherwise('home');
+}]);
+
 app.factory('auth', ['$http', '$window', function($http, $window){
    	var auth = {};
    	auth.saveToken = function (token){
@@ -65,6 +111,20 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   		$window.localStorage.removeItem('meanwebapp-token');
 	};
   	return auth;
+}])
+.factory('users', ['$http', 'auth', function($http, auth){
+	var o = {
+		users:[]
+	};
+
+	o.getAll = function () {
+		return $http.get('/users').success(function (data) {
+			// body...
+			angular.copy(data, o.users);
+		});
+	};
+
+	return o;
 }]);
 
 app.controller('MainCtrl',[
@@ -103,39 +163,12 @@ app.controller('MainCtrl',[
 	  $scope.isAdmin = auth.isAdmin;
 	  $scope.currentUser = auth.currentUser;
 	  $scope.logOut = auth.logOut;
-}]);
+}])
+.controller('UserCtrl', [
+	'$scope',
+	'auth',
+	'users',
+	function ($scope, auth, users) {
+		$scope.users = users.users;
+	}]);
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
-
-  $stateProvider
-    .state('home', {
-      url: '/home',
-      templateUrl: '/home.html',
-      controller: 'MainCtrl'
-    })
-    .state('login', {
-	  url: '/login',
-	  templateUrl: '/login.html',
-	  controller: 'AuthCtrl',
-	  onEnter: ['$state', 'auth', function($state, auth){
-	    if(auth.isLoggedIn()){
-	      $state.go('home');
-	    }
-	  }]
-	})
-	.state('register', {
-	  url: '/register',
-	  templateUrl: '/register.html',
-	  controller: 'AuthCtrl',
-	  onEnter: ['$state', 'auth', function($state, auth){
-	    if(auth.isLoggedIn()){
-	      $state.go('home');
-	    }
-	  }]
-	});
-
-  $urlRouterProvider.otherwise('home');
-}]);
