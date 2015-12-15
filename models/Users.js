@@ -16,7 +16,7 @@ var UserSchema = new mongoose.Schema({
   salt: String,
   profileImageURL: {
     type: String,
-    default: 'public/images/default.png'
+    default: 'images/default.png'
   },
   roles: {
     type: [{
