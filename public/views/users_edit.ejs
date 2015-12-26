@@ -1,0 +1,19 @@
+	<div>
+		<div class="page-header">
+	    	<h1>User Edit</h1>
+	  	</div>
+	  	<form class="form-horizontal" ng-submit="update()"
+		    style="margin-top:30px;">
+		    <h3>Edit</h3>
+
+		    <div class="form-group">
+		    	<label class="control-label col-sm-2" for="username">Username:</label>
+		    	<div class="col-sm-10">
+		      		<input type="text" id="username" class="form-control" placeholder="Username"
+		      ng-model="usersinfo.username"></input>
+		      	</div>
+		    </div>
+		    <button type="submit" class="btn btn-primary">Edit</button>
+		    <button type="cancel" class="btn btn-warning">Cancel</button>
+		  </form>
+	</div>

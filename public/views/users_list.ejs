@@ -1,0 +1,28 @@
+<div>
+		<div class="page-header">
+	    	<h1>User List</h1>
+	  	</div>
+	  	<div>
+			<table class="table table-striped">
+			    <thead>
+			      <tr>
+			      	<th>Icon</th>
+			        <th>Username</th>
+			        <th>Roles</th>
+			      </tr>
+			    </thead>
+			    <tbody>
+			      <tr  ng-repeat="user in users | orderBy: 'username'">
+			      	<td><a ui-sref="usersedit({userId: '{{user._id}}'})"><img ng-src="{{user.profileImageURL}}" alt="{{user.username}}" class="img-circle" width="50" height="50" /></a></td>
+			        <td>{{user.username}}</td>
+			        <td>{{user.roles}}</td>
+			        <td>
+			        	<a ui-sref="usersedit({userId: '{{user._id}}'})" role="button" class="btn btn-info">Edit</a>
+			        	<a ng-hide="isAdmin({roles:{{user.roles}}})" href="" role="button" class="btn btn-danger" ng-click="remove(user._id);">Delete</a></td>
+			        </td>
+			      </tr>
+			    </tbody>
+			</table>
+		</div>
+
+	</div>	
