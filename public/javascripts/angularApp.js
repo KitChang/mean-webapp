@@ -8,12 +8,17 @@ function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('home', {
       url: '/home',
-      templateUrl: '/home.html',
-      controller: 'MainCtrl'
+      templateUrl: 'views/home.ejs',
+      controller: 'MainCtrl',
+      onEnter: ['$state', 'auth', function ($state, auth) {
+      	if (!auth.isLoggedIn()) {
+      		$state.go('login');
+      	};
+      }]
     })
     .state('login', {
 	  url: '/login',
-	  templateUrl: '/login.html',
+	  templateUrl: 'views/login_login.ejs',
 	  controller: 'AuthCtrl',
 	  onEnter: ['$state', 'auth', function($state, auth){
 	    if(auth.isLoggedIn()){
@@ -23,7 +28,7 @@ function($stateProvider, $urlRouterProvider) {
 	})
 	.state('register', {
 	  url: '/register',
-	  templateUrl: '/register.html',
+	  templateUrl: 'views/login_register.ejs',
 	  controller: 'AuthCtrl',
 	  onEnter: ['$state', 'auth', function($state, auth){
 	    if(auth.isLoggedIn()){
@@ -33,18 +38,18 @@ function($stateProvider, $urlRouterProvider) {
 	})
 	.state('userslist', {
 		url: '/users',
-		templateUrl: '/userslist.html',
+		templateUrl: 'views/users_list.ejs',
 		controller: 'UserListCtrl',
 		resolve: {
 			userPromise : ['users', function (users) {
-				console.log('resolve');
+				console.log('list');
 				return users.getAll();
 			}]
 		}
 	})
 	.state('usersedit', {
 			url: '/users/:userId/edit',
-			templateUrl: '/usersedit.html',
+			templateUrl: 'views/users_edit.ejs',
 			controller: 'UserEditCtrl',
 			resolve: {
 				usersinfo: ['$stateParams', 'users', function($stateParams, users){
@@ -143,9 +148,22 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	o.update = function (usersinfo) {
-		return $http.put('/users/'+usersinfo._id, usersinfo)
+		return $http.put('/users/'+usersinfo._id, usersinfo, {
+			headers: {Authorization: 'Bearer '+auth.getToken()}
+		})
 		.then(function (res) {
 			$state.go('userslist');
+		});
+	};
+
+	o.remove = function (userId) {
+		return $http.delete('/users/'+userId, {
+			headers: {Authorization: 'Bearer '+auth.getToken()}
+		})
+		.success(function (data) {
+			// body...
+			userIndex = o.users.indexOf(data);
+			o.users.splice(userIndex, 1);
 		});
 	};
 
@@ -188,17 +206,24 @@ app.controller('MainCtrl',[
 	  $scope.isAdmin = auth.isAdmin;
 	  $scope.currentUser = auth.currentUser;
 	  $scope.logOut = auth.logOut;
+	  $scope.appTitle = 'MEAN Example Web';
 }])
 .controller('UserListCtrl', [
 	'$scope',
+	'$state',
 	'auth',
 	'users',
-	function ($scope, auth, users) {
+	function ($scope, $state, auth, users) {
 		$scope.users = users.users;
 		$scope.isAdmin = function (roles) {
 			//console.log(roles.roles);
 			return roles.roles.indexOf('admin') != -1;
 		};
+
+		$scope.remove = function (userId) {
+			console.log('remove: ' + userId);
+			users.remove(userId);
+		}
 }])
 .controller('UserEditCtrl', [
 	'$scope',

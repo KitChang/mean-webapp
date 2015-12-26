@@ -34,7 +34,7 @@ router.get('/:userId', function(req, res){
 	
 });
 
-router.put('/:userId', function(req, res, next){
+router.put('/:userId', auth, function(req, res, next){
 	console.log('id: '+req.usersinfo._id);
 	req.usersinfo.username = req.body.username;
 	req.usersinfo.save(function (err, user) {
@@ -44,4 +44,12 @@ router.put('/:userId', function(req, res, next){
 	})
 	
 });
+
+router.delete('/:userId', auth, function (req, res, next) {
+	console.log('id: '+ req.usersinfo._id);
+	req.usersinfo.remove(function (err, user) {
+		if (err) {return next(err);}
+		res.json(user);
+	});
+})
 module.exports = router;
