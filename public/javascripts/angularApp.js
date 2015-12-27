@@ -57,7 +57,23 @@ function($stateProvider, $urlRouterProvider) {
 					return users.get($stateParams.userId);
 				}]
 			}
-		});
+	})
+	.state('stopslist', {
+		url: '/stops',
+		templateUrl: 'views/stops_list.ejs',
+		controller: 'StopListCtrl',
+		resolve: {
+			stopPromise : ['stops', function (stops) {
+					console.log('stop list');
+					return stops.getAll();
+				}]
+		}
+	})
+	.state('stopscreate', {
+		url: '/stops/create',
+		templateUrl: 'views/stops_create.ejs',
+		controller: 'StopCreateCtrl'
+	});
 
   $urlRouterProvider.otherwise('home');
 }]);
@@ -168,6 +184,59 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	return o;
+}])
+.factory('regions', ['$state', '$http', 'auth', function ($state, $http, auth) {	
+	var o = {
+
+		regions: [
+			{ 
+			  	name:'澳門',
+			  	subRegions: [
+			  		'澳門東北區', '澳門市中心', '澳門西北區',
+			  		'澳門新馬路區', '東望洋山(松山)及憲山區',
+					'澳門南灣區', '西望洋山/媽閣區','新口岸及外港新填海區'
+			  	]
+			},
+			{ 
+			  	name:'氹仔',
+			  	subRegions: [
+			  		'氹仔市中心區', '氹仔西北區', '氹仔東北區',
+			  		'聖母灣區', '路氹填海區',
+					'機場區', '氹仔村','澳門大學新校區'
+			  	]
+			},
+
+			{ 
+			  	name:'路環',
+			  	subRegions: [
+			  		'九澳', '石排灣', '竹灣',
+			  		'黑沙', '路環村', '聯生工業區'
+			  	]
+			}]
+
+		
+	}
+
+	return o;
+}])
+.factory('stops', ['$state', '$http', 'auth', function ($state, $http, auth) {
+	var o = {
+		stops: []
+	};
+
+	o.getAll = function () {
+		return $http.get('/stops').success(function (data) {
+			// body...
+			angular.copy(data, o.stops);
+		});
+	};
+	o.create = function (stop) {
+		return $http.post('/stops', stop).success(function (data) {
+			$state.go('home');
+		});
+	};
+
+	return o;
 }]);
 
 app.controller('MainCtrl',[
@@ -239,5 +308,41 @@ app.controller('MainCtrl',[
 			users.update(usersinfo);
 
 		}
-	}]);
+	}])
+.controller('StopCreateCtrl', [
+	'$scope',
+	'$state',
+	'auth',
+	'regions',
+	'stops',
+	function ($scope, $state, auth, regions, stops) {
+		$scope.regions = regions.regions;
+		$scope.create = function () {
+			console.log($scope.stop);
+
+			if (!$scope.stop || !$scope.stop.displayName ||
+				$scope.stop.code === '' || !$scope.stop.code ||
+				$scope.stop.subCode === '' || !$scope.stop.subCode ||
+				!$scope.stop.region ||
+				$scope.stop.subRegion === '' || !$scope.stop.subRegion) {
+				$scope.error = {message: 'Please fill all blank field'};
+				return;
+			}
+			var stopInfo = $scope.stop;
+			var regionObj = $scope.stop.region;
+			stopInfo.region = regionObj.name;
+			stops.create(stopInfo).error(function (err) {
+				$scope.error = err;
+			});
+		}
+	}])
+.controller('StopListCtrl', [
+	'$scope',
+	'$state',
+	'auth',
+	'regions',
+	'stops',
+	function ($scope, $state, auth, regions, stops) {
+		$scope.stops = stops.stops;
+}]);
 

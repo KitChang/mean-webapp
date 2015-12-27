@@ -1,0 +1,46 @@
+<div class="col-md-4 col-md-offset-4">
+	  <div class="page-header">
+	    <h1>New Stop</h1>
+	  </div>
+
+	  <div ng-show="error" class="alert alert-danger row">
+	    <span>{{ error.message }}</span>
+	  </div>
+
+	  <form ng-submit="create()"
+	    style="margin-top:30px;">
+		
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Display Name"
+	      ng-model="stop.displayName"></input>
+	    </div>
+		<div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Code"
+	      ng-model="stop.code"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Sub Code"
+	      ng-model="stop.subCode"></input>
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" id="region"
+	      ng-model="stop.region" ng-options="c.name for c in regions">
+	      	<option value="">選擇城市</option>
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <select id="subRegion"
+	      class="form-control"
+	      ng-model="stop.subRegion" ng-options="subRegion for subRegion in stop.region.subRegions">
+	      	<option value="">選擇地區</option>
+	      	</select>
+	    </div>
+	    <div><button type="submit" class="btn btn-primary">Create</button></div>
+	  </form>
+</div>
