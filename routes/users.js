@@ -51,5 +51,5 @@ router.delete('/:userId', auth, function (req, res, next) {
 		if (err) {return next(err);}
 		res.json(user);
 	});
-})
+});
 module.exports = router;

@@ -1,6 +1,7 @@
 <div>
 		<div class="page-header">
 	    	<h1>Stop List</h1>
+	    	<a ui-sref="stopscreate" role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right"></a>
 	  	</div>
 	  	<div>
 			<table class="table table-striped">
@@ -13,12 +14,12 @@
 			    </thead>
 			    <tbody>
 			      <tr  ng-repeat="stop in stops | orderBy: 'code'">
-			      	<td><a>{{stop.displayName}}</a></td>
+			      	<td><a ui-sref="stopsedit({stopId: '{{stop._id}}'})">{{stop.displayName}}</a></td>
 			        <td>{{stop.region}}</td>
 			        <td>{{stop.subRegion}}</td>
 			        <td>
-			        	<a role="button" class="btn btn-info">Edit</a>
-			        	<a role="button" class="btn btn-danger">Delete</a></td>
+			        	<a ui-sref="stopsedit({stopId: '{{stop._id}}'})" role="button" class="btn btn-info">Edit</a>
+			        	<a role="button" class="btn btn-danger" ng-click="remove(stop._id);">Delete</a></td>
 			        </td>
 			      </tr>
 			    </tbody>

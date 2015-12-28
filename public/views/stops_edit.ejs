@@ -1,0 +1,44 @@
+<div class="col-md-4 col-md-offset-4">
+	  <div class="page-header">
+	    <h1>Edit Stop</h1>
+	  </div>
+
+	  <div ng-show="error" class="alert alert-danger row">
+	    <span>{{ error.message }}</span>
+	  </div>
+
+	  <form ng-submit="update()"
+	    style="margin-top:30px;">
+		
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Display Name"
+	      ng-model="findStop.displayName"></input>
+	    </div>
+		<div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Code"
+	      ng-model="findStop.code"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Sub Code"
+	      ng-model="findStop.subCode"></input>
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" id="region"
+	      ng-model="findStop.region" ng-options="c.name for c in regions" ng-selected="{{findStop.region.name == c.name}}">
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <select id="subRegion"
+	      class="form-control"
+	      ng-model="findStop.subRegion" ng-options="subRegion for subRegion in findStop.region.subRegions" ng-selected="{{findStop.subRegion == subRegion}}">
+	      	</select>
+	    </div>
+	    <div><button type="submit" class="btn btn-primary">Edit</button></div>
+	  </form>
+</div>

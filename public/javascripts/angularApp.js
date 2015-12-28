@@ -61,7 +61,7 @@ function($stateProvider, $urlRouterProvider) {
 	.state('stopslist', {
 		url: '/stops',
 		templateUrl: 'views/stops_list.ejs',
-		controller: 'StopListCtrl',
+		controller: 'StopCtrl',
 		resolve: {
 			stopPromise : ['stops', function (stops) {
 					console.log('stop list');
@@ -72,7 +72,18 @@ function($stateProvider, $urlRouterProvider) {
 	.state('stopscreate', {
 		url: '/stops/create',
 		templateUrl: 'views/stops_create.ejs',
-		controller: 'StopCreateCtrl'
+		controller: 'StopCtrl'
+	})
+	.state('stopsedit', {
+		url: '/stops/:stopId/edit',
+		templateUrl: 'views/stops_edit.ejs',
+		controller: 'StopEditCtrl',
+		resolve: {
+			findStop: ['$stateParams', 'stops', function($stateParams, stops){
+				console.log('edit: '+$stateParams.stopId);
+				return stops.get($stateParams.stopId);
+			}]
+		}
 	});
 
   $urlRouterProvider.otherwise('home');
@@ -220,23 +231,42 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	return o;
 }])
 .factory('stops', ['$state', '$http', 'auth', function ($state, $http, auth) {
-	var o = {
+	var oStops = {
 		stops: []
 	};
 
-	o.getAll = function () {
+	oStops.get = function (id) {
+		// body...
+		return $http.get('/stops/'+id).then(function (res) {
+			return res.data;
+		})
+	};
+	oStops.getAll = function () {
 		return $http.get('/stops').success(function (data) {
 			// body...
-			angular.copy(data, o.stops);
+			angular.copy(data, oStops.stops);
 		});
 	};
-	o.create = function (stop) {
+	oStops.create = function (stop) {
 		return $http.post('/stops', stop).success(function (data) {
-			$state.go('home');
+			$state.go('stopslist');
+		});
+	};
+	oStops.update = function (stop) {
+		return $http.put('/stops/'+stop._id, stop).success(function (data) {
+			$state.go('stopslist');
+		});
+	};
+	oStops.remove = function (stopId) {
+		return $http.delete('/stops/'+stopId)
+		.success(function (data) {
+			// body...
+			stopIndex = oStops.stops.indexOf(data);
+			oStops.stops.splice(stopIndex, 1);
 		});
 	};
 
-	return o;
+	return oStops;
 }]);
 
 app.controller('MainCtrl',[
@@ -292,7 +322,7 @@ app.controller('MainCtrl',[
 		$scope.remove = function (userId) {
 			console.log('remove: ' + userId);
 			users.remove(userId);
-		}
+		};
 }])
 .controller('UserEditCtrl', [
 	'$scope',
@@ -305,11 +335,11 @@ app.controller('MainCtrl',[
 		$scope.update = function () {
 			if ($scope.usersinfo.username === '' || !$scope.usersinfo.username) {return;}
 
-			users.update(usersinfo);
+			users.update($scope.usersinfo);
 
 		}
 	}])
-.controller('StopCreateCtrl', [
+.controller('StopCtrl', [
 	'$scope',
 	'$state',
 	'auth',
@@ -317,8 +347,8 @@ app.controller('MainCtrl',[
 	'stops',
 	function ($scope, $state, auth, regions, stops) {
 		$scope.regions = regions.regions;
+		$scope.stops = stops.stops;
 		$scope.create = function () {
-			console.log($scope.stop);
 
 			if (!$scope.stop || !$scope.stop.displayName ||
 				$scope.stop.code === '' || !$scope.stop.code ||
@@ -334,15 +364,48 @@ app.controller('MainCtrl',[
 			stops.create(stopInfo).error(function (err) {
 				$scope.error = err;
 			});
-		}
-	}])
-.controller('StopListCtrl', [
+		};
+		$scope.remove = function (stopId) {
+			console.log('remove: ' + stopId);
+			stops.remove(stopId).error(function (err) {
+				$scope.error = err;
+			});
+		};
+}])
+.controller('StopEditCtrl', [
 	'$scope',
 	'$state',
 	'auth',
 	'regions',
 	'stops',
-	function ($scope, $state, auth, regions, stops) {
-		$scope.stops = stops.stops;
-}]);
+	'findStop',
+	function ($scope, $state, auth, regions, stops, findStop) {
+		$scope.regions = regions.regions;
+		$scope.isAdmin = auth.isAdmin;
+		var regionObj = regions.regions.filter(function (obj) {
+			return obj.name == findStop.region;
+		})
+		$scope.findStop = findStop;
+		$scope.findStop.region = regionObj[0];
+
+		$scope.update = function () {
+			console.log('update');
+			if (!$scope.findStop || $scope.findStop.displayName === '' ||
+				$scope.findStop.code === '' || !$scope.findStop.code ||
+				$scope.findStop.subCode === '' || !$scope.findStop.subCode ||
+				!$scope.findStop.region ||
+				$scope.findStop.subRegion === '' || !$scope.findStop.subRegion) {
+				$scope.error = {message: 'Please fill all blank field'};
+				return;
+			}
+			var stopInfo = $scope.findStop;
+			var regionObj = $scope.findStop.region;
+			stopInfo.region = regionObj.name;
+			stops.update(stopInfo).error(function (err) {
+				$scope.error = err;
+			});
+		};
+
+		
+	}]);
 
