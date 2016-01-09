@@ -11,8 +11,8 @@ var passport = require('passport');
 require('./models/Users');
 require('./config/passport');
 require('./models/Stops');
-mongoose.connect('mongodb://' + config.db.uri);
-console.log('mongodb:' + config.db.uri);
+mongoose.connect('mongodb://' + config.mongolab.uri);
+console.log('mongodb:' + config.mongolab.uri);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
