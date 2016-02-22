@@ -10,6 +10,9 @@ router.post('/auth/local', function(req, res, next) {
 		results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
 
 		res.json(results);
+	} else {
+		res.statusCode(401);
+		res.end();
 	}
 });
 
