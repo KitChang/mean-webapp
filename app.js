@@ -11,12 +11,14 @@ var passport = require('passport');
 require('./models/Users');
 require('./config/passport');
 require('./models/Stops');
+require('./models/Propertys');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var stops = require('./routes/stops');
+var propertys = require('./routes/propertys');
 
 var app = express();
 
@@ -37,6 +39,7 @@ app.use(passport.initialize());
 app.use('/', routes);
 app.use('/users', users);
 app.use('/stops', stops);
+app.use('/propertys', propertys);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

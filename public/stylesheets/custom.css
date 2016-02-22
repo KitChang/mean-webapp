@@ -1,0 +1,108 @@
+
+.navbar {
+   background-color: transparent;
+   background: transparent;
+   border-color: transparent;
+}
+
+.navbar li { color: #000 } 
+.navbar-custom {
+	height: 61px;
+}
+.navbar-brand-custom {
+    padding: 20px 15px;
+}
+.navbar-default .navbar-brand {
+    color: #777;
+}
+.navbar-nav-custom {
+	height: 100%;
+}
+.navbar-nav>li>a {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.custom-background {
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.navbar-default .navbar-nav>li>a {
+    color: #777;
+}
+.va-content {
+    height: 550px;
+    padding-bottom: 104px;
+    top: 50px;
+    position: relative;
+    
+}
+.va-container {
+    display: table;
+    position: relative;
+}
+.va-container-v {
+    height: 100%;
+}
+.va-container-h {
+    width: 100%;
+}
+
+.va-middle {
+	vertical-align: middle;
+	display: table-cell;
+}
+
+.text-jumbo {
+    font-size: 60px;
+    font-weight: 700;
+}
+.text-branding {
+    text-transform: uppercase;
+}
+.text-contrast {
+    color: #fff;
+}
+.btn {
+    display: inline-block;
+    margin-bottom: 0;
+    border-radius: 2px;
+    border: 1px solid;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    line-height: 1.43;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+    cursor: pointer;
+
+}
+.btn-large {
+    padding: 9px 27px;
+    font-size: 16px;
+}
+.btn-contrast {
+    border-color: #565a5c;
+    border-bottom-color: #383b3c;
+    background-color: #565a5c;
+    color: #fff;
+    text-decoration: none;
+    -webkit-font-smoothing: antialiased;
+}
+.btn-semi-transparent {
+    background: rgba(255,255,255,0.5);
+    border-style: none;
+}
+
+.space-4 {
+    margin-bottom: 25px;
+}
+.padding-0 {
+    padding: 0px;
+}

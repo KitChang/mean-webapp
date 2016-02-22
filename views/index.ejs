@@ -6,11 +6,13 @@
 	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css"
   href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  	<link rel="stylesheet" href="/stylesheets/custom.css">
 	<script src="/javascripts/angular.min.js"></script>
 	<script src="/javascripts/jquery-1.11.3.min.js"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/angularApp.js"></script>   
+    <script src="/javascripts/property.js"></script> 
     <style> .glyphicon-thumbs-up { cursor:pointer } </style>
     <style type='text/css'>
 		.fa.form-control-feedback {<!--from   w w  w.  j av a 2  s .  com-->
@@ -34,31 +36,36 @@
 </head>
 <body ng-app="meanWebApp">
 	
-	<nav class="navbar navbar-default" ng-controller="NavCtrl">
+	<nav class="navbar navbar-default navbar-custom clearfix navbar-fixed-top" ng-controller="NavCtrl">
 		<div class="navbar-header">
-		    <a href="/#/home" class="navbar-brand">{{appTitle}}</a>
+		    <a href="/#/home" class="navbar-brand navbar-brand-custom">{{appTitle}}</a>
 		</div>
-	    <ul class="nav navbar-nav pull-right">
-	    	<li class="dropdown" ng-show="isAdmin()">
-			  <a class="dropdown-toggle" type="button" data-toggle="dropdown">Admin
+	    <ul class="nav navbar-nav navbar-nav-custom pull-right">
+	    	<li><a ui-sref="propertyslist">Property</a></li>
+	    	<li class="dropdown navbar-nav-custom" ng-show="isAdmin()">
+			  <a class="dropdown-toggle link-white" type="button" data-toggle="dropdown">Admin
 			  <span class="caret"></span></a>
 			  <ul class="dropdown-menu">
 			    <li><a ui-sref="userslist">User</a></li>
-			    <li><a href="">Bus</a></li>
+			    
 			    <li><a ui-sref="stopslist">Bus Stop</a></li>
 			  </ul>
 			</li>
-	      	<li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-	      	<li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
-	      	<li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
-	      	<li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
 	    </ul>
 	</nav>
-	<div class="row">
-    	<div class="col-md-10 col-md-offset-1">
+	<div class="container-fluid padding-0 content">
+	<div class="custom-background" style="display: none;">
+		<img src="/images/background.jpg" alt="" style="width: 100%; height:auto; ">
+	</div>
+	<div class="row-fluid">
+    	<div class="col-md-12">
 			<ui-view></ui-view>
     	</div>
   	</div>
-
+	</div>
 </body>
 </html>

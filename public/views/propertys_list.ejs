@@ -1,0 +1,29 @@
+<div>
+		<div class="text-contrast page-header">
+	    	<h1>Property List</h1>
+	    	<a ui-sref="propertyscreate" role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right"></a>
+	  	</div>
+	  	<div>
+			<table class="table table-striped">
+			    <thead>
+			      <tr>
+			      	<th>名稱</th>
+			        <th>地區</th>
+			        <th>分區</th>
+			      </tr>
+			    </thead>
+			    <tbody>
+			      <tr  ng-repeat="property in propertys">
+			      	<td><a href="#">{{property.displayTitle}}</a></td>
+			        <td>{{property.region}}</td>
+			        <td>{{property.subRegion}}</td>
+			        <td>
+			        	<a ui-sref="propertysedit({propertyId:'{{property._id}}'})" role="button" class="btn btn-info">Edit</a>
+			        	<a role="button" class="btn btn-danger" ng-click="remove(property._id);">Delete</a></td>
+			        </td>
+			      </tr>
+			    </tbody>
+			</table>
+		</div>
+
+	</div>	

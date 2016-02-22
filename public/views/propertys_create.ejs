@@ -1,0 +1,94 @@
+<div class="col-md-6 col-md-offset-3">
+	  <div class="page-header text-contrast">
+	    <h1>New Property</h1>
+	  </div>
+
+	  <div ng-show="error" class="alert alert-danger row">
+	    <span>{{ error.message }}</span>
+	  </div>
+
+	  <form ng-submit="create()"
+	    style="margin-top:30px;">
+		
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Display Title"
+	      ng-model="property.displayTitle"></input>
+	    </div>
+		<div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="layout"
+	      ng-model="property.layout"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="area"
+	      ng-model="property.area"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="layer"
+	      ng-model="property.layer"></input>
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" id="region"
+	      ng-model="property.region" ng-options="c.name as c.name for c in regions" ng-change="populateSubRegion()">
+	      	<option value="" selected>選擇城市</option>
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <select id="subRegion"
+	      class="form-control"
+	      ng-model="property.subRegion" ng-options="subRegion for subRegion in subRegions">
+	      	<option value="" selected>選擇地區</option>
+	      	</select>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="street"
+	      ng-model="property.street"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="buildYear"
+	      ng-model="property.buildYear"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="rent"
+	      ng-model="property.rent"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="manageFee"
+	      ng-model="property.manageFee"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="latitude"
+	      ng-model="property.latitude"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="longitude"
+	      ng-model="property.longitude"></input>
+	    </div>
+	    <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="imageUrl"
+	      ng-model="property.imageUrl"></input>
+	    </div>
+	    <div><button type="submit" class="btn btn-primary">Create</button></div>
+	  </form>
+</div>
