@@ -11,7 +11,7 @@ router.post('/auth/local', function(req, res, next) {
 
 		res.json(results);
 	} else {
-		res.statusCode(401);
+		res.status(401);
 		res.end();
 	}
 });
