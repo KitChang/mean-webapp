@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var http = require('http');
+var https = require('https');
 
 router.post('/auth/local', function(req, res, next) {
 	var phone = req.body.phone;
