@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var request = require('request');
 
 router.post('/auth/local', function(req, res, next) {
 	var phone = req.body.phone;
@@ -42,6 +43,13 @@ router.post('/auth/authenticated', function(req, res, next) {
 
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
+	if (req.query.code) {
+		request('https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxab261de543656952&secret=389f230302fe9c047ec56c39889b8843&code='+req.query.code+'&grant_type=authorization_code', function (error, response, body) {
+  			if (!error && response.statusCode == 200) {
+    			console.log(body) // Print the google web page.
+  			}
+		});
+	}
 	res.status(200);
 	res.end();
 });
