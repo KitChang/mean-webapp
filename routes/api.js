@@ -62,7 +62,7 @@ router.get('/wxapi', function(req, res, next) {
 		  });
 		}
 
-		http.request(options, callback).end();
+		https.request(options, callback).end();
 	}
 	res.status(200);
 	res.end();
