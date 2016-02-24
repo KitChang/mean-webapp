@@ -42,6 +42,8 @@ router.post('/auth/authenticated', function(req, res, next) {
 
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
+	res.status(200);
+	res.end();
 });
 
 module.exports = router;
