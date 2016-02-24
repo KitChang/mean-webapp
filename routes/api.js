@@ -65,7 +65,7 @@ router.get('/wxapi', function(req, res, next) {
 		    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
 		    };
 		    accessCallback = function(response) {
-		    	var string += '';
+		    	var string = '';
 		    	response.on('data', function(chunk) {
 		    		string += chunk;
 		    	});
