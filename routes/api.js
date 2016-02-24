@@ -59,6 +59,21 @@ router.get('/wxapi', function(req, res, next) {
 		  //the whole response has been recieved, so we just print it out here
 		  response.on('end', function () {
 		    console.log(str);
+		    var access = JSON.parse(str);
+		    var accessOptions = {
+		    	host: 'api.weixin.qq.com',
+		    	path: '/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID'
+		    };
+		    accessCallback = function(response) {
+		    	response.on('data', function(chunk) {
+		    		string += chunk;
+		    	});
+
+		    	response.on('end', function() {
+		    		console.log(string);
+		    	});
+		    }
+		    https.request(accessOptions, accessCallback).ene();
 		  });
 		}
 
