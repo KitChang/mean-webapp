@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var request = require('request');
+var http = require('http');
 
 router.post('/auth/local', function(req, res, next) {
 	var phone = req.body.phone;
@@ -44,11 +44,25 @@ router.post('/auth/authenticated', function(req, res, next) {
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
-		request('https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxab261de543656952&secret=389f230302fe9c047ec56c39889b8843&code='+req.query.code+'&grant_type=authorization_code', function (error, response, body) {
-  			if (!error && response.statusCode == 200) {
-    			console.log(body) // Print the google web page.
-  			}
-		});
+		var options = {
+		  host: 'api.weixin.qq.com',
+		  path: '/sns/oauth2/access_token?appid=wxab261de543656952&secret=389f230302fe9c047ec56c39889b8843&code='+req.query.code+'&grant_type=authorization_code'
+		};
+		callback = function(response) {
+		  var str = '';
+
+		  //another chunk of data has been recieved, so append it to `str`
+		  response.on('data', function (chunk) {
+		    str += chunk;
+		  });
+
+		  //the whole response has been recieved, so we just print it out here
+		  response.on('end', function () {
+		    console.log(str);
+		  });
+		}
+
+		http.request(options, callback).end();
 	}
 	res.status(200);
 	res.end();
