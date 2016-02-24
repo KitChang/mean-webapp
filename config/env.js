@@ -5,7 +5,7 @@ module.exports = {
 	mongolab : {
 		uri: 'mongodb://admin:admin@ds059672.mongolab.com:59672/mean-dev'
 	}, 
-	port: process.env.PORT || 4000,
+	port: process.env.PORT || 80,
 	secret: 'Maximity2015',
 	appTitle: 'MEAN Project'
 };
