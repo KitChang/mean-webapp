@@ -62,7 +62,7 @@ router.get('/wxapi', function(req, res, next) {
 		    var access = JSON.parse(str);
 		    var accessOptions = {
 		    	host: 'api.weixin.qq.com',
-		    	path: '/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID'
+		    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
 		    };
 		    accessCallback = function(response) {
 		    	response.on('data', function(chunk) {
@@ -73,7 +73,7 @@ router.get('/wxapi', function(req, res, next) {
 		    		console.log(string);
 		    	});
 		    }
-		    https.request(accessOptions, accessCallback).ene();
+		    https.request(accessOptions, accessCallback).end();
 		  });
 		}
 
