@@ -41,6 +41,23 @@ router.post('/auth/authenticated', function(req, res, next) {
 	}
 });
 
+router.post('/auth/register', function(req, res, next) {
+	var phone = req.body.phone;
+	var password = req.body.password;
+	var code = Math.floor(Math.random()*(9999-1000+1)+1000).toString();
+
+	if (phone == "85366387334") {
+		res.status(400);
+		res.json({message: "phone already exist"});
+	} else {
+		var results = {};
+		results.phone = phone;
+		results.password = password;
+		results.code = code;
+		res.json(results);
+	}
+});
+
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
@@ -72,6 +89,7 @@ router.get('/wxapi', function(req, res, next) {
 
 		    	response.on('end', function() {
 		    		console.log(string);
+		    		
 		    	});
 		    }
 		    https.request(accessOptions, accessCallback).end();
