@@ -11,7 +11,7 @@ router.post('/auth/local', function(req, res, next) {
 		results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
 		results.id = "MC00000001"
 		results.name = "傑"
-		results.birthday = "1989-08-14"
+		results.birthday = "1989/08/14"
 		results.sex = "1"
 		results.phone = "85366387334"
 
@@ -29,7 +29,7 @@ router.post('/auth/authenticated', function(req, res, next) {
 		var results = {};
 		results.id = "MC00000001";
 		results.name = "傑";
-		results.birthday = "1989-08-14";
+		results.birthday = "1989/08/14";
 		results.sex = "1";
 		results.phone = "85366387334";
 
@@ -56,6 +56,23 @@ router.post('/auth/register', function(req, res, next) {
 		results.code = code;
 		res.json(results);
 	}
+});
+
+router.post('/auth/userinfo', function(req, res, next) {
+	var name = req.body.name;
+	var birthday = req.body.birthday;
+	var sex = req.body.sex;
+	var phone = req.body.phone;
+
+	var results = {};
+	results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
+	results.name = name;
+	results.birthday = birthday;
+	results.sex = sex;
+	results.phone = phone;
+	results.id = "MC00000002";
+
+	res.json(results);
 });
 
 router.get('/wxapi', function(req, res, next) {
