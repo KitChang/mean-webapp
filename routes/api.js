@@ -107,7 +107,9 @@ router.post('/auth/binding/weixin', function(req, res, next) {
 
 			    	response.on('end', function() {
 			    		console.log(string);
-			    		res.json(JSON.parse(string));
+			    		var weixinUser = JSON.parse(string);
+
+			    		res.json({name:weixinUser.nickname, sex:weixinUser.sex.toString(), openid:weixinUser.openid, unionid:weixinUser.unionid});
 			    	});
 		    	} else {
 		    		var string = '';
