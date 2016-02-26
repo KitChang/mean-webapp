@@ -10,9 +10,9 @@ router.post('/auth/local', function(req, res, next) {
 		var results = {};
 		results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
 		results.id = "MC00000001"
-		results.name = "傑"
+		results.name = "Kit"
 		results.birthday = "1989/08/14"
-		results.sex = "1"
+		results.sex = "0"
 		results.phone = "85366387334"
 
 		res.json(results);
