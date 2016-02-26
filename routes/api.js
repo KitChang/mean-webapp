@@ -76,11 +76,11 @@ router.post('/auth/userinfo', function(req, res, next) {
 });
 
 router.post('/auth/binding/weixin', function(req, res, next) {
-	console.log(req.query.code);
-	if (req.query.code) {
+	console.log(req.body.code);
+	if (req.body.code) {
 		var options = {
 		  host: 'api.weixin.qq.com',
-		  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.query.code+'&grant_type=authorization_code'
+		  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.body.code+'&grant_type=authorization_code'
 		};
 		callback = function(response) {
 		  var str = '';
