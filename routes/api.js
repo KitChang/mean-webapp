@@ -75,6 +75,71 @@ router.post('/auth/userinfo', function(req, res, next) {
 	res.json(results);
 });
 
+router.post('/auth/binding/weixin', function(req, res, next) {
+	console.log(req.query.code);
+	if (req.query.code) {
+		var options = {
+		  host: 'api.weixin.qq.com',
+		  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.query.code+'&grant_type=authorization_code'
+		};
+		callback = function(response) {
+		  var str = '';
+
+		  //another chunk of data has been recieved, so append it to `str`
+		  response.on('data', function (chunk) {
+		    str += chunk;
+		  });
+
+		  //the whole response has been recieved, so we just print it out here
+		  response.on('end', function () {
+		    console.log(str);
+		    var access = JSON.parse(str);
+		    var accessOptions = {
+		    	host: 'api.weixin.qq.com',
+		    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
+		    };
+		    accessCallback = function(response) {
+		    	if (response.statusCode == 200) {
+		    		var string = '';
+			    	response.on('data', function(chunk) {
+			    		string += chunk;
+			    	});
+
+			    	response.on('end', function() {
+			    		console.log(string);
+			    		res.json(JSON.parse(string));
+			    	});
+		    	} else {
+		    		var string = '';
+			    	response.on('data', function(chunk) {
+			    		string += chunk;
+			    	});
+
+			    	response.on('end', function() {
+			    		console.log(string);
+			    		res.status(500);
+			    		res.end();
+			    	});
+		    	}
+		    	
+		    }
+		    var accessReq = https.request(accessOptions, accessCallback);
+		    accessReq.end();
+		    accessReq.on('error', function(error) {
+		    	res.status(500);
+				res.end();
+		    });
+		  });
+		}
+
+		https.request(options, callback).end();
+	} else {
+		res.status(400);
+		res.json({message: "invalid code"});
+	}
+	
+});
+
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
