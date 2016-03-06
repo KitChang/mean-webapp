@@ -111,13 +111,20 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var user = JSON.parse(atob(accessToken.split('.')[1]))
 	var query = User.findById(user._id)
 	query.select('_id username roles profileImageURL');
-	query.exec(function(err, usersinfo){
+	query.exec(function(err, user){
 		if (err) {return next(err);}
-		if (!usersinfo) {return res.status(401);}
-		
+		if (!user) {return res.status(401);}
+		if (name != "") user.name = name;
+		if (sex != "") user.sex = sex;
+		if (birthday != "") user.birthday = new Date(birthday)
+		user.save(function(err, user) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			return res.json(user);
+		});
 
-		
-		return res.json(usersinfo);
 	});
 	
 	// var results = {};
