@@ -117,6 +117,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 		if (name != "") user.name = name;
 		if (sex != "") user.sex = sex;
 		if (birthday != "") user.birthday = new Date(birthday)
+		console.log(user);
 		user.save(function(err, user) {
 			if (err) {
 				console.log(err);
