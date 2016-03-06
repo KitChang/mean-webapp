@@ -76,7 +76,7 @@ router.post('/auth/register', function(req, res, next) {
   	user.save(function(err) {
   		if (err) { 
   			console.log(err);
-  			return next(err);
+  			return res.status(500).json(err.toJSON());
   		}
   		var results = {};
   		results.username = user.username;
