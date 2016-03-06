@@ -44,7 +44,9 @@ var UserSchema = new mongoose.Schema({
   },
   wxToken: String,
   sex: String,
-  birthdsay: Date,
+  birthday: {
+    type: Date
+  },
   name: String
 });
 
