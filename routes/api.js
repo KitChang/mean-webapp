@@ -115,9 +115,9 @@ router.post('/auth/userinfo', function(req, res, next) {
 		if (err) {return next(err);}
 		if (!usersinfo) {return res.status(401);}
 		
+
 		
-		
-		return res.json(userinfo);
+		return res.json(usersinfo);
 	});
 	
 	// var results = {};
