@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var https = require('https');
 
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
+
 router.post('/auth/local', function(req, res, next) {
 	var phone = req.body.phone;
 	var password = req.body.password;
@@ -41,21 +44,59 @@ router.post('/auth/authenticated', function(req, res, next) {
 	}
 });
 
+router.get('/auth/user', function (req, res, next) {
+	var username = req.query.username;
+	var code = Math.floor(Math.random()*(9999-1000+1)+1000).toString();
+
+	User.findOne({username:username}, function(err, user) {
+		if (err) {
+			console.log(err);
+			return res.status(500).json({message: 'server error!'});
+		}
+		if (!user) {
+			return res.json({code: code});
+		} else {
+			return res.status(400).json({message: 'phone already exist!'});
+		}
+	});
+});
+
 router.post('/auth/register', function(req, res, next) {
 	var phone = req.body.phone;
 	var password = req.body.password;
-	var code = Math.floor(Math.random()*(9999-1000+1)+1000).toString();
+	
 
-	if (phone == "85366387334") {
-		res.status(400);
-		res.json({message: "phone already exist"});
-	} else {
-		var results = {};
-		results.phone = phone;
-		results.password = password;
-		results.code = code;
-		res.json(results);
-	}
+	if(!phone || !password){
+    	return res.status(400).json({message: 'Please fill out all fields'});
+  	}
+
+  	var user = new User();
+  	user.username = phone
+  	user.setPassword(password);
+  	user.save(function(err) {
+  		if (err) { 
+  			console.log(err);
+  			return next(err);
+  		}
+  		var results = {};
+  		results.phone = user.username;
+  		results.accessToken = user.generateJWT();
+
+  		return res.json(results);
+  	});
+
+
+	// if (phone == "85366387334") {
+	// 	res.status(400);
+	// 	res.json({message: "phone already exist"});
+	// } else {
+	// 	var results = {};
+	// 	results.phone = phone;
+	// 	results.password = password;
+	// 	results.code = code;
+	// 	res.json(results);
+	// }
+
 });
 
 router.post('/auth/userinfo', function(req, res, next) {

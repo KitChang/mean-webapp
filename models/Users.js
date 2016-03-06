@@ -8,7 +8,7 @@ var UserSchema = new mongoose.Schema({
   username: {
     type: String,
     unique: 'Username already exists',
-    required: 'Please fill in a username',
+    //required: 'Please fill in a username',
     lowercase: true,
     trim: true
   },
@@ -21,7 +21,7 @@ var UserSchema = new mongoose.Schema({
   roles: {
     type: [{
       type: String,
-      enum: ['user', 'admin']
+      enum: ['user', 'client', 'admin']
     }],
     default: ['user'],
     required: 'Please provide at least one role'
@@ -32,7 +32,20 @@ var UserSchema = new mongoose.Schema({
   created: {
     type: Date,
     default: Date.now
-  }
+  },
+  fbID: {
+    type:String,
+    unique: 'fbID already exists'
+  },
+  fbToken: String,
+  wxID: {
+    type:String,
+    unique: 'wxID already exists'
+  },
+  wxToken: String,
+  sex: String,
+  birthdsay: Date,
+  name: String
 });
 
 UserSchema.methods.setPassword = function(password){
