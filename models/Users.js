@@ -33,9 +33,15 @@ var UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  fbID:String,
+  fbID: {
+    type:String,
+    unique: false
+  },
   fbToken: String,
-  wxID:String,
+  wxID: {
+    type:String,
+    unique: false
+  },
   wxToken: String,
   sex: String,
   birthdsay: Date,
