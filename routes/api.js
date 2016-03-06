@@ -116,6 +116,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 		if (!usersinfo) {return res.status(401);}
 		
 		
+		
 		return res.json(userinfo);
 	});
 	
