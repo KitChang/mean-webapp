@@ -4,6 +4,7 @@ var https = require('https');
 
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
 	var phone = req.body.phone;
@@ -103,17 +104,20 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var name = req.body.name;
 	var birthday = req.body.birthday;
 	var sex = req.body.sex;
-	var phone = req.body.phone;
+	var accessToken = req.body.accessToken;
 
-	var results = {};
-	results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
-	results.name = name;
-	results.birthday = birthday;
-	results.sex = sex;
-	results.phone = phone;
-	results.id = "MC00000002";
+	console.log(atob(accessToken.split('.')[1]))
 
-	res.json(results);
+	res.json(atob(accessToken.split('.')[1]))
+	// var results = {};
+	// results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
+	// results.name = name;
+	// results.birthday = birthday;
+	// results.sex = sex;
+	// results.phone = phone;
+	// results.id = "MC00000002";
+
+	// res.json(results);
 });
 
 router.post('/auth/binding/weixin', function(req, res, next) {
