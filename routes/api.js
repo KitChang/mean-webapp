@@ -108,7 +108,17 @@ router.post('/auth/userinfo', function(req, res, next) {
 
 	console.log(atob(accessToken.split('.')[1]))
 
-	res.json(atob(accessToken.split('.')[1]))
+	var user = JSON.parse(atob(accessToken.split('.')[1]))
+	var query = User.findById(user._id)
+	query.select('_id username roles profileImageURL');
+	query.exec(function(err, usersinfo){
+		if (err) {return next(err);}
+		if (!usersinfo) {return res.status(401);}
+		
+		
+		return res.json(userinfo);
+	});
+	
 	// var results = {};
 	// results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
 	// results.name = name;
