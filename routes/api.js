@@ -71,7 +71,7 @@ router.post('/auth/register', function(req, res, next) {
   	}
 
   	var user = new User();
-  	user.username = phone
+  	user.username = phone;
   	user.setPassword(password);
   	user.save(function(err) {
   		if (err) { 
@@ -79,7 +79,7 @@ router.post('/auth/register', function(req, res, next) {
   			return next(err);
   		}
   		var results = {};
-  		results.phone = user.username;
+  		results.username = user.username;
   		results.accessToken = user.generateJWT();
 
   		return res.json(results);

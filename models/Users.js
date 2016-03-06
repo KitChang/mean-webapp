@@ -34,13 +34,11 @@ var UserSchema = new mongoose.Schema({
     default: Date.now
   },
   fbID: {
-    type:String,
-    unique: 'fbID already exists'
+    type:String
   },
   fbToken: String,
   wxID: {
-    type:String,
-    unique: 'wxID already exists'
+    type:String
   },
   wxToken: String,
   sex: String,
