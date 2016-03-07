@@ -13,15 +13,15 @@ router.post('/auth/local', function(req, res, next) {
 	}
 	console.log("loging"+req.body.username)
 	User.findOne({username: req.body.username}, function(err, user) {
-		console.log(user);
+		console.log(user.toJSON());
 		if (err) {
-			console.log(err);
+			console.log(err.toJSON());
 			return res.status(500).json(err.toJSON());
 		}
 		if (!user) {
 			return res.status(400).json({ message: 'Incorrect username.' });
 		}
-		if (!user.validPassword(req.body.password)) {
+		if (user.validPassword(req.body.password)) {
 			var results = {};
 			results.user = user
 			results.accessToken = user.generateJWT()
