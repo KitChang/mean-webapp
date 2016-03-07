@@ -8,12 +8,10 @@ var User = mongoose.model('User');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
-	if (!req.body.phone || !req.body.password) {
+	if (!req.body.username || !req.body.password) {
 		return res.status(400).json({message: 'Please fill out all fields'});
 	}
-	var phone = req.body.phone;
-	var password = req.body.password;
-
+	console.log("loging"+req.body.username)
 	passport.authenticate('local', function(err, user, info) {
 		if (err) {
 			console.log(err);
