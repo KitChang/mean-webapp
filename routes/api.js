@@ -12,19 +12,22 @@ router.post('/auth/local', function(req, res, next) {
 		return res.status(400).json({message: 'Please fill out all fields'});
 	}
 	console.log("loging"+req.body.username)
-	passport.authenticate('local', function(err, user, info) {
-		console.log('passport');
+	User.findOne({username: req.body.username}, function(err, user) {
+		console.log(user);
 		if (err) {
 			console.log(err);
 			return res.status(500).json(err.toJSON());
 		}
-		if (user) {
+		if (!user) {
+			return res.status(400).json({ message: 'Incorrect username.' });
+		}
+		if (!user.validPassword(req.body.password)) {
 			var results = {};
 			results.user = user
 			results.accessToken = user.generateJWT()
 			return res.json(results)
 		} else {
-			return res.status(401).json(info)
+			return res.status(400).json({ message: 'Incorrect password.' });
 		}
 	});
 	// if (phone == "85366387334" && password == "abcd1234") {
