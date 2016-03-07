@@ -23,8 +23,12 @@ router.post('/auth/local', function(req, res, next) {
 		}
 		if (user.validPassword(req.body.password)) {
 			var results = {};
-			results.user = user
-			results.accessToken = user.generateJWT()
+			results.username = user.username;
+			results.name = user.name;
+			results.birthday = user.birthday;
+			results.sex = user.sex;
+			results.roles = user.roles;
+			results.accessToken = user.generateJWT();
 			return res.json(results)
 		} else {
 			return res.status(400).json({ message: 'Incorrect password.' });
