@@ -13,6 +13,7 @@ router.post('/auth/local', function(req, res, next) {
 	}
 	console.log("loging"+req.body.username)
 	passport.authenticate('local', function(err, user, info) {
+		console.log('passport');
 		if (err) {
 			console.log(err);
 			return res.status(500).json(err.toJSON());
@@ -25,7 +26,7 @@ router.post('/auth/local', function(req, res, next) {
 		} else {
 			return res.status(401).json(info)
 		}
-	})
+	});
 	// if (phone == "85366387334" && password == "abcd1234") {
 	// 	var results = {};
 	// 	results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
