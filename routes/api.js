@@ -2,28 +2,46 @@ var express = require('express');
 var router = express.Router();
 var https = require('https');
 
+var passport = require('passport');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
+	if (!req.body.phone || !req.body.password) {
+		return res.status(400).json({message: 'Please fill out all fields'});
+	}
 	var phone = req.body.phone;
 	var password = req.body.password;
 
-	if (phone == "85366387334" && password == "abcd1234") {
-		var results = {};
-		results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
-		results.id = "MC00000001"
-		results.name = "Kit"
-		results.birthday = "1989/08/14"
-		results.sex = "0"
-		results.phone = "85366387334"
+	passport.authenticate('local', function(err, user, info) {
+		if (err) {
+			console.log(err);
+			return res.status(500).json(err.toJSON());
+		}
+		if (user) {
+			var results = {};
+			results.user = user
+			results.accessToken = user.generateJWT()
+			return res.json(results)
+		} else {
+			return res.status(401).json(info)
+		}
+	})
+	// if (phone == "85366387334" && password == "abcd1234") {
+	// 	var results = {};
+	// 	results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
+	// 	results.id = "MC00000001"
+	// 	results.name = "Kit"
+	// 	results.birthday = "1989/08/14"
+	// 	results.sex = "0"
+	// 	results.phone = "85366387334"
 
-		res.json(results);
-	} else {
-		res.status(401);
-		res.end();
-	}
+	// 	res.json(results);
+	// } else {
+	// 	res.status(401);
+	// 	res.end();
+	// }
 });
 
 router.post('/auth/authenticated', function(req, res, next) {

@@ -43,7 +43,10 @@ var UserSchema = new mongoose.Schema({
     unique: false
   },
   wxToken: String,
-  sex: String,
+  sex: {
+    type:String,
+    default: "0"
+  },
   birthday: {
     type: Date
   },
