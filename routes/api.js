@@ -13,7 +13,7 @@ router.post('/auth/local', function(req, res, next) {
 	}
 	console.log("loging"+req.body.username)
 	User.findOne({username: req.body.username}, function(err, user) {
-		console.log(user.toJSON());
+		console.log(user);
 		if (err) {
 			console.log(err.toJSON());
 			return res.status(500).json(err.toJSON());
@@ -105,6 +105,7 @@ router.post('/auth/register', function(req, res, next) {
   		}
   		var results = {};
   		results.username = user.username;
+  		results.role = user.role;
   		results.accessToken = user.generateJWT();
 
   		return res.json(results);
