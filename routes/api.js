@@ -150,10 +150,35 @@ router.post('/auth/register', function(req, res, next) {
 });
 
 router.post('/auth/userinfo', function(req, res, next) {
+	// var name = req.body.name;
+	// var birthday = req.body.birthday;
+	// var sex = req.body.sex;
+	// accessTokenValidation(accessToken, function (err, userOne) {
+	// 	if (err) {return next(err);}
+	// 	if (!user) {return res.status(401);}
+	// 	if (name != "") user.name = name;
+	// 	if (sex != "") user.sex = sex;
+	// 	if (birthday != "") user.birthday = new Date(birthday)
+	// 	console.log(user);
+	// 	user.save(function(err, savedUser) {
+	// 		if (err) {
+	// 			console.log(err);
+	// 			return res.status(500).json(err.toJSON());
+	// 		}
+	// 		return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
+	// 	});
+	// });
 	var name = req.body.name;
 	var birthday = req.body.birthday;
 	var sex = req.body.sex;
-	accessTokenValidation(accessToken, function (err, userOne) {
+	var accessToken = req.body.accessToken;
+
+	console.log(atob(accessToken.split('.')[1]));
+
+	var user = JSON.parse(atob(accessToken.split('.')[1]));
+	var query = User.findById(user._id);
+	query.select('_id username roles profileImageURL');
+	query.exec(function(err, user){
 		if (err) {return next(err);}
 		if (!user) {return res.status(401);}
 		if (name != "") user.name = name;
@@ -167,8 +192,18 @@ router.post('/auth/userinfo', function(req, res, next) {
 			}
 			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
 		});
-	});
 
+	});
+	
+	// var results = {};
+	// results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
+	// results.name = name;
+	// results.birthday = birthday;
+	// results.sex = sex;
+	// results.phone = phone;
+	// results.id = "MC00000002";
+
+	// res.json(results);
 });
 
 router.post('/auth/binding/weixin', function(req, res, next) {
