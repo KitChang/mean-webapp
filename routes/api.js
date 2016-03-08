@@ -51,10 +51,10 @@ router.post('/auth/local', function(req, res, next) {
 });
 
 router.get('/auth/authenticated', function(req, res, next) {
-	var accessToken = req.param.accessToken;
-
-	var user = JSON.parse(atob(accessToken.split('.')[1]))
-	var query = User.findById(user._id)
+	var accessToken = req.query.accessToken;
+	console.log(accessToken);
+	var user = JSON.parse(atob(accessToken.split('.')[1]));
+	var query = User.findById(user._id);
 	query.select('_id username roles profileImageURL');
 	query.exec(function(err, userOne){
 		if (err) {return next(err);}
@@ -145,10 +145,10 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var sex = req.body.sex;
 	var accessToken = req.body.accessToken;
 
-	console.log(atob(accessToken.split('.')[1]))
+	console.log(atob(accessToken.split('.')[1]));
 
-	var user = JSON.parse(atob(accessToken.split('.')[1]))
-	var query = User.findById(user._id)
+	var user = JSON.parse(atob(accessToken.split('.')[1]));
+	var query = User.findById(user._id);
 	query.select('_id username roles profileImageURL');
 	query.exec(function(err, user){
 		if (err) {return next(err);}
