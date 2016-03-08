@@ -50,23 +50,37 @@ router.post('/auth/local', function(req, res, next) {
 	// }
 });
 
-router.post('/auth/authenticated', function(req, res, next) {
-	var accessToken = req.body.accessToken;
+router.get('/auth/authenticated', function(req, res, next) {
+	var accessToken = req.param.accessToken;
 
-	if (accessToken == "agBSZidpdHQSL_yI1S10eQ5je8jKJObB") {
+	var user = JSON.parse(atob(accessToken.split('.')[1]))
+	var query = User.findById(user._id)
+	query.select('_id username roles profileImageURL');
+	query.exec(function(err, userOne){
+		if (err) {return next(err);}
+		if (!userOne) {return res.status(401);}
 		var results = {};
-		results.id = "MC00000001";
-		results.name = "傑";
-		results.birthday = "1989/08/14";
-		results.sex = "1";
-		results.phone = "85366387334";
-
-		res.json(results);
-	} else {
-		console.log(req.body.accessToken);
-		res.status(401);
-		res.end();
+		results.username = userOne.username;
+		results.name = userOne.name;
+		results.birthday = userOne.birthday;
+		results.sex = userOne.sex;
+		results.roles = userOne.roles;
+		return res.json(results);
 	}
+	// if (accessToken == "agBSZidpdHQSL_yI1S10eQ5je8jKJObB") {
+	// 	var results = {};
+	// 	results.id = "MC00000001";
+	// 	results.name = "傑";
+	// 	results.birthday = "1989/08/14";
+	// 	results.sex = "1";
+	// 	results.phone = "85366387334";
+
+	// 	res.json(results);
+	// } else {
+	// 	console.log(req.body.accessToken);
+	// 	res.status(401);
+	// 	res.end();
+	// }
 });
 
 router.get('/auth/user', function (req, res, next) {
@@ -105,7 +119,7 @@ router.post('/auth/register', function(req, res, next) {
   		}
   		var results = {};
   		results.username = user.username;
-  		results.role = user.role;
+  		results.roles = user.roles;
   		results.accessToken = user.generateJWT();
 
   		return res.json(results);
@@ -143,12 +157,12 @@ router.post('/auth/userinfo', function(req, res, next) {
 		if (sex != "") user.sex = sex;
 		if (birthday != "") user.birthday = new Date(birthday)
 		console.log(user);
-		user.save(function(err, user) {
+		user.save(function(err, savedUser) {
 			if (err) {
 				console.log(err);
 				return res.status(500).json(err.toJSON());
 			}
-			return res.json(user);
+			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
 		});
 
 	});
