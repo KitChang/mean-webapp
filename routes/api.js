@@ -153,6 +153,9 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var name = req.body.name;
 	var birthday = req.body.birthday;
 	var sex = req.body.sex;
+	var accessToken = req.body.accessToken;
+
+	console.log(atob(accessToken.split('.')[1]));
 	accessTokenValidation(accessToken, function (err, userOne) {
 		if (err) {return next(err);}
 		if (!userOne) {return res.status(401);}
@@ -162,7 +165,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 		console.log(userOne);
 		userOne.save(function(err, savedUser) {
 			if (err) {
-				console.log(err);
+				console.log(err.toJSON());
 				return res.status(500).json(err.toJSON());
 			}
 			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
