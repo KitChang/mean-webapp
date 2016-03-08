@@ -11,7 +11,7 @@ router.post('/auth/local', function(req, res, next) {
 	if (!req.body.username || !req.body.password) {
 		return res.status(400).json({message: 'Please fill out all fields'});
 	}
-	console.log("loging"+req.body.username)
+	console.log("loging"+req.body.username);
 	User.findOne({username: req.body.username}, function(err, user) {
 		console.log(user);
 		if (err) {
@@ -66,7 +66,7 @@ router.get('/auth/authenticated', function(req, res, next) {
 		results.sex = userOne.sex;
 		results.roles = userOne.roles;
 		return res.json(results);
-	}
+	});
 	// if (accessToken == "agBSZidpdHQSL_yI1S10eQ5je8jKJObB") {
 	// 	var results = {};
 	// 	results.id = "MC00000001";
