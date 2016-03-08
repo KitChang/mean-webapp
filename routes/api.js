@@ -51,12 +51,7 @@ router.post('/auth/local', function(req, res, next) {
 });
 
 router.get('/auth/authenticated', function(req, res, next) {
-	var accessToken = req.query.accessToken;
-	console.log(accessToken);
-	var user = JSON.parse(atob(accessToken.split('.')[1]));
-	var query = User.findById(user._id);
-	query.select('_id username roles profileImageURL');
-	query.exec(function(err, userOne){
+	accessTokenValidation(req.query.accessToken, function (err, userOne) {
 		if (err) {return next(err);}
 		if (!userOne) {return res.status(401);}
 		var results = {};
@@ -67,6 +62,21 @@ router.get('/auth/authenticated', function(req, res, next) {
 		results.roles = userOne.roles;
 		return res.json(results);
 	});
+	// var accessToken = req.query.accessToken;
+	// var user = JSON.parse(atob(accessToken.split('.')[1]));
+	// var query = User.findById(user._id);
+	// query.select('_id username roles profileImageURL');
+	// query.exec(function(err, userOne){
+	// 	if (err) {return next(err);}
+	// 	if (!userOne) {return res.status(401);}
+	// 	var results = {};
+	// 	results.username = userOne.username;
+	// 	results.name = userOne.name;
+	// 	results.birthday = userOne.birthday;
+	// 	results.sex = userOne.sex;
+	// 	results.roles = userOne.roles;
+	// 	return res.json(results);
+	// });
 	// if (accessToken == "agBSZidpdHQSL_yI1S10eQ5je8jKJObB") {
 	// 	var results = {};
 	// 	results.id = "MC00000001";
@@ -143,14 +153,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var name = req.body.name;
 	var birthday = req.body.birthday;
 	var sex = req.body.sex;
-	var accessToken = req.body.accessToken;
-
-	console.log(atob(accessToken.split('.')[1]));
-
-	var user = JSON.parse(atob(accessToken.split('.')[1]));
-	var query = User.findById(user._id);
-	query.select('_id username roles profileImageURL');
-	query.exec(function(err, user){
+	accessTokenValidation(accessToken, function (err, userOne) {
 		if (err) {return next(err);}
 		if (!user) {return res.status(401);}
 		if (name != "") user.name = name;
@@ -164,18 +167,8 @@ router.post('/auth/userinfo', function(req, res, next) {
 			}
 			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
 		});
-
 	});
-	
-	// var results = {};
-	// results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
-	// results.name = name;
-	// results.birthday = birthday;
-	// results.sex = sex;
-	// results.phone = phone;
-	// results.id = "MC00000002";
 
-	// res.json(results);
 });
 
 router.post('/auth/binding/weixin', function(req, res, next) {
@@ -288,5 +281,27 @@ router.get('/wxapi', function(req, res, next) {
 	res.status(200);
 	res.end();
 });
+
+function accessTokenValidation(accessToken, cb) {
+	var user = JSON.parse(atob(accessToken.split('.')[1]));
+	var query = User.findById(user._id);
+	query.exec(function(err, userOne){
+		if (err) {
+			console.log(err.toJSON());
+			cb(err, null);
+		}
+		if (!user) {cb(null,null);}
+		var results = {};
+		results.id = userOne._id;
+		results.username = userOne.username;
+		results.roles = userOne.roles;
+		results.sex = userOne.sex;
+		results.birthday = userOne.birthday;
+		results.name = userOne.name;
+		results.fbID = userOne.fbID;
+		results.wxID = userOne.wxID;
+		cb(null,results);
+	});
+};
 
 module.exports = router;
