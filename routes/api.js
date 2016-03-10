@@ -29,6 +29,8 @@ router.post('/auth/local', function(req, res, next) {
 			results.sex = user.sex;
 			results.roles = user.roles;
 			results.accessToken = user.generateJWT();
+			results.fbId = user.fbId;
+			results.fbName = user.fbName;
 			return res.json(results)
 		} else {
 			return res.status(400).json({ message: 'Incorrect password.' });
@@ -157,7 +159,10 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var sex = req.body.sex;
 	var accessToken = req.body.accessToken;
 	accessTokenValidation(accessToken, function (err, userOne) {
-		if (err) {return next(err);}
+		if (err) {
+			console.log(err);
+			return res.status(500).json(err.toJSON());
+		}
 		if (!userOne) {return res.status(401);}
 		if (name != "") userOne.name = name;
 		if (sex != "") userOne.sex = sex;
@@ -211,45 +216,78 @@ router.post('/auth/userinfo', function(req, res, next) {
 
 router.post('/auth/binding/facebook', function (req, res, next) {
 	console.log(req.body.access_token);
-	if (req.body.access_token && req.body.id) {
-		var accessOptions = {
-			host: 'graph.facebook.com',
-			path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
-		};
+	if (req.body.access_token && req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			var accessOptions = {
+				host: 'graph.facebook.com',
+				path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
+			};
 
-		accessCallback = function(response) {
-			if (response.statusCode == 200) {
-		    	var string = '';
-			    response.on('data', function(chunk) {
-			    	string += chunk;
-			    });
+			accessCallback = function(response) {
+				if (response.statusCode == 200) {
+			    	var string = '';
+				    response.on('data', function(chunk) {
+				    	string += chunk;
+				    });
 
-			    response.on('end', function() {
-			   	console.log(string);
-			    	var facebookUser = JSON.parse(string);
+				    response.on('end', function() {
+				   	console.log(string);
+				    	var facebookUser = JSON.parse(string);
+				    	User.findOne({fbId:facebookUser.id}, function(err, foundUser) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json({message: 'server error!'});
+							}
+							if (!foundUser) {
+								userOne.fbId = facebookUser.id.toString();
+								userOne.fbName = facebookUser.name;
+								userOne.fbToken = req.body.access_token;
 
-			    	res.json({name:facebookUser.name, fbId:facebookUser.id});
-			  	});
-		    } else {
-		    	var string = '';
-			   	response.on('data', function(chunk) {
-			   		string += chunk;
-			   	});
+								userOne.save(function(err, savedUser) {
+									if (err) {
+										console.log(err.toJSON());
+										return res.status(500).json(err.toJSON());
+									}
+									console.log(savedUser);
+									res.json({fbName:savedUser.fbName, fbId:savedUser.fbId});
+								})
+								
+							} else {
+								return res.status(400).json({message: 'Facebook ID already exist!'});
+							}
+						});
+				    	
+				  	});
+			    } else {
+			    	var string = '';
+				   	response.on('data', function(chunk) {
+				   		string += chunk;
+				   	});
 
-			   	response.on('end', function() {
-			   		console.log(string);
-			   		res.status(400).json({message:'Facebook binding failed.'});
-			   	});
-		    }
+				   	response.on('end', function() {
+				   		console.log(string);
+				   		res.status(400).json({message:'Facebook binding failed.'});
+				   	});
+			    }
 
-		};
+			};
 
-		var accessReq = https.request(accessOptions, accessCallback);
-		accessReq.end();
-		accessReq.on('error', function(error) {
-		    res.status(500).json({message:'UMac Server error.'});
-		});
+			var accessReq = https.request(accessOptions, accessCallback);
+			accessReq.end();
+			accessReq.on('error', function(error) {
+			    res.status(500).json({message:'UMac Server error.'});
+			});
+		});	
+		
 
+	} else {
+		res.status(400).json({message: 'Bad parameters.'});
 	}
 })
 
