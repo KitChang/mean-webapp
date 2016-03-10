@@ -55,6 +55,7 @@ router.get('/auth/authenticated', function(req, res, next) {
 		if (err) {return next(err);}
 		if (!userOne) {return res.status(401);}
 		var results = {};
+		results.id = user._id;
 		results.username = userOne.username;
 		results.name = userOne.name;
 		results.birthday = userOne.birthday;
@@ -128,6 +129,7 @@ router.post('/auth/register', function(req, res, next) {
   			return res.status(500).json(err.toJSON());
   		}
   		var results = {};
+  		results.id = user._id;
   		results.username = user.username;
   		results.roles = user.roles;
   		results.accessToken = user.generateJWT();
@@ -154,8 +156,6 @@ router.post('/auth/userinfo', function(req, res, next) {
 	var birthday = req.body.birthday;
 	var sex = req.body.sex;
 	var accessToken = req.body.accessToken;
-
-	console.log(atob(accessToken.split('.')[1]));
 	accessTokenValidation(accessToken, function (err, userOne) {
 		if (err) {return next(err);}
 		if (!userOne) {return res.status(401);}
@@ -208,6 +208,50 @@ router.post('/auth/userinfo', function(req, res, next) {
 
 	// res.json(results);
 });
+
+router.post('/auth/binding/facebook', function (req, res, next) {
+	console.log(req.body.access_token);
+	if (req.body.access_token && req.body.id) {
+		var accessOptions = {
+			host: 'graph.facebook.com',
+			path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
+		};
+
+		accessCallback = function(response) {
+			if (response.statusCode == 200) {
+		    	var string = '';
+			    response.on('data', function(chunk) {
+			    	string += chunk;
+			    });
+
+			    response.on('end', function() {
+			   	console.log(string);
+			    	var facebookUser = JSON.parse(string);
+
+			    	res.json({name:facebookUser.name, fbId:facebookUser.id});
+			  	});
+		    } else {
+		    	var string = '';
+			   	response.on('data', function(chunk) {
+			   		string += chunk;
+			   	});
+
+			   	response.on('end', function() {
+			   		console.log(string);
+			   		res.status(400).json({message:'Facebook binding failed.'});
+			   	});
+		    }
+
+		};
+
+		var accessReq = https.request(accessOptions, accessCallback);
+		accessReq.end();
+		accessReq.on('error', function(error) {
+		    res.status(500).json({message:'UMac Server error.'});
+		});
+
+	}
+})
 
 router.post('/auth/binding/weixin', function(req, res, next) {
 	console.log(req.body.code);
