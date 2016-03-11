@@ -69,16 +69,16 @@ router.post('/auth/facebook', function (req, res, next) {
 								return res.status(400).json({message: 'Incorrect Facebook ID.'});
 							} else {
 								var results = {};
-								results.username = user.username;
-								results.name = user.name;
-								results.birthday = user.birthday;
-								results.sex = user.sex;
-								results.roles = user.roles;
-								results.accessToken = user.generateJWT();
-								results.fbId = user.fbId;
-								results.fbName = user.fbName;
-								results.wxId = user.wxId;
-								results.wxName = user.wxName;
+								results.username = foundUser.username;
+								results.name = foundUser.name;
+								results.birthday = foundUser.birthday;
+								results.sex = foundUser.sex;
+								results.roles = foundUser.roles;
+								results.accessToken = foundUser.generateJWT();
+								results.fbId = foundUser.fbId;
+								results.fbName = foundUser.fbName;
+								results.wxId = foundUser.wxId;
+								results.wxName = foundUser.wxName;
 								return res.json(results)
 							}
 						});
