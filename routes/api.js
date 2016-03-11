@@ -166,9 +166,9 @@ router.post('/auth/userinfo', function(req, res, next) {
 			return res.status(500).json(err.toJSON());
 		}
 		if (!userOne) {return res.status(401);}
-		if (name != "") userOne.name = name;
-		if (sex != "") userOne.sex = sex;
-		if (birthday != "") userOne.birthday = new Date(birthday)
+		if (name != null) userOne.name = name;
+		if (sex != null) userOne.sex = sex;
+		if (birthday != null) userOne.birthday = new Date(birthday)
 		console.log(userOne);
 		userOne.save(function(err, savedUser) {
 			if (err) {
