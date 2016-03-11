@@ -23,6 +23,7 @@ router.post('/auth/local', function(req, res, next) {
 		}
 		if (user.validPassword(req.body.password)) {
 			var results = {};
+			results.id = user._id;
 			results.username = user.username;
 			results.name = user.name;
 			results.birthday = user.birthday;
@@ -69,6 +70,7 @@ router.post('/auth/facebook', function (req, res, next) {
 							return res.status(400).json({message: 'Incorrect Facebook ID.'});
 						} else {
 							var results = {};
+							results.id = foundUser._id;
 							results.username = foundUser.username;
 							results.name = foundUser.name;
 							results.birthday = foundUser.birthday;
@@ -150,6 +152,7 @@ router.post('/auth/weixin', function (req, res, next) {
 									return res.status(400).json({message: 'Incorrect Weixin ID.'});
 								} else {
 									var results = {};
+									results.id = foundUser._id;
 									results.username = foundUser.username;
 									results.name = foundUser.name;
 									results.birthday = foundUser.birthday;
@@ -306,6 +309,8 @@ router.post('/auth/register/facebook', function (req, res, next) {
 							  		results.accessToken = savedUser.generateJWT();
 							  		results.name = savedUser.name;
 							  		results.sex = savedUser.sex;
+							  		results.fbId = savedUser.fbId;
+							  		results.fbName = savedUser.fbName;
 
 							  		return res.json(results);
 								})
