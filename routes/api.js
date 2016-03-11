@@ -108,6 +108,94 @@ router.post('/auth/facebook', function (req, res, next) {
 	}
 });
 
+router.post('/auth/weixin', function (req, res, next) {
+	console.log(req.body.code);
+	if (req.body.code) {
+		var options = {
+			  host: 'api.weixin.qq.com',
+			  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.body.code+'&grant_type=authorization_code'
+			};
+			callback = function(response) {
+			  var str = '';
+
+			  //another chunk of data has been recieved, so append it to `str`
+			  response.on('data', function (chunk) {
+			    str += chunk;
+			  });
+
+			  //the whole response has been recieved, so we just print it out here
+			  response.on('end', function () {
+			    console.log(str);
+			    var access = JSON.parse(str);
+			    var accessOptions = {
+			    	host: 'api.weixin.qq.com',
+			    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
+			    };
+			    accessCallback = function(response) {
+			    	if (response.statusCode == 200) {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		var weixinUser = JSON.parse(string);
+					    	User.findOne({wxId:weixinUser.openid}, function(err, foundUser) {
+								if (err) {
+									console.log(err);
+									return res.status(500).json({message: 'server error!'});
+								}
+								if (!foundUser) {
+									return res.status(400).json({message: 'Incorrect Weixin ID.'});
+								} else {
+									var results = {};
+									results.username = foundUser.username;
+									results.name = foundUser.name;
+									results.birthday = foundUser.birthday;
+									results.sex = foundUser.sex;
+									results.roles = foundUser.roles;
+									results.accessToken = foundUser.generateJWT();
+									results.fbId = foundUser.fbId;
+									results.fbName = foundUser.fbName;
+									results.wxId = foundUser.wxId;
+									results.wxName = foundUser.wxName;
+									return res.json(results)
+								}
+							});
+				    	});
+			    	} else {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		res.status(400).json({message:'Weixin binding failed.'});
+				    	});
+			    	}
+			    	
+			    }
+			    var accessReq = https.request(accessOptions, accessCallback);
+			    accessReq.end();
+			    accessReq.on('error', function(error) {
+			    	res.status(500).json({message:'UMac Server error.'});
+			    });
+			  });
+			}
+
+			var codeReq = https.request(options, callback);
+			codeReq.end();
+			codeReq.on('error', function(error) {
+				res.status(500).json({message:'UMac Server error.'});
+			});
+			
+	} else {
+		return res.status(400).json({ message: 'Bad parameters.' });
+	}
+});
+
 router.get('/auth/authenticated', function(req, res, next) {
 	accessTokenValidation(req.query.accessToken, function (err, userOne) {
 		if (err) {return next(err);}
