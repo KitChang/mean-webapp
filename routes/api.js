@@ -257,7 +257,7 @@ router.post('/auth/register', function(req, res, next) {
 
 });
 
-router.post('/auth/reqister/facebook', function (req, res, next) {
+router.post('/auth/register/facebook', function (req, res, next) {
 	if (req.body.access_token) {
 		var accessOptions = {
 				host: 'graph.facebook.com',
