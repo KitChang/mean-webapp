@@ -36,10 +36,11 @@ var UserSchema = new mongoose.Schema({
   fbId: String,
   fbName: String,
   fbToken: String,
-  wxID: {
+  wxId: {
     type:String,
     unique: false
   },
+  wxName: String,
   wxToken: String,
   sex: {
     type:String,
