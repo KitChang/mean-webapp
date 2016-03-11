@@ -31,6 +31,8 @@ router.post('/auth/local', function(req, res, next) {
 			results.accessToken = user.generateJWT();
 			results.fbId = user.fbId;
 			results.fbName = user.fbName;
+			results.wxId = user.wxId;
+			results.wxName = user.wxName;
 			return res.json(results)
 		} else {
 			return res.status(400).json({ message: 'Incorrect password.' });
