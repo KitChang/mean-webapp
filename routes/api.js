@@ -43,7 +43,7 @@ router.post('/auth/local', function(req, res, next) {
 
 router.post('/auth/facebook', function (req, res, next) {
 	console.log(req.body.access_token);
-	if (!req.body.access_token) {
+	if (req.body.access_token) {
 		var accessOptions = {
 				host: 'graph.facebook.com',
 				path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
