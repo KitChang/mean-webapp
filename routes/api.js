@@ -38,20 +38,73 @@ router.post('/auth/local', function(req, res, next) {
 			return res.status(400).json({ message: 'Incorrect password.' });
 		}
 	});
-	// if (phone == "85366387334" && password == "abcd1234") {
-	// 	var results = {};
-	// 	results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObB";
-	// 	results.id = "MC00000001"
-	// 	results.name = "Kit"
-	// 	results.birthday = "1989/08/14"
-	// 	results.sex = "0"
-	// 	results.phone = "85366387334"
 
-	// 	res.json(results);
-	// } else {
-	// 	res.status(401);
-	// 	res.end();
-	// }
+});
+
+router.post('/auth/facebook', function (req, res, next) {
+	if (!req.body.access_token) {
+		var accessOptions = {
+				host: 'graph.facebook.com',
+				path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
+			};
+
+			accessCallback = function(response) {
+				if (response.statusCode == 200) {
+			    	var string = '';
+				    response.on('data', function(chunk) {
+				    	string += chunk;
+				    });
+
+				    response.on('end', function() {
+				   		console.log(string);
+				    	var facebookUser = JSON.parse(string);
+				    	User.findOne({fbId:facebookUser.id}, function(err, foundUser) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json({message: 'UMac server error!'});
+							}
+							if (!foundUser) {
+								
+								return res.status(400).json({message: 'Incorrect Facebook ID.'});
+							} else {
+								var results = {};
+								results.username = user.username;
+								results.name = user.name;
+								results.birthday = user.birthday;
+								results.sex = user.sex;
+								results.roles = user.roles;
+								results.accessToken = user.generateJWT();
+								results.fbId = user.fbId;
+								results.fbName = user.fbName;
+								results.wxId = user.wxId;
+								results.wxName = user.wxName;
+								return res.json(results)
+							}
+						});
+				    	
+				  	});
+			    } else {
+			    	var string = '';
+				   	response.on('data', function(chunk) {
+				   		string += chunk;
+				   	});
+
+				   	response.on('end', function() {
+				   		console.log(string);
+				   		res.status(400).json({message:'Facebook binding failed.'});
+				   	});
+			    }
+
+			};
+
+			var accessReq = https.request(accessOptions, accessCallback);
+			accessReq.end();
+			accessReq.on('error', function(error) {
+			    res.status(500).json({message:'UMac Server error.'});
+			});
+	} else {
+		return res.status(400).json({ message: 'Bad parameters.' });
+	}
 });
 
 router.get('/auth/authenticated', function(req, res, next) {
@@ -67,35 +120,7 @@ router.get('/auth/authenticated', function(req, res, next) {
 		results.roles = userOne.roles;
 		return res.json(results);
 	});
-	// var accessToken = req.query.accessToken;
-	// var user = JSON.parse(atob(accessToken.split('.')[1]));
-	// var query = User.findById(user._id);
-	// query.select('_id username roles profileImageURL');
-	// query.exec(function(err, userOne){
-	// 	if (err) {return next(err);}
-	// 	if (!userOne) {return res.status(401);}
-	// 	var results = {};
-	// 	results.username = userOne.username;
-	// 	results.name = userOne.name;
-	// 	results.birthday = userOne.birthday;
-	// 	results.sex = userOne.sex;
-	// 	results.roles = userOne.roles;
-	// 	return res.json(results);
-	// });
-	// if (accessToken == "agBSZidpdHQSL_yI1S10eQ5je8jKJObB") {
-	// 	var results = {};
-	// 	results.id = "MC00000001";
-	// 	results.name = "傑";
-	// 	results.birthday = "1989/08/14";
-	// 	results.sex = "1";
-	// 	results.phone = "85366387334";
 
-	// 	res.json(results);
-	// } else {
-	// 	console.log(req.body.accessToken);
-	// 	res.status(401);
-	// 	res.end();
-	// }
 });
 
 router.get('/auth/user', function (req, res, next) {
@@ -141,18 +166,6 @@ router.post('/auth/register', function(req, res, next) {
   		return res.json(results);
   	});
 
-
-	// if (phone == "85366387334") {
-	// 	res.status(400);
-	// 	res.json({message: "phone already exist"});
-	// } else {
-	// 	var results = {};
-	// 	results.phone = phone;
-	// 	results.password = password;
-	// 	results.code = code;
-	// 	res.json(results);
-	// }
-
 });
 
 router.post('/auth/userinfo', function(req, res, next) {
@@ -178,42 +191,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
 		});
 	});
-	// var name = req.body.name;
-	// var birthday = req.body.birthday;
-	// var sex = req.body.sex;
-	// var accessToken = req.body.accessToken;
 
-	// console.log(atob(accessToken.split('.')[1]));
-
-	// var user = JSON.parse(atob(accessToken.split('.')[1]));
-	// var query = User.findById(user._id);
-	// query.select('_id username roles profileImageURL');
-	// query.exec(function(err, user){
-	// 	if (err) {return next(err);}
-	// 	if (!user) {return res.status(401);}
-	// 	if (name != "") user.name = name;
-	// 	if (sex != "") user.sex = sex;
-	// 	if (birthday != "") user.birthday = new Date(birthday)
-	// 	console.log(user);
-	// 	user.save(function(err, savedUser) {
-	// 		if (err) {
-	// 			console.log(err);
-	// 			return res.status(500).json(err.toJSON());
-	// 		}
-	// 		return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
-	// 	});
-
-	// });
-	
-	// var results = {};
-	// results.accessToken = "agBSZidpdHQSL_yI1S10eQ5je8jKJObA";
-	// results.name = name;
-	// results.birthday = birthday;
-	// results.sex = sex;
-	// results.phone = phone;
-	// results.id = "MC00000002";
-
-	// res.json(results);
 });
 
 router.post('/auth/binding/facebook', function (req, res, next) {
