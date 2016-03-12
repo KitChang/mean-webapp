@@ -49,7 +49,12 @@ var UserSchema = new mongoose.Schema({
   birthday: {
     type: Date
   },
-  name: String
+  name: String,
+  registType: {
+    type: String,
+    enum: ['local', 'facebook', 'weixin'],
+    required: 'Please provide at least one type'
+  }
 });
 
 UserSchema.methods.setPassword = function(password){

@@ -244,6 +244,7 @@ router.post('/auth/register', function(req, res, next) {
   	var user = new User();
   	user.username = phone;
   	user.setPassword(password);
+  	user.registType = "local";
   	user.save(function(err) {
   		if (err) { 
   			console.log(err);
@@ -295,7 +296,7 @@ router.post('/auth/register/facebook', function (req, res, next) {
 								user.fbId = facebookUser.id;
 								user.fbName = facebookUser.name;
 								user.fbToken = req.body.access_token;
-
+								user.registType = "facebook";
 								user.save(function(err, savedUser) {
 									if (err) {
 										console.log(err.toJSON());
@@ -396,7 +397,7 @@ router.post('/auth/register/weixin', function(req, res, next) {
 									user.wxId = weixinUser.openid;
 									user.wxName = weixinUser.nickname;
 									user.wxToken = access.access_token;
-
+									user.registType = "weixin";
 									user.save(function(err, savedUser) {
 										if (err) {
 											console.log(err.toJSON());
@@ -554,7 +555,80 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 	} else {
 		res.status(400).json({message: 'Bad parameters.'});
 	}
-})
+});
+
+router.post('/auth/unbind/facebook', function(req, res, next) {
+	console.log(req.body.access_token);
+	if (req.body.access_token && req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			if (userOne.registType == "facebook") {
+				return res.status(400).json({message: 'Regist type cannot be facebook'});
+			}
+			var accessOptions = {
+				host: 'graph.facebook.com',
+				path: '/me?access_token='+req.body.access_token+'&fields=id,gender,name,picture,email'
+			};
+
+			accessCallback = function(response) {
+				if (response.statusCode == 200) {
+			    	var string = '';
+				    response.on('data', function(chunk) {
+				    	string += chunk;
+				    });
+
+				    response.on('end', function() {
+				   		console.log(string);
+				    	var facebookUser = JSON.parse(string);
+				    	if (facebookUser.id == userOne.fbId) {
+				    		userOne.fbId == null;
+				    		userOne.fbName == null;
+				    		userOne.fbToken == null;
+
+				    		userOne.save(function (err, savedUser) {
+				    			if (err) {
+									console.log(err.toJSON());
+									return res.status(500).json(err.toJSON());
+								}
+								console.log(savedUser);
+								res.json({message: 'Facebook undbind success'});
+				    		});
+				    	} else {
+				    		return res.status(400).json({message: 'Incorrect Facebook ID.'});
+				    	}
+				    	
+				  	});
+			    } else {
+			    	var string = '';
+				   	response.on('data', function(chunk) {
+				   		string += chunk;
+				   	});
+
+				   	response.on('end', function() {
+				   		console.log(string);
+				   		res.status(400).json({message:'Facebook binding failed.'});
+				   	});
+			    }
+
+			};
+
+			var accessReq = https.request(accessOptions, accessCallback);
+			accessReq.end();
+			accessReq.on('error', function(error) {
+			    res.status(500).json({message:'UMac Server error.'});
+			});
+		});	
+		
+
+	} else {
+		res.status(400).json({message: 'Bad parameters.'});
+	}
+});
 
 router.post('/auth/binding/weixin', function(req, res, next) {
 	console.log(req.body.code);
