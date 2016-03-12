@@ -514,10 +514,9 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 								userOne.fbId = facebookUser.id;
 								userOne.fbName = facebookUser.name;
 								userOne.fbToken = req.body.access_token;
-								console.log(userOne)
 								userOne.save(function(err, savedUser) {
 									if (err) {
-										console.log(err);
+										console.log("save error!");
 										return res.status(500).json({message:'UMac Server error.'});
 									}
 									console.log(savedUser);
