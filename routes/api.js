@@ -585,9 +585,9 @@ router.post('/auth/unbind/facebook', function(req, res, next) {
 				   		console.log(string);
 				    	var facebookUser = JSON.parse(string);
 				    	if (facebookUser.id == userOne.fbId) {
-				    		userOne.fbId = null;
-				    		userOne.fbName = null;
-				    		userOne.fbToken = null;
+				    		userOne.fbId = undefined;
+				    		userOne.fbName = undefined;
+				    		userOne.fbToken = undefined;
 
 				    		userOne.save(function (err, savedUser) {
 				    			if (err) {
