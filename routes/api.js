@@ -725,6 +725,95 @@ router.post('/auth/binding/weixin', function(req, res, next) {
 	
 });
 
+router.post('/auth/unbind/weixin', function (req, res, next) {
+	console.log(req.body.code);
+	if (req.body.code && req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			var options = {
+			  host: 'api.weixin.qq.com',
+			  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.body.code+'&grant_type=authorization_code'
+			};
+			callback = function(response) {
+			  var str = '';
+
+			  //another chunk of data has been recieved, so append it to `str`
+			  response.on('data', function (chunk) {
+			    str += chunk;
+			  });
+
+			  //the whole response has been recieved, so we just print it out here
+			  response.on('end', function () {
+			    console.log(str);
+			    var access = JSON.parse(str);
+			    var accessOptions = {
+			    	host: 'api.weixin.qq.com',
+			    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
+			    };
+			    accessCallback = function(response) {
+			    	if (response.statusCode == 200) {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		var weixinUser = JSON.parse(string);
+
+					    	if (weixinUser.openid == userOne.wxId) {
+					    		userOne.wxId = undefined;
+					    		userOne.wxName = undefined;
+					    		userOne.wxToken = undefined;
+
+					    		userOne.save(function (err, savedUser) {
+					    			if (err) {
+										console.log(err);
+										return res.status(500).json({message:'UMac Server error.'});
+									}
+									console.log(savedUser);
+									res.json({message: 'Weixin undbind success'});
+					    		});
+					    	} else {
+					    		return res.status(400).json({message: 'Incorrect Weixin ID.'});
+					    	}
+				    	});
+			    	} else {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		res.status(400).json({message:'Weixin binding failed.'});
+				    	});
+			    	}
+			    	
+			    }
+			    var accessReq = https.request(accessOptions, accessCallback);
+			    accessReq.end();
+			    accessReq.on('error', function(error) {
+			    	res.status(500);
+					res.end();
+			    });
+			  });
+			}
+
+			https.request(options, callback).end();
+			});
+		
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
