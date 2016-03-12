@@ -517,8 +517,8 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 
 								userOne.save(function(err, savedUser) {
 									if (err) {
-										console.log(err.toJSON());
-										return res.status(500).json(err.toJSON());
+										console.log(err);
+										return res.status(500).json({message:'UMac Server error.'});
 									}
 									console.log(savedUser);
 									res.json({fbName:savedUser.fbName, fbId:savedUser.fbId});
@@ -592,8 +592,8 @@ router.post('/auth/unbind/facebook', function(req, res, next) {
 
 				    		userOne.save(function (err, savedUser) {
 				    			if (err) {
-									console.log(err.toJSON());
-									return res.status(500).json(err.toJSON());
+									console.log(err);
+									return res.status(500).json({message:'UMac Server error.'});
 								}
 								console.log(savedUser);
 								res.json({message: 'Facebook undbind success'});
