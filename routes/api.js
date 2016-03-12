@@ -313,7 +313,7 @@ router.post('/auth/register/facebook', function (req, res, next) {
 							  		results.fbName = savedUser.fbName;
 
 							  		return res.json(results);
-								})
+								});
 								
 							} else {
 								return res.status(400).json({message: 'Facebook ID already exist!'});
@@ -340,6 +340,114 @@ router.post('/auth/register/facebook', function (req, res, next) {
 			accessReq.on('error', function(error) {
 			    res.status(500).json({message:'UMac Server error.'});
 			});
+	} else {
+		return res.status(400).json({ message: 'Bad parameters.' });
+	}
+});
+
+router.post('/auth/register/weixin', function(req, res, next) {
+	console.log(req.body.code);
+	if (req.body.code) {
+		var options = {
+			  host: 'api.weixin.qq.com',
+			  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.body.code+'&grant_type=authorization_code'
+			};
+			callback = function(response) {
+			  var str = '';
+
+			  //another chunk of data has been recieved, so append it to `str`
+			  response.on('data', function (chunk) {
+			    str += chunk;
+			  });
+
+			  //the whole response has been recieved, so we just print it out here
+			  response.on('end', function () {
+			    console.log(str);
+			    var access = JSON.parse(str);
+			    var accessOptions = {
+			    	host: 'api.weixin.qq.com',
+			    	path: '/sns/userinfo?access_token='+access.access_token+'&openid='+access.openid
+			    };
+			    accessCallback = function(response) {
+			    	if (response.statusCode == 200) {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		var weixinUser = JSON.parse(string);
+					    	User.findOne({wxId:weixinUser.openid}, function(err, foundUser) {
+								if (err) {
+									console.log(err);
+									return res.status(500).json({message: 'server error!'});
+								}
+								if (!foundUser) {
+									var user = new User();
+									user.name = weixinUser.nickname;
+									if (weixinUser.sex.toString() == "1") {
+										user.sex = "1";
+									} else if (weixinUser.sex.toString() == "2") {
+										user.sex = "2";
+									} else {
+										user.sex = "0";
+									}
+									user.wxId = weixinUser.openid;
+									user.wxName = weixinUser.nickname;
+									user.wxToken = access.access_token;
+
+									user.save(function(err, savedUser) {
+										if (err) {
+											console.log(err.toJSON());
+											return res.status(500).json(err.toJSON());
+										}
+										console.log(savedUser);
+										var results = {};
+								  		results.id = savedUser._id;
+								  		results.username = savedUser.username;
+								  		results.roles = savedUser.roles;
+								  		results.accessToken = savedUser.generateJWT();
+								  		results.name = savedUser.name;
+								  		results.sex = savedUser.sex;
+								  		results.wxId = savedUser.wxId;
+								  		results.wxName = savedUser.wxName;
+
+								  		return res.json(results);
+									});
+								} else {
+									
+									return res.status(400).json({message: 'Weixin ID already exist!'});
+								}
+							});
+				    	});
+			    	} else {
+			    		var string = '';
+				    	response.on('data', function(chunk) {
+				    		string += chunk;
+				    	});
+
+				    	response.on('end', function() {
+				    		console.log(string);
+				    		res.status(400).json({message:'Weixin binding failed.'});
+				    	});
+			    	}
+			    	
+			    }
+			    var accessReq = https.request(accessOptions, accessCallback);
+			    accessReq.end();
+			    accessReq.on('error', function(error) {
+			    	res.status(500).json({message:'UMac Server error.'});
+			    });
+			  });
+			}
+
+			var codeReq = https.request(options, callback);
+			codeReq.end();
+			codeReq.on('error', function(error) {
+				res.status(500).json({message:'UMac Server error.'});
+			});
+			
 	} else {
 		return res.status(400).json({ message: 'Bad parameters.' });
 	}
