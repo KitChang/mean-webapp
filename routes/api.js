@@ -516,7 +516,7 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 								userOne.fbToken = req.body.access_token;
 								userOne.save(function(err, savedUser) {
 									if (err) {
-										console.log("save error!");
+										console.log(err);
 										return res.status(500).json({message:'UMac Server error.'});
 									}
 									console.log(savedUser);
@@ -563,7 +563,7 @@ router.post('/auth/unbind/facebook', function(req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			if (userOne.registType == "facebook") {
@@ -585,9 +585,9 @@ router.post('/auth/unbind/facebook', function(req, res, next) {
 				   		console.log(string);
 				    	var facebookUser = JSON.parse(string);
 				    	if (facebookUser.id == userOne.fbId) {
-				    		userOne.fbId == null;
-				    		userOne.fbName == null;
-				    		userOne.fbToken == null;
+				    		userOne.fbId = null;
+				    		userOne.fbName = null;
+				    		userOne.fbToken = null;
 
 				    		userOne.save(function (err, savedUser) {
 				    			if (err) {
