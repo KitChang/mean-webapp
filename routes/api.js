@@ -487,7 +487,7 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			var accessOptions = {
@@ -514,7 +514,7 @@ router.post('/auth/binding/facebook', function (req, res, next) {
 								userOne.fbId = facebookUser.id;
 								userOne.fbName = facebookUser.name;
 								userOne.fbToken = req.body.access_token;
-
+								console.log(userOne)
 								userOne.save(function(err, savedUser) {
 									if (err) {
 										console.log(err);
