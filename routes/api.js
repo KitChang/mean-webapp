@@ -480,6 +480,40 @@ router.post('/auth/userinfo', function(req, res, next) {
 
 });
 
+router.post('/auth/rebind/username', function (req, res, next) {
+	if (req.body.username && req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			User.findOne({username:req.body.username}, function(err, user) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({message: 'server error!'});
+				}
+				if (!user) {
+					userOne.username = req.body.username;
+					userOne.save(function (err, savedUser) {
+						if (err) {
+							console.log(err);
+							return res.status(500).json({message:'UMac Server error.'});
+						}
+						console.log(savedUser);
+						return res.json({username:savedUser.username});
+					});
+				} else {
+					return res.status(400).json({message: 'phone already exist!'});
+				}
+			});
+		});
+	} else {
+		res.status(400).json({message: 'Bad parameters.'});
+	}
+});
+
 router.post('/auth/binding/facebook', function (req, res, next) {
 	console.log(req.body.access_token);
 	if (req.body.access_token && req.body.accessToken) {
@@ -735,6 +769,9 @@ router.post('/auth/unbind/weixin', function (req, res, next) {
 				return res.status(500).json(err.toJSON());
 			}
 			if (!userOne) {return res.status(401);}
+			if (userOne.registType == "weixin") {
+				return res.status(400).json({message: 'Regist type cannot be weixin'});
+			}
 			var options = {
 			  host: 'api.weixin.qq.com',
 			  path: '/sns/oauth2/access_token?appid=wx4ad3ef52304fff4a&secret=0fece5e06ed43dc78eac44047268c8c4&code='+req.body.code+'&grant_type=authorization_code'
