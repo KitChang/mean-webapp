@@ -13,6 +13,7 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/angularApp.js"></script>   
     <script src="/javascripts/property.js"></script> 
+    <script src="/javascripts/shop.js"></script> 
     <style> .glyphicon-thumbs-up { cursor:pointer } </style>
     <style type='text/css'>
 		.fa.form-control-feedback {<!--from   w w  w.  j av a 2  s .  com-->
@@ -41,6 +42,7 @@
 		    <a href="/#/home" class="navbar-brand navbar-brand-custom">{{appTitle}}</a>
 		</div>
 	    <ul class="nav navbar-nav navbar-nav-custom pull-right">
+	    	<li><a ui-sref="shopslist" ng-show="isAdmin()">Shop</a></li>
 	    	<li><a ui-sref="propertyslist">Property</a></li>
 	    	<li class="dropdown navbar-nav-custom" ng-show="isAdmin()">
 			  <a class="dropdown-toggle link-white" type="button" data-toggle="dropdown">Admin

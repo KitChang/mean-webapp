@@ -54,7 +54,11 @@ var UserSchema = new mongoose.Schema({
     type: String,
     enum: ['local', 'facebook', 'weixin'],
     required: 'Please provide at least one type'
-  }
+  },
+  cards: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Card'
+  }]
 });
 
 UserSchema.methods.setPassword = function(password){

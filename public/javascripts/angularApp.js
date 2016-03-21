@@ -230,6 +230,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 	return o;
 }])
+.factory('types', ['$state', '$http', 'auth', function ($state, $http, auth) {	
+	var o = {
+		types: ['餐飲','零售','服務','其他']
+	}
+
+	return o;
+}])
 .factory('stops', ['$state', '$http', 'auth', function ($state, $http, auth) {
 	var oStops = {
 		stops: []

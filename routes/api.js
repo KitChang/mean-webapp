@@ -5,6 +5,8 @@ var https = require('https');
 var passport = require('passport');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Card = mongoose.model('Card');
+var Shop = mongoose.model('Shop');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
@@ -844,6 +846,113 @@ router.post('/auth/unbind/weixin', function (req, res, next) {
 
 			https.request(options, callback).end();
 			});
+		
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/cards', function (req, res, next) {
+	if (req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			Card.find({owner: userOne._id}, function (err, cards) {
+				return res.json({cards:cards});
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/cards/apply', function (req, res, next) {
+	if (req.body.accessToken && req.body.shopId) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			Card.findOne({owner: userOne._id, business: req.body.shopId}, function (err, foundCard) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err.toJSON());
+				}
+				if (!foundCard) {
+					console.log('create card')
+					Shop.findById(req.body.shopId).exec(function (err, foundShop) {
+						if (err) {
+							console.log(err);
+							return res.status(500).json(err.toJSON());
+						}
+						var card = new Card();
+						var today = new Date();
+					    var exp = new Date(today);
+					    exp.setDate(today.getDate() + 365);
+					    card.exp = exp;
+					    card.cardImage = foundShop.tierImages[0];
+					    card.business = foundShop._id;
+					    card.owner = userOne._id;
+					    card.tier = foundShop.tiers[0];
+					    card.save(function (err, savedCard) {
+					    	if (err) {
+								console.log(err);
+								return res.status(500).json(err.toJSON());
+							}
+							return res.json(savedCard);
+					    });
+					})
+					
+				
+				} else {
+					return res.status(400).json({message: 'User already have this membership.'});
+				}
+				
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/shops/bluetooth', function (req, res, next) {
+	if (req.body.accessToken && req.body.beacons) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+
+			var beacons = req.body.beacons.split(",").map(function (beacon) {
+				return beacon;
+			});
+			console.log(beacons);
+			return res.json(beacons);
+		});
+
+
+
+		// Shop.findOne({major:req.query.major, minor:req.query.minor}, function (err, foundShop) {
+		// 	if (err) {
+		// 		console.log(err);
+		// 		return res.status(500).json(err.toJSON());
+		// 	}
+		// 	if (!foundShop) {
+		// 		return res.status(400).json({message: 'Found no shop matched.'});
+		// 	}
+		// 	return res.json({id: foundShop._id, business: foundShop.business});
+		// });
 		
 	} else {
 		res.status(400);
