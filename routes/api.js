@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var https = require('https');
+const EventEmitter = require('events');
 
 var passport = require('passport');
 var mongoose = require('mongoose');
@@ -938,7 +939,79 @@ router.post('/shops/bluetooth', function (req, res, next) {
 				return beacon;
 			});
 			console.log(beacons);
-			return res.json(beacons);
+			var count = beacons.length;
+			if (count == 0) {
+				return res.json({shops:[]});
+			}
+			// var shops = beacons.map(function (beacon) {
+			// 	var array = beacon.split("|").map(function (data) {
+			// 		return data;
+			// 	});
+			// 	const findEmitter = new EventEmitter();
+
+			// 	if (array.length == 2) {
+			// 		Shop.findOne({major: array[0], minor: array[1]}, function (err, foundShop) {
+			// 			if (err) {
+			// 		 		console.log(err);
+			// 		 	}
+			// 		 	if (!foundShop) {
+			// 		 		result = undefined;
+			// 		 		myEmitter.emit('done',result);
+			// 		 	} else {
+			// 		 		var result = {id: foundShop._id, business: foundShop.business};
+			// 			 	console.log('found:'+result);
+			// 			 	myEmitter.emit('done',result);
+			// 		 	}
+					 	
+			// 		});
+			// 	}
+			// 	findEmitter.on('done', function(result){
+			// 		--count;
+			// 		console.log('done:'+result);
+			// 		return result;
+			// 	});
+				
+			// });
+			var shops = {};
+			beacons.forEach(function (beacon) {
+				var array = beacon.split("|");
+				const findEmitter = new EventEmitter();
+				if (array.length == 2) {
+					Shop.findOne({major: array[0], minor: array[1]}, function (err, foundShop) {
+						if (err) {
+					 		console.log(err);
+					 	}
+					 	if (!foundShop) {
+					 		result = undefined;
+					 		console.log('no found');
+					 		findEmitter.emit('done', beacon,result);
+					 	} else {
+					 		var result = {id: foundShop._id, business: foundShop.business};
+						 	console.log('found:'+result);
+						 	findEmitter.emit('done', beacon,result);
+					 	}
+					 	
+					});
+				} else {
+					count--;
+				}
+				findEmitter.on('done', function(beacon, result){
+					count--;
+					shops[beacon] = result;
+					console.log('done:'+result);
+					if (count == 0) {
+						console.log('finish');
+						var mapShops = beacons.map(function (mapBeacon) {
+								return shops[mapBeacon];
+							});
+						return res.json({shops:mapShops.filter(function (e) {
+							return e != undefined;
+						})});
+					}
+				});
+			});
+
+			
 		});
 
 
