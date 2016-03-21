@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var https = require('https');
-var EventEmitter = require('events');
+var eventEmitter = require('events').EventEmitter;
 
 var passport = require('passport');
 var mongoose = require('mongoose');
@@ -975,7 +975,7 @@ router.post('/shops/bluetooth', function (req, res, next) {
 			var shops = {};
 			beacons.forEach(function (beacon) {
 				var array = beacon.split("|");
-				var findEmitter = new EventEmitter();
+				var findEmitter = new eventEmitter();
 				if (array.length == 2) {
 					Shop.findOne({major: array[0], minor: array[1]}, function (err, foundShop) {
 						if (err) {
