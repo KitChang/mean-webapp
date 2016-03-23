@@ -864,8 +864,8 @@ router.post('/cards', function (req, res, next) {
 				return res.status(500).json(err.toJSON());
 			}
 			if (!userOne) {return res.status(401);}
-			Card.find({owner: userOne._id}, function (err, cards) {
-				return res.json({cards:cards});
+			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number').populate('business', '_id business').exec(function (err, cards) {
+				return res.json(cards);
 			});
 		});
 	} else {
