@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var https = require('https');
 var eventEmitter = require('events').EventEmitter;
+var moment = require('moment');
 
 var passport = require('passport');
 var mongoose = require('mongoose');
@@ -903,6 +904,7 @@ router.post('/cards/apply', function (req, res, next) {
 							}
 							var card = new Card();
 							var today = new Date();
+							today.setHours(0,0,0,0);
 						    var exp = new Date(today);
 						    exp.setDate(today.getDate() + savedShop.initMemberExp);
 						    card.exp = exp;
@@ -926,6 +928,7 @@ router.post('/cards/apply', function (req, res, next) {
 								result.business = business;
 								result.owner = savedCard.owner;
 								result.tier = savedCard.tier;
+								result.valid = savedCard.valid;
 								return res.json(result);
 						    });
 						});

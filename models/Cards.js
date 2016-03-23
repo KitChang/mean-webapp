@@ -27,6 +27,10 @@ var CardSchema = new mongoose.Schema({
 		required: true,
 		enum: ['Silver', 'Gold', 'Platinum'],
 	},
+	valid: {
+		type: Boolean,
+		default: false
+	},
 	created: {
 		type: Date,
 		default: Date.now
