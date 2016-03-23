@@ -100,8 +100,12 @@ shop.controller('ShopCtrl', [
 		$scope.create = function () {
 
 			if (!$scope.shop || !$scope.shop.business ||
-				!$scope.shop.type || !$scope.shop.region) {
+				!$scope.shop.type || !$scope.shop.region || !$scope.shop.serialNumber) {
 				$scope.error = {message: 'Please fill all blank field'};
+				return;
+			}
+			if (isNaN(parseInt($scope.shop.serialNumber,10)) || parseInt($scope.shop.serialNumber,10) > 100000 || parseInt($scope.shop.serialNumber,10) <= 0) {
+				$scope.error = {message: 'Serial Number should between 1 ~ 100000'};
 				return;
 			}
 			

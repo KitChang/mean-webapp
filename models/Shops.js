@@ -31,6 +31,15 @@ var ShopSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Card'
 	}],
+	serialNumber: {
+		type: Number,
+		required: 'Please fill in a serial number',
+		default: 1
+	},
+	initMemberExp: {
+		type: Number,
+		default: 365
+	},
 	major: Number,
 	minor: Number,
 	qrCode: String,

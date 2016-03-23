@@ -1,6 +1,11 @@
 var mongoose = require('mongoose');
 
 var CardSchema = new mongoose.Schema({
+	number: {
+		type: String,
+		required: 'Please fill in a number',
+		unique: true
+	},
 	exp: {
 		type: Date,
 		required: 'Please fill in a exp'

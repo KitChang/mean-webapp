@@ -894,24 +894,43 @@ router.post('/cards/apply', function (req, res, next) {
 							console.log(err);
 							return res.status(500).json(err.toJSON());
 						}
-						var card = new Card();
-						var today = new Date();
-					    var exp = new Date(today);
-					    exp.setDate(today.getDate() + 365);
-					    card.exp = exp;
-					    card.cardImage = foundShop.tierImages[0];
-					    card.business = foundShop._id;
-					    card.owner = userOne._id;
-					    card.tier = foundShop.tiers[0];
-					    card.save(function (err, savedCard) {
-					    	if (err) {
+						var serialNumber = foundShop.serialNumber.toString();
+						foundShop.serialNumber++;
+						foundShop.save(function (err, savedShop) {
+							if (err) {
 								console.log(err);
 								return res.status(500).json(err.toJSON());
 							}
-							return res.json(savedCard);
-					    });
-					})
-					
+							var card = new Card();
+							var today = new Date();
+						    var exp = new Date(today);
+						    exp.setDate(today.getDate() + savedShop.initMemberExp);
+						    card.exp = exp;
+						    card.cardImage = savedShop.tierImages[0];
+						    card.business = savedShop._id;
+						    card.owner = userOne._id;
+						    card.tier = savedShop.tiers[0];
+						    card.number = serialNumber;
+						    card.save(function (err, savedCard) {
+						    	if (err) {
+									console.log(err);
+									return res.status(500).json(err.toJSON());
+								}
+								var business = {};
+								business.id = savedShop._id;
+								business.business = savedShop.business;
+								var result = {};
+								result.number = savedCard.number;
+								result.exp = savedCard.exp;
+								result.cardImage = savedCard.cardImage;
+								result.business = business;
+								result.owner = savedCard.owner;
+								result.tier = savedCard.tier;
+								return res.json(result);
+						    });
+						});
+						
+					});	
 				
 				} else {
 					return res.status(400).json({message: 'User already have this membership.'});

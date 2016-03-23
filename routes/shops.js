@@ -40,7 +40,7 @@ router.get('/:shopId', function(req, res){
 });
 
 router.post('/', function (req, res, next) {
-	if(!req.body.business || !req.body.type || !req.body.region){
+	if(!req.body.business || !req.body.type || !req.body.region || !req.body.serialNumber){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
 	var shop = new Shop(req.body);
