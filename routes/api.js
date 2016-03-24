@@ -864,7 +864,7 @@ router.post('/cards', function (req, res, next) {
 				return res.status(500).json(err.toJSON());
 			}
 			if (!userOne) {return res.status(401);}
-			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number').populate('business', '_id business').exec(function (err, cards) {
+			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage').populate('business', '_id business').exec(function (err, cards) {
 				return res.json(cards);
 			});
 		});
@@ -947,6 +947,87 @@ router.post('/cards/apply', function (req, res, next) {
 	}
 });
 
+router.post('/cards/bluetooth', function (req, res, next) {
+	if (req.body.accessToken && req.body.beacons) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err.toJSON());
+			}
+			if (!userOne) {return res.status(401);}
+			var beacons = req.body.beacons.split(",").map(function (beacon) {
+				return beacon;
+			});
+			console.log(beacons);
+			var count = beacons.length;
+			if (count == 0) {
+				return res.json({cards:[]});
+			}
+			var cards = {};
+			beacons.forEach(function (beacon) {
+				var array = beacon.split("|");
+				var findEmitter = new eventEmitter();
+				if (array.length == 2) {
+					Shop.findOne({major: array[0], minor: array[1]}, function (err, foundShop) {
+						if (err) {
+					 		console.log(err);
+					 		result = undefined;
+					 		console.log('no found');
+					 		findEmitter.emit('done', beacon,result);
+					 	}
+					 	else if (!foundShop) {
+					 		result = undefined;
+					 		console.log('no found');
+					 		findEmitter.emit('done', beacon,result);
+					 	} else {
+					 		Card.findOne({owner:userOne._id, business: foundShop._id},'_id exp cardImage business owner tier number valid usage')
+					 			.populate('business', '_id business').exec(function (err, foundCard) {
+					 			if (err) {
+							 		console.log(err);
+							 		result = undefined;
+							 		console.log('no found');
+							 		findEmitter.emit('done', beacon,result);
+							 	} else if (!foundCard) {
+							 		result = undefined;
+							 		console.log('no found');
+							 		findEmitter.emit('done', beacon,result);
+							 	} else {
+							 		console.log('found:'+foundCard);
+						 			findEmitter.emit('done', beacon,foundCard);
+							 	}
+
+						 		
+					 		});
+					 		
+					 	}
+					 	
+					});
+				} else {
+					count--;
+				}
+				findEmitter.on('done', function(beacon, result){
+					count--;
+					cards[beacon] = result;
+					console.log('done:'+result);
+					if (count == 0) {
+						console.log('finish');
+						var mapCards = beacons.map(function (mapBeacon) {
+								return cards[mapBeacon];
+							});
+						return res.json({cards:mapCards.filter(function (e) {
+							return e != undefined;
+						})});
+					}
+				});
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.post('/shops/bluetooth', function (req, res, next) {
 	if (req.body.accessToken && req.body.beacons) {
 		var accessToken = req.body.accessToken;
@@ -1002,8 +1083,10 @@ router.post('/shops/bluetooth', function (req, res, next) {
 					Shop.findOne({major: array[0], minor: array[1]}, function (err, foundShop) {
 						if (err) {
 					 		console.log(err);
-					 	}
-					 	if (!foundShop) {
+					 		result = undefined;
+					 		console.log('no found');
+					 		findEmitter.emit('done', beacon,result);
+					 	} else if (!foundShop) {
 					 		result = undefined;
 					 		console.log('no found');
 					 		findEmitter.emit('done', beacon,result);

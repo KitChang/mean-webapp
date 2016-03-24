@@ -31,6 +31,10 @@ var CardSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+	usage: {
+		type: Number,
+		default: 0
+	},
 	created: {
 		type: Date,
 		default: Date.now
