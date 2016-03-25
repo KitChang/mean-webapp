@@ -19,8 +19,8 @@ router.post('/auth/local', function(req, res, next) {
 	User.findOne({username: req.body.username}, function(err, user) {
 		console.log(user);
 		if (err) {
-			console.log(err.toJSON());
-			return res.status(500).json(err.toJSON());
+			console.log(err);
+			return res.status(500).json(err);
 		}
 		if (!user) {
 			return res.status(400).json({ message: 'Incorrect username.' });
@@ -252,7 +252,7 @@ router.post('/auth/register', function(req, res, next) {
   	user.save(function(err) {
   		if (err) { 
   			console.log(err);
-  			return res.status(500).json(err.toJSON());
+  			return res.status(500).json(err);
   		}
   		var results = {};
   		results.id = user._id;
@@ -303,8 +303,8 @@ router.post('/auth/register/facebook', function (req, res, next) {
 								user.registType = "facebook";
 								user.save(function(err, savedUser) {
 									if (err) {
-										console.log(err.toJSON());
-										return res.status(500).json(err.toJSON());
+										console.log(err);
+										return res.status(500).json(err);
 									}
 									console.log(savedUser);
 									var results = {};
@@ -404,8 +404,8 @@ router.post('/auth/register/weixin', function(req, res, next) {
 									user.registType = "weixin";
 									user.save(function(err, savedUser) {
 										if (err) {
-											console.log(err.toJSON());
-											return res.status(500).json(err.toJSON());
+											console.log(err);
+											return res.status(500).json(err);
 										}
 										console.log(savedUser);
 										var results = {};
@@ -466,7 +466,7 @@ router.post('/auth/userinfo', function(req, res, next) {
 	accessTokenValidation(accessToken, function (err, userOne) {
 		if (err) {
 			console.log(err);
-			return res.status(500).json(err.toJSON());
+			return res.status(500).json(err);
 		}
 		if (!userOne) {return res.status(401);}
 		if (name != null) userOne.name = name;
@@ -475,8 +475,8 @@ router.post('/auth/userinfo', function(req, res, next) {
 		console.log(userOne);
 		userOne.save(function(err, savedUser) {
 			if (err) {
-				console.log(err.toJSON());
-				return res.status(500).json(err.toJSON());
+				console.log(err);
+				return res.status(500).json(err);
 			}
 			return res.json({name: savedUser.name, sex: savedUser.sex, birthday: savedUser.birthday});
 		});
@@ -674,7 +674,7 @@ router.post('/auth/binding/weixin', function(req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			var options = {
@@ -719,8 +719,8 @@ router.post('/auth/binding/weixin', function(req, res, next) {
 
 									userOne.save(function(err, savedUser) {
 										if (err) {
-											console.log(err.toJSON());
-											return res.status(500).json(err.toJSON());
+											console.log(err);
+											return res.status(500).json(err);
 										}
 										console.log(savedUser);
 										res.json({wxName:savedUser.wxName, wxId:savedUser.wxId});
@@ -770,7 +770,7 @@ router.post('/auth/unbind/weixin', function (req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			if (userOne.registType == "weixin") {
@@ -861,7 +861,7 @@ router.post('/cards', function (req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage').populate('business', '_id business').exec(function (err, cards) {
@@ -880,27 +880,27 @@ router.post('/cards/apply', function (req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			Card.findOne({owner: userOne._id, business: req.body.shopId}, function (err, foundCard) {
 				if (err) {
 					console.log(err);
-					return res.status(500).json(err.toJSON());
+					return res.status(500).json(err);
 				}
 				if (!foundCard) {
 					console.log('create card')
 					Shop.findById(req.body.shopId).exec(function (err, foundShop) {
 						if (err) {
 							console.log(err);
-							return res.status(500).json(err.toJSON());
+							return res.status(500).json(err);
 						}
 						var serialNumber = foundShop.serialNumber.toString();
 						foundShop.serialNumber++;
 						foundShop.save(function (err, savedShop) {
 							if (err) {
 								console.log(err);
-								return res.status(500).json(err.toJSON());
+								return res.status(500).json(err);
 							}
 							var card = new Card();
 							var today = new Date();
@@ -916,7 +916,7 @@ router.post('/cards/apply', function (req, res, next) {
 						    card.save(function (err, savedCard) {
 						    	if (err) {
 									console.log(err);
-									return res.status(500).json(err.toJSON());
+									return res.status(500).json(err);
 								}
 								var business = {};
 								business.id = savedShop._id;
@@ -953,7 +953,7 @@ router.post('/cards/bluetooth', function (req, res, next) {
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 			var beacons = req.body.beacons.split(",").map(function (beacon) {
@@ -1028,13 +1028,52 @@ router.post('/cards/bluetooth', function (req, res, next) {
 	}
 });
 
+router.post('/cards/qrCode', function (req, res, next) {
+	if (req.body.accessToken && req.body.qrString) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Shop.findOne({qrCode:req.body.qrString}, '_id business', function (err, foundShop) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundShop) {
+					return res.status(400).json({message: 'Incorrect QR Code.'});
+				}
+				Card.findOne({owner:userOne._id, business: foundShop._id},'_id exp cardImage business owner tier number valid usage')
+					.populate('business', '_id business').exec(function (err, foundCard) {
+		 			if (err) {
+				 		console.log(err);
+				 		return res.status(500).json(err);
+				 	} else if (!foundCard) {
+				 		return res.status(400).json({message: 'You have no membership yet.'});
+				 	} else {
+				 		console.log('found:'+foundCard);
+			 			return res.json({card:foundCard});
+				 	}
+
+			 		
+		 		});
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.post('/shops/bluetooth', function (req, res, next) {
 	if (req.body.accessToken && req.body.beacons) {
 		var accessToken = req.body.accessToken;
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
-				return res.status(500).json(err.toJSON());
+				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
 
@@ -1138,6 +1177,33 @@ router.post('/shops/bluetooth', function (req, res, next) {
 	}
 });
 
+router.post('/shops/qrCode', function (req, res, next) {
+	if (req.body.accessToken && req.body.qrString) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Shop.findOne({qrCode:req.body.qrString}, '_id business', function (err, foundShop) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundShop) {
+					return res.status(400).json({message: 'Incorrect QR Code.'});
+				}
+
+				return res.json({shop:foundShop});
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
@@ -1187,7 +1253,7 @@ function accessTokenValidation(accessToken, cb) {
 	var query = User.findById(user._id);
 	query.exec(function(err, userOne){
 		if (err) {
-			console.log(err.toJSON());
+			console.log(err);
 			cb(err, null);
 		}
 		if (!userOne) {cb(null,null);}

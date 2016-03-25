@@ -64,6 +64,8 @@ router.put('/:shopId', function (req, res, next) {
   	else req.shop.major = req.body.major;
   	if (!req.body.minor) { req.shop.minor = undefined;}
   	else req.shop.minor = req.body.minor;
+  	if (!req.body.qrCode) { req.shop.qrCode = undefined;}
+  	else req.shop.qrCode = req.body.qrCode;
   	console.log(req.shop);
 	req.shop.save(function (err, shop) {
 			// body...
