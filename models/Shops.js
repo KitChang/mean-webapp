@@ -8,7 +8,7 @@ var ShopSchema = new mongoose.Schema({
 	type: {
 		type: String,
 		required: true,
-		enum: ['餐飲','零售','服務','其他']
+		enum: ['餐飲','零售','服務','旅游','服裝','髮型','其他']
 	},
 	tierImages: {
 		type: [String],
@@ -43,6 +43,10 @@ var ShopSchema = new mongoose.Schema({
 	major: Number,
 	minor: Number,
 	qrCode: String,
+	admin: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	},
 	created: {
 		type: Date,
 		default: Date.now

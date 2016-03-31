@@ -3,17 +3,22 @@
 <head>
 	<meta charset="UTF-8">
 	<title>MEAN Web App</title>
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.11/css/jquery.dataTables.css">
 	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css"
   href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
   	<link rel="stylesheet" href="/stylesheets/custom.css">
+  	<script src="/javascripts/jquery-1.11.3.min.js"></script>
+  	<script src="/javascripts/jquery.dataTables.min.js"></script>
 	<script src="/javascripts/angular.min.js"></script>
-	<script src="/javascripts/jquery-1.11.3.min.js"></script>
+	<script src="/javascripts/angular-datatables.min.js"></script>
+	<link rel="stylesheet" href="/stylesheets/jquery.dataTables.min.css">
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/angularApp.js"></script>   
     <script src="/javascripts/property.js"></script> 
     <script src="/javascripts/shop.js"></script> 
+    <script src="/javascripts/card.js"></script> 
     <style> .glyphicon-thumbs-up { cursor:pointer } </style>
     <style type='text/css'>
 		.fa.form-control-feedback {<!--from   w w  w.  j av a 2  s .  com-->
@@ -43,7 +48,7 @@
 		</div>
 	    <ul class="nav navbar-nav navbar-nav-custom pull-right">
 	    	<li><a ui-sref="shopslist" ng-show="isAdmin()">Shop</a></li>
-	    	<li><a ui-sref="propertyslist">Property</a></li>
+	    	<li><a ui-sref="propertyslist" ng-show="isAdmin()">Property</a></li>
 	    	<li class="dropdown navbar-nav-custom" ng-show="isAdmin()">
 			  <a class="dropdown-toggle link-white" type="button" data-toggle="dropdown">Admin
 			  <span class="caret"></span></a>
@@ -53,8 +58,8 @@
 			    <li><a ui-sref="stopslist">Bus Stop</a></li>
 			  </ul>
 			</li>
-	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a href="/#/login" ng-click="logOut()">Log Out</a></li>
 	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
 	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
 	    </ul>

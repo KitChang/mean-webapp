@@ -134,7 +134,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 		    var token = auth.getToken();
 		    var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-		    return payload.username;
+		    return payload;
 		}
 	};
 
@@ -325,12 +325,15 @@ app.controller('MainCtrl',[
 .controller('NavCtrl', [
 	'$scope',
 	'auth',
-	function($scope, auth){
+	'users',
+	function($scope, auth, users){
 	  $scope.isLoggedIn = auth.isLoggedIn;
 	  $scope.isAdmin = auth.isAdmin;
 	  $scope.currentUser = auth.currentUser;
 	  $scope.logOut = auth.logOut;
 	  $scope.appTitle = 'MEAN Example Web';
+
+	  
 }])
 .controller('UserListCtrl', [
 	'$scope',
@@ -355,8 +358,8 @@ app.controller('MainCtrl',[
 	'users',
 	'usersinfo',
 	function ($scope, auth, users, usersinfo) {
+		console.log(shops);
 		$scope.usersinfo = usersinfo;
-
 		$scope.update = function () {
 			if ($scope.usersinfo.username === '' || !$scope.usersinfo.username) {return;}
 

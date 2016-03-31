@@ -1,0 +1,118 @@
+<div class="col-md-3 col-md-offset-1">
+	  <div class="page-header">
+	    <h1>Edit Card</h1>
+	  </div>
+
+	  <div ng-show="error" class="alert alert-danger row">
+	    <span>{{ error.message }}</span>
+	  </div>
+
+	  <form 
+	    style="margin-top:30px;">
+		
+	    <div class="form-group">
+	   	<label class="control-label" for="username">Username:</label>
+	      <input type="text"
+	      id="username"
+	      class="form-control"
+	      placeholder="owner"
+	      ng-model="card.owner.username" disabled></input>
+	    </div>
+	    <div class="form-group">
+	    <label class="control-label" for="number">Number:</label>
+	      <input type="text"
+	      id="number"
+	      class="form-control"
+	      placeholder="number"
+	      ng-model="card.number" disabled></input>
+	    </div>
+	    <div class="form-group">
+	    <label class="control-label" for="point">Point:</label>
+	      <input type="text"
+	      id="point"
+	      class="form-control"
+	      placeholder="point"
+	      ng-model="card.point" disabled></input>
+	    </div>
+	    <div class="form-group">
+	    <label class="control-label" for="tier">Tier:</label>
+	      <input type="text"
+	      id="tier"
+	      class="form-control"
+	      placeholder="tier"
+	      ng-model="card.tier" disabled></input>
+	      <button type="button" class="btn btn-success btn-sm" ng-click="tierUp()">
+	        <span class="glyphicon glyphicon-chevron-up"></span> 提升等級
+	      </button>
+	      <button type="button" class="btn btn-danger btn-sm" ng-click="tierDown()">
+	        <span class="glyphicon glyphicon-chevron-down"></span> 降低等級
+	      </button>
+	    </div>
+	    <div class="form-group">
+	    <label class="control-label" for="valid">valid:</label>
+	    	<div>
+
+	        <span ng-show="card.valid" class="glyphicon glyphicon-ok text-success">正式會員</span>
+			<span ng-hide="card.valid" class="glyphicon glyphicon-remove text-danger">等待驗證</span>
+			<button type="button" class="btn btn-success btn-sm" ng-click="validCard()" ng-hide="card.valid">
+	          <span class="glyphicon glyphicon-ok"></span> 成為正式會員
+	        </button>
+	        </div>
+	    </div>
+	    <button type="button" class="btn btn-info btn-sm" ng-click="toggleModal()">
+          <span class="glyphicon glyphicon-plus"></span> 增加積分
+        </button>
+        
+	  </form>
+
+	  <modal title="Gain Point" visible="showModal">
+	    <form ng-submit="gainPoint(point)">
+	      <div class="form-group">
+	        <label for="point">Gain Point</label>
+	        <input ng-model="point" type="text" class="form-control" id="point" placeholder="Gain Point" />
+	      </div>
+
+	      <button type="submit" class="btn btn-default">Submit</button>
+	    </form>
+	  </modal>
+</div>
+<div class="col-md-6 col-md-offset-1">
+	<div class="page-header">
+	    <h1>Logs</h1>
+	</div>
+	<div>
+		 <div class="input-group">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()" /> <span class="input-group-addon">
+		      <span class="glyphicon glyphicon-search"></span>
+				</span>
+        </div>
+		<table class="table table-striped" ng-init="init()">
+		    <thead>
+		      <tr>
+		      	<th><a ng-click="sort('created')" >時間</a></th>
+		      	<th><a ng-click="sort('action')" >動作</a></th>
+		      	<th><a ng-click="sort('detail')" >內容</a></th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="log in ItemsByPage[currentPage]">
+		      	<td>{{convertToDate(log.created) | date:'medium'}}</td>
+		      	<td ng-style="actionStyle">{{convertToAction(log.action)}}</td>
+		      	<td>{{log.detail}}</td>
+		      </tr>
+		    </tbody>
+		</table>
+		<ul class="pagination pagination-sm">
+            <li ng-class="{active:0}"><a ng-click="firstPage()">First</a>
+
+            </li>
+            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a>
+
+            </li>
+            <li><a ng-click="lastPage()">Last</a>
+
+            </li>
+        </ul>
+	</div>
+</div>
+

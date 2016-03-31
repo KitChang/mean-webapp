@@ -14,6 +14,7 @@ require('./models/Stops');
 require('./models/Propertys');
 require('./models/Shops');
 require('./models/Cards');
+require('./models/Logs');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 
@@ -23,6 +24,8 @@ var stops = require('./routes/stops');
 var propertys = require('./routes/propertys');
 var api = require('./routes/api');
 var shops = require('./routes/shops');
+var cards = require('./routes/cards');
+var logs = require('./routes/logs');
 
 var app = express();
 
@@ -45,6 +48,8 @@ app.use('/users', users);
 app.use('/stops', stops);
 app.use('/propertys', propertys);
 app.use('/shops', shops);
+app.use('/cards', cards);
+app.use('/logs', logs);
 app.use('/api', api);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

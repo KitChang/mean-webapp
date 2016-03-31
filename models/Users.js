@@ -58,7 +58,11 @@ var UserSchema = new mongoose.Schema({
   cards: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card'
-  }]
+  }],
+  business: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Shop'
+  }
 });
 
 UserSchema.methods.setPassword = function(password){
@@ -84,6 +88,7 @@ UserSchema.methods.generateJWT = function() {
     _id: this._id,
     roles: this.roles,
     username: this.username,
+    business: this.business,
     exp: parseInt(exp.getTime() / 1000),
   }, config.secret);
 };

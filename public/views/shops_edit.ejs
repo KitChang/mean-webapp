@@ -1,5 +1,5 @@
-<div class="col-md-6 col-md-offset-3">
-	  <div class="page-header text-contrast">
+<div class="col-md-3">
+	  <div class="page-header">
 	    <h1>Edit Shop</h1>
 	  </div>
 
@@ -46,6 +46,53 @@
 	      placeholder="QR Code"
 	      ng-model="shop.qrCode"></input>
 	    </div>
+	    <div class="form-group">
+	      <select class="form-control" id="admin"
+	      ng-model="shop.admin" ng-options="admin._id as admin.username for admin in admins">
+	      	<option value="" selected>選擇管理員</option>
+	      </select>
+	    </div>
 	    <div><button type="submit" class="btn btn-primary">Edit</button></div>
 	  </form>
+</div>
+<div class="col-md-9">
+	<div class="page-header">
+	    <h1>Members</h1>
+	</div>
+	<div>
+		<table class="table table-striped" ng-init="init()">
+		    <thead>
+		      <tr>
+		      	<th><a ng-click="sort('owner.username')" >名稱</a></th>
+		      	<th><a ng-click="sort('number')" >會員編號</a></th>
+		      	<th><a ng-click="sort('tier')" >會員級別</a></th>
+		      	<th><a ng-click="sort('valid')" >正式會員</a></th>
+		      	<th><a ng-click="sort('point')" >積分</a></th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="member in shop.members">
+		      	<td><a ui-sref="cardsedit({cardId:'{{member._id}}'})">{{member.owner.username}}</a></td>
+		      	<td>{{member.number}}</td>
+		      	<td>{{member.tier}}</td>
+		      	<td>
+			       	<span ng-show="{{member.valid}}" class="glyphicon glyphicon-ok text-success"></span>
+			        <span ng-hide="{{member.valid}}" class="glyphicon glyphicon-remove text-danger"></span>
+			    </td>
+		      	<td>{{member.point}}</td>
+		      </tr>
+		    </tbody>
+		</table>
+		<ul class="pagination pagination-sm">
+            <li ng-class="{active:0}"><a ng-click="firstPage()">First</a>
+
+            </li>
+            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a>
+
+            </li>
+            <li><a ng-click="lastPage()">Last</a>
+
+            </li>
+        </ul>
+	</div>
 </div>

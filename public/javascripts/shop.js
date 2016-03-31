@@ -37,6 +37,10 @@ function($stateProvider, $urlRouterProvider) {
 			templateUrl: 'views/shops_edit.ejs',
 			controller: 'ShopEditCtrl',
 			resolve: {
+				shopPromise : ['shops', function (shops) {
+					console.log('getAdmins');
+					return shops.getAdmins();
+				}],
 				shopinfo: ['$stateParams', 'shops', function($stateParams, shops){
 					console.log('edit: '+$stateParams.shopId);
 					return shops.get($stateParams.shopId);
@@ -46,7 +50,8 @@ function($stateProvider, $urlRouterProvider) {
 }]);
 shop.factory('shops', ['$state', '$http', 'auth', function ($state, $http, auth) {
 	var oShops = {
-		shops: []
+		shops: [],
+		admins: []
 	};
 
 	oShops.get = function (id) {
@@ -60,6 +65,14 @@ shop.factory('shops', ['$state', '$http', 'auth', function ($state, $http, auth)
 			headers: {Authorization: 'Bearer '+auth.getToken()}}).success(function (data) {
 			// body...
 			angular.copy(data, oShops.shops);
+		});
+	};
+	oShops.getAdmins = function () {
+		return $http.get('/users',{
+			headers: {Authorization: 'Bearer '+auth.getToken()}}).success(function (data) {
+			// body...
+
+			angular.copy(data, oShops.admins);
 		});
 	};
 	oShops.create = function (shop) {
@@ -132,6 +145,74 @@ shop.controller('ShopCtrl', [
 		$scope.shop = shopinfo;
 		$scope.types = types.types;
 		$scope.regions = regions.regions;
+		$scope.admins = shops.admins;
+		$scope.showModal = false;
+	    $scope.toggleModal = function(){
+	        $scope.showModal = !$scope.showModal;
+	    };
+
+	    //Pagination Table
+		$scope.currentPage = 0;
+	    $scope.pageSize = 10;
+    	$scope.allItems = shopinfo.members;
+    	$scope.reverse = false;
+
+    	$scope.init = function () {
+    		$scope.search();
+    	}
+
+    	$scope.search = function () {
+    		console.log('search'); 
+	        $scope.filteredList = $scope.allItems;
+	        
+	        if ($scope.searchText == '') {
+	            $scope.filteredList = $scope.allItems;
+	        }
+	        $scope.pagination(); 
+	    }
+
+    	$scope.resetAll = function () {
+	        $scope.filteredList = $scope.allItems;
+	        $scope.searchText = '';
+	        $scope.currentPage = 0;
+	        $scope.Header = ['','',''];
+	    }
+
+	    $scope.pagination = function () {
+	        $scope.ItemsByPage = paged( $scope.allItems, $scope.pageSize );  
+	        console.log($scope.ItemsByPage);       
+	    };
+
+	    $scope.setPage = function () {
+	        $scope.currentPage = this.n;
+	    };
+
+	    $scope.firstPage = function () {
+	        $scope.currentPage = 0;
+	    };
+
+	    $scope.lastPage = function () {
+	        $scope.currentPage = $scope.ItemsByPage.length - 1;
+	    };
+
+	    $scope.range = function (input, total) {
+	        var ret = [];
+	        if (!total) {
+	            total = input;
+	            input = 0;
+	        }
+	        console.log("total:"+total);
+	        for (var i = input; i < total; i++) {
+	            if (i != 0 && i != total - 1) {
+	                ret.push(i);
+	            }
+	        }
+	        console.log("ret:"+ret);
+	        return ret;
+	    };
+		//Pagination Table
+
+		console.log(shopinfo);
 		var selectedRegion = regions.regions.filter(function (obj) {
 				return obj.name == $scope.shop.region;
 			})[0];
@@ -149,6 +230,21 @@ shop.controller('ShopCtrl', [
 				$scope.error = err;
 			});
 		};
+
 }]);
+//Pagination table
+function paged (valLists,pageSize)
+{
+    retVal = [];
+    for (var i = 0; i < valLists.length; i++) {
+        if (i % pageSize === 0) {
+            retVal[Math.floor(i / pageSize)] = [valLists[i]];
+        } else {
+            retVal[Math.floor(i / pageSize)].push(valLists[i]);
+        }
+    }
+    return retVal;
+};
+//Pagination table
 
 angular.module('meanWebApp').requires.push('shop');

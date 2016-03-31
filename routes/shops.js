@@ -11,7 +11,7 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userShop: 'payload'});
 
 router.param('shopId', function(req, res, next, shopId) {
-	var query = Shop.findById(shopId);
+	var query = Shop.findById(shopId).populate({path:'members', select:'_id owner tier valid number point', populate:{path: 'owner', select:'_id username', model:'User'}});
 	query.exec(function(err, shop){
 		if (err) {return next(err);}
 		if (!shop) {return next(new Error('cannot find shopInfo'));}
@@ -66,13 +66,30 @@ router.put('/:shopId', function (req, res, next) {
   	else req.shop.minor = req.body.minor;
   	if (!req.body.qrCode) { req.shop.qrCode = undefined;}
   	else req.shop.qrCode = req.body.qrCode;
+  	if (!req.body.admin) { req.shop.admin = undefined;}
+  	else req.shop.admin = req.body.admin;
   	console.log(req.shop);
 	req.shop.save(function (err, shop) {
 			// body...
-			if (err) {
-				console.log(err);
-				return next(err);}
-			return res.json(shop);
+		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		if (shop.admin) {
+			User.findById(shop.admin).exec(function (err, foundUser) {
+				if (err) {
+					console.log(err);
+				}
+				console.log(foundUser);
+				foundUser.business = shop._id;
+				foundUser.save(function (err, savedUser) {
+					if (err) {
+						console.log(err);
+					}
+				});
+			});
+		}
+		return res.json(shop);
 	});	
 		
 	

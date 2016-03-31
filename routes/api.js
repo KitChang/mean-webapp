@@ -918,6 +918,10 @@ router.post('/cards/apply', function (req, res, next) {
 									console.log(err);
 									return res.status(500).json(err);
 								}
+								foundShop.members.push(savedCard);
+								foundShop.save(function (err, savedShop) {
+									// body...
+								});
 								var business = {};
 								business.id = savedShop._id;
 								business.business = savedShop.business;
@@ -1067,6 +1071,89 @@ router.post('/cards/qrCode', function (req, res, next) {
 	}
 });
 
+router.post('/cards/point/gain', function (req, res, next) {
+	if (req.body.accessToken && req.body.cardId && req.body.point) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Card.findById(req.body.cardId).exec(function (err, foundCard) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				} else if (!foundCard) {
+					return res.status(400).json({message: 'You have no membership yet.'});
+				} else if (foundCard.business.toString() != userOne.business.toString()) {
+					return res.status(400).json({message: 'You are not business of this card.'});
+				} else {
+					foundCard.point += parseInt(req.body.point, 10);
+					foundCard.save(function (err, savedCard) {
+						if (err) {
+							console.log(err);
+							return res.status(500).json(err);
+						} else {
+							return res.json({message: 'Gain point success.', gainPoint: req.body.point, totalPoint: savedCard.point.toString()});
+						}
+
+					});
+				}
+
+			});
+
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/cards/point/redeem', function (req, res, next) {
+	if (req.body.accessToken && req.body.cardId && req.body.point) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Card.findById(req.body.cardId).exec(function (err, foundCard) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				} else if (!foundCard) {
+					return res.status(400).json({message: 'You have no membership yet.'});
+				} else if (foundCard.owner.toString() != userOne._id) {
+					return res.status(400).json({message: 'You are no owner of this card.'});
+				} else {
+					if (foundCard.point < parseInt(req.body.point, 10)) {
+						return res.status(400).json({message: 'Card do not have enough points.'});
+					} else {
+						foundCard.point -= parseInt(req.body.point, 10);
+						foundCard.save(function (err, savedCard) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json(err);
+							} else {
+								return res.json({message: 'Gain point success.', redeemPoint: req.body.point, totalPoint: savedCard.point.toString()});
+							}
+
+						});
+					}
+					
+				}
+
+			});
+
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.post('/shops/bluetooth', function (req, res, next) {
 	if (req.body.accessToken && req.body.beacons) {
 		var accessToken = req.body.accessToken;
@@ -1130,7 +1217,7 @@ router.post('/shops/bluetooth', function (req, res, next) {
 					 		console.log('no found');
 					 		findEmitter.emit('done', beacon,result);
 					 	} else {
-					 		var result = {id: foundShop._id, business: foundShop.business};
+					 		var result = {_id: foundShop._id, business: foundShop.business};
 						 	console.log('found:'+result);
 						 	findEmitter.emit('done', beacon,result);
 					 	}
