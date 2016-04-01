@@ -60,6 +60,11 @@
 	    <h1>Members</h1>
 	</div>
 	<div>
+		<div class="input-group">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search"/> <span class="input-group-addon">
+			      <span class="glyphicon glyphicon-search"></span>
+			</span>
+        </div>
 		<table class="table table-striped" ng-init="init()">
 		    <thead>
 		      <tr>
@@ -71,7 +76,7 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-		      <tr ng-repeat="member in shop.members | orderBy:columnToOrder:reverse">
+		      <tr ng-repeat="member in shop.members | orderBy:columnToOrder:reverse | filter:searchText">
 		      	<td><a ui-sref="cardsedit({cardId:'{{member._id}}'})">{{member.owner.username}}</a></td>
 		      	<td>{{member.number}}</td>
 		      	<td>{{member.tier}}</td>

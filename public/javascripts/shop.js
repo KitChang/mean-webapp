@@ -159,7 +159,7 @@ shop.controller('ShopCtrl', [
     	$scope.reverse = false;
 
     	$scope.init = function () {
-    		$scope.search();
+    		$scope.sort('owner.username');
     	}
 
     	$scope.search = function () {
@@ -202,13 +202,11 @@ shop.controller('ShopCtrl', [
 	            total = input;
 	            input = 0;
 	        }
-	        console.log("total:"+total);
 	        for (var i = input; i < total; i++) {
 	            if (i != 0 && i != total - 1) {
 	                ret.push(i);
 	            }
 	        }
-	        console.log("ret:"+ret);
 	        return ret;
 	    };
 
@@ -267,6 +265,8 @@ shop.controller('ShopCtrl', [
 
 }]);
 //Pagination table
+
+
 function paged (valLists,pageSize)
 {
     retVal = [];
@@ -279,6 +279,11 @@ function paged (valLists,pageSize)
     }
     return retVal;
 };
+
+function searchUtil(item, toSearch) {
+    /* Search Text in all 3 fields */
+    return (item.owner.username.toLowerCase().indexOf(toSearch.toLowerCase()) > -1) ? true : false;
+}
 //Pagination table
 
 angular.module('meanWebApp').requires.push('shop');
