@@ -141,7 +141,8 @@ shop.controller('ShopCtrl', [
 	'shops',
 	'shopinfo',
 	'types',
-	function ($scope, $state, auth, regions, shops, shopinfo, types) {
+	'$filter',
+	function ($scope, $state, auth, regions, shops, shopinfo, types, $filter) {
 		$scope.shop = shopinfo;
 		$scope.types = types.types;
 		$scope.regions = regions.regions;
@@ -179,7 +180,7 @@ shop.controller('ShopCtrl', [
 	    }
 
 	    $scope.pagination = function () {
-	        $scope.ItemsByPage = paged( $scope.allItems, $scope.pageSize );  
+	        $scope.ItemsByPage = paged( $scope.filteredList, $scope.pageSize );  
 	        console.log($scope.ItemsByPage);       
 	    };
 
@@ -209,6 +210,39 @@ shop.controller('ShopCtrl', [
 	        }
 	        console.log("ret:"+ret);
 	        return ret;
+	    };
+
+	    $scope.sort = function(sortBy){
+	        $scope.resetAll();  
+	        
+	        $scope.columnToOrder = sortBy; 
+	             
+	        //$Filter - Standard Service
+	        $scope.filteredList = $filter('orderBy')($scope.filteredList, $scope.columnToOrder, $scope.reverse); 
+
+	        if($scope.reverse)
+	             iconName = 'glyphicon glyphicon-chevron-up';
+	         else
+	             iconName = 'glyphicon glyphicon-chevron-down';
+	              
+	        if(sortBy === 'owner.username')
+	        {
+	            $scope.Header[0] = iconName;
+	        }
+	        else if(sortBy === 'number')
+	        {
+	            $scope.Header[1] = iconName;
+	        }else if(sortBy === 'tier'){
+	            $scope.Header[2] = iconName;
+	        } else if(sortBy === 'valid'){
+	            $scope.Header[3] = iconName;
+	        } else if(sortBy === 'point'){
+	            $scope.Header[4] = iconName;
+	        }
+	         
+	        $scope.reverse = !$scope.reverse;   
+	        
+	        $scope.pagination();    
 	    };
 		//Pagination Table
 

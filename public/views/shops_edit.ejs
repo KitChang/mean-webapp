@@ -63,15 +63,15 @@
 		<table class="table table-striped" ng-init="init()">
 		    <thead>
 		      <tr>
-		      	<th><a ng-click="sort('owner.username')" >名稱</a></th>
-		      	<th><a ng-click="sort('number')" >會員編號</a></th>
-		      	<th><a ng-click="sort('tier')" >會員級別</a></th>
-		      	<th><a ng-click="sort('valid')" >正式會員</a></th>
-		      	<th><a ng-click="sort('point')" >積分</a></th>
+		      	<th class="owner.username"><a ng-click="sort('owner.username')" >名稱<span class="{{Header[0]}}"></a></th>
+		      	<th class="number"><a ng-click="sort('number')" >會員編號<span class="{{Header[1]}}"></a></th>
+		      	<th class="tier"><a ng-click="sort('tier')" >會員級別<span class="{{Header[2]}}"></a></th>
+		      	<th class="valid"><a ng-click="sort('valid')" >正式會員<span class="{{Header[3]}}"></a></th>
+		      	<th class="point"><a ng-click="sort('point')" >積分<span class="{{Header[4]}}"></a></th>
 		      </tr>
 		    </thead>
 		    <tbody>
-		      <tr ng-repeat="member in shop.members">
+		      <tr ng-repeat="member in shop.members | orderBy:columnToOrder:reverse">
 		      	<td><a ui-sref="cardsedit({cardId:'{{member._id}}'})">{{member.owner.username}}</a></td>
 		      	<td>{{member.number}}</td>
 		      	<td>{{member.tier}}</td>
