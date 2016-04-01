@@ -227,6 +227,8 @@ card.controller('CardCtrl', [
 	        console.log("ret:"+ret);
 	        return ret;
 	    };
+
+	   
 		//Pagination Table
 
 		console.log(cardinfo);

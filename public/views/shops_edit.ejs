@@ -1,4 +1,4 @@
-<div class="col-md-3">
+<div class="col-md-2 col-md-offset-1">
 	  <div class="page-header">
 	    <h1>Edit Shop</h1>
 	  </div>
@@ -28,25 +28,25 @@
 	      	<option value="" selected>選擇地區</option>
 	      </select>
 	    </div>
-	    <div class="form-group">
+	    <div ng-show="isAdmin()" class="form-group">
 	      <input type="text"
 	      class="form-control"
 	      placeholder="major"
 	      ng-model="shop.major"></input>
 	    </div>
-	    <div class="form-group">
+	    <div ng-show="isAdmin()" class="form-group">
 	      <input type="text"
 	      class="form-control"
 	      placeholder="minor"
 	      ng-model="shop.minor"></input>
 	    </div>
-	    <div class="form-group">
+	    <div ng-show="isAdmin()" class="form-group">
 	      <input type="text"
 	      class="form-control"
 	      placeholder="QR Code"
 	      ng-model="shop.qrCode"></input>
 	    </div>
-	    <div class="form-group">
+	    <div ng-show="isAdmin()" class="form-group">
 	      <select class="form-control" id="admin"
 	      ng-model="shop.admin" ng-options="admin._id as admin.username for admin in admins">
 	      	<option value="" selected>選擇管理員</option>
@@ -55,7 +55,7 @@
 	    <div><button type="submit" class="btn btn-primary">Edit</button></div>
 	  </form>
 </div>
-<div class="col-md-9">
+<div class="col-md-7 col-md-offset-1">
 	<div class="page-header">
 	    <h1>Members</h1>
 	</div>
@@ -76,7 +76,7 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-		      <tr ng-repeat="member in shop.members | orderBy:columnToOrder:reverse | filter:searchText">
+		      <tr ng-repeat="member in shop.members | orderBy:columnToOrder:reverse | filter:filterExp(searchText):false">
 		      	<td><a ui-sref="cardsedit({cardId:'{{member._id}}'})">{{member.owner.username}}</a></td>
 		      	<td>{{member.number}}</td>
 		      	<td>{{member.tier}}</td>

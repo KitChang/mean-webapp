@@ -84,7 +84,7 @@ shop.factory('shops', ['$state', '$http', 'auth', function ($state, $http, auth)
 	oShops.update = function (shop) {
 		console.log(shop);
 		return $http.put('/shops/'+shop._id, shop).success(function (data) {
-			$state.go('shopslist');
+			alert("修改成功");
 		});
 	};
 	oShops.remove = function (shopId) {
@@ -143,6 +143,7 @@ shop.controller('ShopCtrl', [
 	'types',
 	'$filter',
 	function ($scope, $state, auth, regions, shops, shopinfo, types, $filter) {
+		$scope.isAdmin = auth.isAdmin;
 		$scope.shop = shopinfo;
 		$scope.types = types.types;
 		$scope.regions = regions.regions;
@@ -242,6 +243,12 @@ shop.controller('ShopCtrl', [
 	        
 	        $scope.pagination();    
 	    };
+
+	    $scope.filterExp = function (searchText) {
+	    	return function(member, index) {
+			    return (member.owner.username.indexOf(searchText) > -1 || member.number.indexOf(searchText) > -1)
+			  };
+	    }
 		//Pagination Table
 
 		console.log(shopinfo);
