@@ -58,7 +58,8 @@
 			    <li><a ui-sref="stopslist">Bus Stop</a></li>
 			  </ul>
 			</li>
-	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+	      	<li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="eventslist({shopId:'{{currentUser().business}}'})">所有活動</a></li>
 	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a href="/#/login" ng-click="logOut()">Log Out</a></li>
 	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
 	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>

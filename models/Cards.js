@@ -16,11 +16,13 @@ var CardSchema = new mongoose.Schema({
 	},
 	business: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Shop'
+		ref: 'Shop',
+		required: true
 	},
 	owner: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
 	},
 	tier: {
 		type: String,

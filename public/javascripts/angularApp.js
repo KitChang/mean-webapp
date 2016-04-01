@@ -129,6 +129,24 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	  	}
 	};
 
+	auth.isClient = function () {
+		var token = auth.getToken();
+
+	  	if(token){
+	  		if (auth.isLoggedIn()) {
+	  			var payload = JSON.parse($window.atob(token.split('.')[1]));
+	    		//console.log(payload.roles.indexOf('admin'));
+	    		return payload.roles.indexOf('client') != -1;
+	  		}
+	  		else {
+	  			return false;
+	  		}
+	    	
+	  	} else {
+	    	return false;
+	  	}	
+	};
+
 	auth.currentUser = function(){
 		if(auth.isLoggedIn()){
 		    var token = auth.getToken();
@@ -333,6 +351,7 @@ app.controller('MainCtrl',[
 	function($scope, auth, users){
 	  $scope.isLoggedIn = auth.isLoggedIn;
 	  $scope.isAdmin = auth.isAdmin;
+	  $scope.isClient = auth.isClient;
 	  $scope.currentUser = auth.currentUser;
 	  $scope.logOut = auth.logOut;
 	  $scope.appTitle = 'MEAN Example Web';
