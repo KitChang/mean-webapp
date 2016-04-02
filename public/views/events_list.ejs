@@ -1,0 +1,27 @@
+<div>
+		<div class="text-contrast page-header">
+	    	<h1>Shop List</h1>
+	    	<a ui-sref="eventscreate" role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right"></a>
+	  	</div>
+	  	<div>
+			<table class="table table-striped">
+			    <thead>
+			      <tr>
+			      	<th>標題</th>
+			        <th>內容</th>
+			      </tr>
+			    </thead>
+			    <tbody>
+			      <tr  ng-repeat="event in events">
+			      	<td><a href="#">{{event.title}}</a></td>
+			        <td>{{event.detail}}</td>
+			        <td>
+			        	<a ui-sref="eventsedit({eventId:'{{event._id}}'})" role="button" class="btn btn-info">Edit</a>
+			        	<a role="button" class="btn btn-danger" ng-click="remove(event._id);">Delete</a></td>
+			        </td>
+			      </tr>
+			    </tbody>
+			</table>
+		</div>
+
+	</div>	

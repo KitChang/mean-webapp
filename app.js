@@ -15,6 +15,7 @@ require('./models/Propertys');
 require('./models/Shops');
 require('./models/Cards');
 require('./models/Logs');
+require('./models/Events');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 
@@ -26,7 +27,7 @@ var api = require('./routes/api');
 var shops = require('./routes/shops');
 var cards = require('./routes/cards');
 var logs = require('./routes/logs');
-
+var events = require('./routes/events');
 var app = express();
 
 // view engine setup
@@ -50,6 +51,7 @@ app.use('/propertys', propertys);
 app.use('/shops', shops);
 app.use('/cards', cards);
 app.use('/logs', logs);
+app.use('/events', events);
 app.use('/api', api);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
