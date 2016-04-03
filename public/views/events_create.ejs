@@ -22,6 +22,36 @@
 	      placeholder="layout"
 	      ng-model="event.detail"></input>
 	    </div>
+	    <p class="input-group">
+          <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="event.publishDate" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+        <p class="input-group">
+          <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="event.invalidate" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+        <div class="form-group">
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Link"
+	      ng-model="event.link"></input>
+	    </div>
+	    <!-- Split button -->
+	    <div class="btn-group" uib-dropdown>
+	      <button id="split-button" type="button" class="btn btn-danger">發佈</button>
+	      <button type="button" class="btn btn-danger" uib-dropdown-toggle>
+	        <span class="caret"></span>
+	        <span class="sr-only">Split button!</span>
+	      </button>
+	      <ul uib-dropdown-menu role="menu" aria-labelledby="split-button">
+	        <li role="menuitem"><a role="button" type="submit">發佈</a></li>
+	        <li role="menuitem"><a role="button" type="submit">草稿</a></li>
+	      </ul>
+	    </div>
 	    <div><button type="submit" class="btn btn-primary">Create</button></div>
 	  </form>
 </div>

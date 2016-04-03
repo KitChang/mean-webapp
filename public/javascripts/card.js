@@ -1,4 +1,4 @@
-var card = angular.module('card',['ui.router','datatables']);
+var card = angular.module('card',['ui.router']);
 
 card.config([
 '$stateProvider',

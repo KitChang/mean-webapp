@@ -14,10 +14,10 @@ var EventSchema = new mongoose.Schema({
 		ref: 'Shop',
 		required: true
 	},
-	validDate: {
+	publishDate: {
 		type: Date
 	},
-	invalidDate: {
+	invalidate: {
 		type: Date
 	},
 	link: {
@@ -30,6 +30,10 @@ var EventSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
+	published: {
+		type: Boolean,
+		default: false
+	},
 	created: {
 		type: Date,
 		default: Date.now

@@ -1,4 +1,4 @@
-var event = angular.module('event',['ui.router']);
+var event = angular.module('event',['ui.router','ui.bootstrap']);
 
 event.config([
 '$stateProvider',
@@ -91,8 +91,8 @@ event.controller('EventCtrl', [
 	'auth',
 	'events',
 	function ($scope, $state, auth, events) {
-		$scope.regions = regions.regions;
 		$scope.events = events.events;
+		$scope.event = {};
 		$scope.create = function () {
 
 			if (!$scope.event || !$scope.event.title ||
@@ -111,7 +111,55 @@ event.controller('EventCtrl', [
 				$scope.error = err;
 			});
 		};
-		
+		//datepicker
+		$scope.today = function() {
+			var today = new Date();
+		    $scope.event.publishDate = today;
+		    var exp = new Date();
+		    $scope.event.invalidate = exp.setDate(exp.getDate()+365);
+		  };
+		  $scope.today();
+
+		  $scope.clear = function() {
+		    $scope.validate = null;
+		    $scope.invalidate = null;
+		  };
+
+		  $scope.dateOptions = {
+		    dateDisabled: disabled,
+		    formatYear: 'yy',
+		    maxDate: new Date(2020, 5, 22),
+		    minDate: new Date(),
+		    startingDay: 1
+		  };
+
+		  // Disable weekend selection
+		  function disabled(data) {
+		    var date = data.date,
+		      mode = data.mode;
+		    return mode === 'day' && (date.getDay() === 0 && date.getDay() === 6);
+		  }
+
+		  $scope.open1 = function() {
+		    $scope.popup1.opened = true;
+		  };
+
+		  $scope.open2 = function() {
+		    $scope.popup2.opened = true;
+		  };
+
+		  $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+		  $scope.format = $scope.formats[0];
+		  $scope.altInputFormats = ['M!/d!/yyyy'];
+
+		  $scope.popup1 = {
+		    opened: false
+		  };
+
+		  $scope.popup2 = {
+		    opened: false
+		  };
+		//datepicker
 }])
 .controller('EventEditCtrl', [
 	'$scope',

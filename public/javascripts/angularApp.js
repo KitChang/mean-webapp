@@ -1,4 +1,4 @@
-var app = angular.module('meanWebApp',['ui.router']);
+var app = angular.module('meanWebApp',['ui.router','ui.bootstrap']);
 
 app.config([
 '$stateProvider',

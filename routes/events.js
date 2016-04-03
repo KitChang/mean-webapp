@@ -44,21 +44,22 @@ router.post('/', function (req, res, next) {
 	if(!req.body.title || !req.body.detail || !req.body.business){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
+  console.log(req.body);
 	var event = new Event(req.body);
-	if (!req.body.validDate) { 
+	if (!req.body.publishDate) { 
   		var today = new Date();
 		today.setHours(0,0,0,0);
-  		req.event.validDate = today;
+  		event.publishDate = today;
   	}
-  	else req.event.validDate = new Date(req.body.validDate);
-  	if (!req.body.invalidDate) { 
+  	else event.publishDate = new Date(req.body.publishDate);
+  	if (!req.body.invalidate) { 
   		var today = new Date();
 		today.setHours(0,0,0,0);
 		var exp = new Date(today);
 		exp.setDate(today.getDate() + 365);
-  		req.event.invalidDate = exp;
+  		event.invalidate = exp;
   	}
-  	else req.event.invalidDate = new Date(req.body.invalidDate);
+  	else event.invalidate = new Date(req.body.invalidate);
 	console.log(event);
 	event.save(function (err, event) {
 		if (err) {return next(err);}
@@ -75,20 +76,20 @@ router.put('/:eventId', function (req, res, next) {
   	req.event.title = req.body.title;
   	req.event.detail = req.body.detail;
   	req.event.business = req.body.business;
-  	if (!req.body.validDate) { 
+  	if (!req.body.publishDate) { 
   		var today = new Date();
 		today.setHours(0,0,0,0);
-  		req.event.validDate = today;
+  		req.event.publishDate = today;
   	}
-  	else req.event.validDate = new Date(req.body.validDate);
-  	if (!req.body.invalidDate) { 
+  	else req.event.publishDate = new Date(req.body.publishDate);
+  	if (!req.body.invalidate) { 
   		var today = new Date();
 		today.setHours(0,0,0,0);
 		var exp = new Date(today);
 		exp.setDate(today.getDate() + 365);
-  		req.event.invalidDate = exp;
+  		req.event.invalidate = exp;
   	}
-  	else req.event.invalidDate = new Date(req.body.invalidDate);
+  	else req.event.invalidate = new Date(req.body.invalidate);
 
   	console.log(req.event);
 	req.event.save(function (err, event) {
