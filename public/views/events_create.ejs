@@ -40,16 +40,44 @@
 	      placeholder="Link"
 	      ng-model="event.link"></input>
 	    </div>
+		<div>
+			<table class="table">
+			    <tbody>
+			      <tr ng-repeat="image in event.imageUrl track by $index">
+			      	<td><img width="20%" src="http://localhost/upload/{{image}}" alt=""></td>
+			        <td>
+			        	<a role="button" class="btn btn-danger" ng-click="removeImage($index)">Delete</a></td>
+			        </td>
+			      </tr>
+			    </tbody>
+			</table>
+		</div>
+	    watching model:
+	    <div class="button" ngf-select ng-model="file" ngf-multiple="false">Select File</div>
+	    on file change multiple:
+	    <div class="button" ngf-select="upload($files)" ngf-multiple="true">Select File</div>
+	    Drop File:
+	    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+	        ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+	        accept="image/*,application/pdf" 
+	        ngf-pattern="'image/*,application/pdf'">Drop pdfs or images here or click to upload</div>
+	    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+	    Files:
+	    <ul>
+	        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+	    </ul>
+	    Upload Log:
+	    <pre>{{log}}</pre>
 	    <!-- Split button -->
 	    <div class="btn-group" uib-dropdown>
-	      <button id="split-button" type="button" class="btn btn-danger">發佈</button>
+	      <button id="split-button" type="submit" class="btn btn-danger" ng-click="event.publish=true">發佈</button>
 	      <button type="button" class="btn btn-danger" uib-dropdown-toggle>
 	        <span class="caret"></span>
 	        <span class="sr-only">Split button!</span>
 	      </button>
 	      <ul uib-dropdown-menu role="menu" aria-labelledby="split-button">
-	        <li role="menuitem"><a role="button" type="submit">發佈</a></li>
-	        <li role="menuitem"><a role="button" type="submit">草稿</a></li>
+	        <li role="menuitem"><a ng-click="event.publish=true;create()">發佈</a></li>
+	        <li role="menuitem"><a ng-click="event.publish=false;create()">草稿</a></li>
 	      </ul>
 	    </div>
 	    <div><button type="submit" class="btn btn-primary">Create</button></div>

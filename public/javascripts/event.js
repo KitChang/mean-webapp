@@ -1,4 +1,4 @@
-var event = angular.module('event',['ui.router','ui.bootstrap']);
+var event = angular.module('event',['ui.router','ui.bootstrap','ngFileUpload']);
 
 event.config([
 '$stateProvider',
@@ -90,9 +90,11 @@ event.controller('EventCtrl', [
 	'$state',
 	'auth',
 	'events',
-	function ($scope, $state, auth, events) {
+	'Upload', '$timeout',
+	function ($scope, $state, auth, events, Upload, $timeout) {
 		$scope.events = events.events;
 		$scope.event = {};
+		$scope.event.imageUrl = [];
 		$scope.create = function () {
 
 			if (!$scope.event || !$scope.event.title ||
@@ -111,6 +113,10 @@ event.controller('EventCtrl', [
 				$scope.error = err;
 			});
 		};
+		$scope.removeImage = function (index) {
+			$scope.event.imageUrl.splice(index, 1);
+			console.log(index);
+		}
 		//datepicker
 		$scope.today = function() {
 			var today = new Date();
@@ -160,6 +166,48 @@ event.controller('EventCtrl', [
 		    opened: false
 		  };
 		//datepicker
+		//image upload
+		$scope.$watch('files', function () {
+	        $scope.upload($scope.files);
+	    });
+	    $scope.$watch('file', function () {
+	        if ($scope.file != null) {
+	            $scope.files = [$scope.file]; 
+	        }
+	    });
+	    $scope.log = '';
+
+	    $scope.upload = function (files) {
+	        if (files && files.length) {
+	            for (var i = 0; i < files.length; i++) {
+	              var file = files[i];
+	              if (!file.$error) {
+	                Upload.upload({
+	                    url: 'http://localhost/upload',
+	                    data: {
+	                    	channel: '123',
+	                    	file: file  
+	                    }
+	                }).then(function (resp) {
+	                    $timeout(function() {
+	                        $scope.log = 'file: ' +
+	                        resp.config.data.file.name +
+	                        ', Response: ' + JSON.stringify(resp.data) +
+	                        '\n' + $scope.log;
+	                    });
+	                    console.log(resp.data);
+	                    $scope.event.imageUrl.push(resp.data.file.filename);
+	                }, null, function (evt) {
+	                    var progressPercentage = parseInt(100.0 *
+	                    		evt.loaded / evt.total);
+	                    $scope.log = 'progress: ' + progressPercentage + 
+	                    	'% ' + evt.config.data.file.name + '\n' + 
+	                      $scope.log;
+	                });
+	              }
+	            }
+	        }
+	    };
 }])
 .controller('EventEditCtrl', [
 	'$scope',

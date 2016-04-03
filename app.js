@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 var config = require('./config/env');
 var mongoose = require('mongoose');
 var passport = require('passport');
+var Upload = require('upload-file');
+
 require('./models/Users');
 require('./config/passport');
 require('./models/Stops');
@@ -53,6 +55,35 @@ app.use('/cards', cards);
 app.use('/logs', logs);
 app.use('/events', events);
 app.use('/api', api);
+
+app.post('/upload', function(req, res) {
+   var upload = new Upload({
+    dest: 'public/upload/',
+    maxFileSize: 1000 * 1024,
+    acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+    rename: function(name, file) {
+      console.log(this.fields);
+      return file.filename;
+    }
+  });
+ 
+  upload.on('end', function(fields, files) {
+    console.log(fields);
+    console.log(files);
+    if (!fields.channel) {
+      this.cleanup();
+      this.error('Channel can not be empty');
+      return;
+    }
+    res.json(files);
+  });
+ 
+  upload.on('error', function(err) {
+    res.send(err);
+  });
+ 
+  upload.parse(req);
+ })
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

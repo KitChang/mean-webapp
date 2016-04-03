@@ -1,4 +1,4 @@
-var app = angular.module('meanWebApp',['ui.router','ui.bootstrap']);
+var app = angular.module('meanWebApp',['ui.router','ui.bootstrap', 'ngFileUpload']);
 
 app.config([
 '$stateProvider',

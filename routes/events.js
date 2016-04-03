@@ -60,6 +60,8 @@ router.post('/', function (req, res, next) {
   		event.invalidate = exp;
   	}
   	else event.invalidate = new Date(req.body.invalidate);
+  	if (!req.body.link) { event.link = undefined}
+  	else event.link = req.body.link;
 	console.log(event);
 	event.save(function (err, event) {
 		if (err) {return next(err);}
