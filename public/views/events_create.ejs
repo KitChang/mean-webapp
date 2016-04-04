@@ -1,5 +1,5 @@
-<div class="col-md-6 col-md-offset-3">
-	  <div class="page-header text-contrast">
+<div class="col-md-4 col-md-offset-4">
+	  <div class="page-header">
 	    <h1>New Event</h1>
 	  </div>
 
@@ -11,23 +11,28 @@
 	    style="margin-top:30px;">
 		
 	    <div class="form-group">
+	    	<label class="control-label">Title:</label>
 	      <input type="text"
 	      class="form-control"
 	      placeholder="Title"
 	      ng-model="event.title"></input>
 	    </div>
 		<div class="form-group">
-	      <input type="text"
-	      class="form-control"
-	      placeholder="layout"
-	      ng-model="event.detail"></input>
+			<label class="control-label">Detail:</label>
+		    <textarea class="form-control" rows="5" ng-model="event.detail"></textarea>
 	    </div>
+	    <div class="form-group">
+			<label class="control-label">Condition:</label>
+		    <textarea class="form-control" rows="5" ng-model="event.condition"></textarea>
+	    </div>
+	    <label class="control-label">Validate:</label>
 	    <p class="input-group">
           <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="event.publishDate" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
           <span class="input-group-btn">
             <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
           </span>
         </p>
+        <label class="control-label">To:</label>
         <p class="input-group">
           <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="event.invalidate" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
           <span class="input-group-btn">
@@ -35,51 +40,64 @@
           </span>
         </p>
         <div class="form-group">
+       		<label class="control-label">Link:</label>
 	      <input type="text"
 	      class="form-control"
 	      placeholder="Link"
 	      ng-model="event.link"></input>
 	    </div>
+	    <div>
+	    	<label class="control-label">Rules:</label>
+			<table class="table" ng-show="event.rules.length">
+			    <tbody>
+			      <tr ng-repeat="rule in event.rules track by $index">
+			      	<td>{{rule}}<a role="button" class="btn btn-danger pull-right" ng-click="removeRule($index)">Delete</a></td>
+			      </tr>
+			    </tbody>
+			</table>
+		</div>
+		<div class="form-group">
+			<div class="input-group">
+		    	<input type="text" class="form-control" placeholder="Add rule..." ng-model="newRule">
+		    		<span class="input-group-btn">
+		        	<button class="btn btn-primary" type="button" ng-click="addRule()">+</button>
+		      	</span>
+		    </div>
+		</div>
 		<div>
-			<table class="table">
+			<label class="control-label">ImageUrl:</label>
+			<table class="table" ng-show="event.imageUrl.length">
 			    <tbody>
 			      <tr ng-repeat="image in event.imageUrl track by $index">
-			      	<td><img width="20%" src="http://localhost/upload/{{image}}" alt=""></td>
+			      	<td>
+						<img width="50%" src="http://localhost/upload/{{image}}" alt="">
+			      	</td>
 			        <td>
 			        	<a role="button" class="btn btn-danger" ng-click="removeImage($index)">Delete</a></td>
 			        </td>
 			      </tr>
 			    </tbody>
 			</table>
+			<div ng-hide="event.imageUrl.length">No Image Attached</div>
 		</div>
-	    watching model:
-	    <div class="button" ngf-select ng-model="file" ngf-multiple="false">Select File</div>
-	    on file change multiple:
-	    <div class="button" ngf-select="upload($files)" ngf-multiple="true">Select File</div>
-	    Drop File:
+	    <div class="button" ngf-select="upload($files)" ngf-multiple="true" ng-hide="true">Select File</div>
 	    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
 	        ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
 	        accept="image/*,application/pdf" 
-	        ngf-pattern="'image/*,application/pdf'">Drop pdfs or images here or click to upload</div>
+	        ngf-pattern="'image/*,application/pdf'">Drop images here or click to upload</div>
 	    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
-	    Files:
-	    <ul>
-	        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
-	    </ul>
-	    Upload Log:
-	    <pre>{{log}}</pre>
+
 	    <!-- Split button -->
 	    <div class="btn-group" uib-dropdown>
-	      <button id="split-button" type="submit" class="btn btn-danger" ng-click="event.publish=true">發佈</button>
+	      <button id="split-button" type="submit" class="btn btn-danger" ng-click="event.published=true">發佈</button>
 	      <button type="button" class="btn btn-danger" uib-dropdown-toggle>
 	        <span class="caret"></span>
 	        <span class="sr-only">Split button!</span>
 	      </button>
 	      <ul uib-dropdown-menu role="menu" aria-labelledby="split-button">
-	        <li role="menuitem"><a ng-click="event.publish=true;create()">發佈</a></li>
-	        <li role="menuitem"><a ng-click="event.publish=false;create()">草稿</a></li>
+	        <li role="menuitem"><a ng-click="event.published=true;create()">發佈</a></li>
+	        <li role="menuitem"><a ng-click="event.published=false;create()">草稿</a></li>
 	      </ul>
 	    </div>
-	    <div><button type="submit" class="btn btn-primary">Create</button></div>
 	  </form>
 </div>

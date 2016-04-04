@@ -9,6 +9,12 @@ var EventSchema = new mongoose.Schema({
 		type: String,
 		required: 'Please fill in a property layout'
 	},
+	condition: {
+		type: String
+	},
+	rules: [{
+		type: String
+	}],
 	business: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Shop',

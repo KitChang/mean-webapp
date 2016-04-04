@@ -62,6 +62,7 @@ router.post('/', function (req, res, next) {
   	else event.invalidate = new Date(req.body.invalidate);
   	if (!req.body.link) { event.link = undefined}
   	else event.link = req.body.link;
+  	event.condition = (req.body.condition)?req.body.condition:undefined;
 	console.log(event);
 	event.save(function (err, event) {
 		if (err) {return next(err);}
@@ -77,7 +78,6 @@ router.put('/:eventId', function (req, res, next) {
 
   	req.event.title = req.body.title;
   	req.event.detail = req.body.detail;
-  	req.event.business = req.body.business;
   	if (!req.body.publishDate) { 
   		var today = new Date();
 		today.setHours(0,0,0,0);
@@ -92,7 +92,10 @@ router.put('/:eventId', function (req, res, next) {
   		req.event.invalidate = exp;
   	}
   	else req.event.invalidate = new Date(req.body.invalidate);
-
+	
+	req.event.link = (req.body.link)?req.body.link:undefined;
+	req.event.condition = (req.body.condition)?req.body.condition:undefined;
+  	req.event.imageUrl = req.body.imageUrl;
   	console.log(req.event);
 	req.event.save(function (err, event) {
 			// body...

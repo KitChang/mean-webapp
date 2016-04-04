@@ -1,20 +1,20 @@
-<div>
-		<div class="text-contrast page-header">
-	    	<h1>Shop List</h1>
+<div class="col-md-6 col-md-offset-3">
+		<div class="page-header">
+	    	<h1>Event List</h1>
 	    	<a ui-sref="eventscreate" role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right"></a>
 	  	</div>
 	  	<div>
-			<table class="table table-striped">
+			<table class="table table-striped" ng-init="init()">
 			    <thead>
 			      <tr>
-			      	<th>標題</th>
-			        <th>內容</th>
+			      	<th><a ng-click="sort('created')" >時間</a><span class="{{Header[0]}}"></th>
+			        <th><a ng-click="sort('title')" >標題</a><span class="{{Header[1]}}"></th>
 			      </tr>
 			    </thead>
 			    <tbody>
-			      <tr  ng-repeat="event in events">
+			      <tr ng-repeat="event in ItemsByPage[currentPage]">
+			      	<td>{{convertToDate(event.created) | date:'medium'}}</td>
 			      	<td><a href="#">{{event.title}}</a></td>
-			        <td>{{event.detail}}</td>
 			        <td>
 			        	<a ui-sref="eventsedit({eventId:'{{event._id}}'})" role="button" class="btn btn-info">Edit</a>
 			        	<a role="button" class="btn btn-danger" ng-click="remove(event._id);">Delete</a></td>
@@ -22,6 +22,11 @@
 			      </tr>
 			    </tbody>
 			</table>
+			<ul class="pagination pagination-sm">
+	            <li ng-class="{active:0}"><a ng-click="firstPage()">First</a></li>
+	            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a></li>
+	            <li><a ng-click="lastPage()">Last</a></li>
+	        </ul>
 		</div>
 
 	</div>	
