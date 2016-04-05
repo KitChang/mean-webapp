@@ -1,4 +1,4 @@
-<div class="col-md-4 col-md-offset-4">
+<div class="col-md-3 col-md-offset-1">
 	  <div class="page-header">
 	    <h1>Edit Event</h1>
 	  </div>
@@ -70,13 +70,14 @@
 			<table class="table">
 			    <tbody>
 			      <tr ng-repeat="image in event.imageUrl track by $index">
-			      	<td><img width="20%" src="http://localhost/upload/{{image}}" alt=""></td>
+			      	<td><img width="20%" src="upload/{{image}}" alt=""></td>
 			        <td>
 			        	<a role="button" class="btn btn-danger" ng-click="removeImage($index)">Delete</a></td>
 			        </td>
 			      </tr>
 			    </tbody>
 			</table>
+			<div ng-hide="event.imageUrl.length">No Image Attached</div>
 		</div>
 		<div class="button" ngf-select="upload($files)" ngf-multiple="true" ng-hide="true">Select File</div>
 	    Drop File:
@@ -99,4 +100,46 @@
 	      </ul>
 	    </div>
 	  </form>
+</div>
+<div class="col-md-6 col-md-offset-1">
+	<div class="page-header">
+	    <h1>Comments</h1>
+	</div>
+	<div class="form-group">
+		<div class="input-group">
+	    	<input type="text" class="form-control" placeholder="Add comment..." ng-model="newComment">
+	    		<span class="input-group-btn">
+	        	<button class="btn btn-success" type="button" ng-click="addComment()">Reply</button>
+	      	</span>
+	    </div>
+	</div>
+	<div>
+		<table class="table table-striped" ng-init="init()">
+		    <thead>
+		      	<tr>
+		      		<th>時間</th>
+		      		<th>作者</th>
+		      		<th>內容</th>
+		      	</tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="comment in ItemsByPage[currentPage]">
+		      	<td>{{convertToDate(comment.created) | date:'medium'}}</td>
+		      	<td>{{comment.sender.username}}</td>
+		      	<td>{{comment.message}}</td>
+		      </tr>
+		    </tbody>
+		</table>
+		<ul class="pagination pagination-sm">
+            <li ng-class="{active:0}"><a ng-click="firstPage()">First</a>
+
+            </li>
+            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a>
+
+            </li>
+            <li><a ng-click="lastPage()">Last</a>
+
+            </li>
+        </ul>
+	</div>
 </div>

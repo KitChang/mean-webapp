@@ -81,6 +81,9 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 			
 		});
 	};
+	oEvents.addComment = function (event, sender, message) {	
+		return $http.post('/events/'+event._id+'/comments',{sender:sender, message:message});
+	};
 	oEvents.remove = function (eventId) {
 		return $http.delete('/events/'+eventId)
 		.success(function (data) {
@@ -136,6 +139,7 @@ event.controller('EventCtrl', [
 		  var dateOut = new Date(stringDate);
 		  return dateOut;
 		};
+
 		//datepicker
 		$scope.today = function() {
 			var today = new Date();
@@ -327,7 +331,8 @@ event.controller('EventCtrl', [
 	'auth',
 	'events',
 	'eventinfo',
-	function ($scope, $state, auth, events, eventinfo) {
+	'Upload', '$timeout', '$filter',
+	function ($scope, $state, auth, events, eventinfo, Upload, $timeout, $filter) {
 		console.log(eventinfo);
 		$scope.event = eventinfo;
 		$scope.update = function () {
@@ -351,6 +356,22 @@ event.controller('EventCtrl', [
 			$scope.event.rules.splice(index, 1);
 			console.log(index);
 		}
+		$scope.addComment = function () {
+			// body...
+			events.addComment($scope.event, auth.currentUser()._id, $scope.newComment).success(function (data) {
+				var comment = {sender:{_id:data,username:auth.currentUser().username}, message:data.message, created: data.created};
+				console.log(comment);
+				$scope.event.comments.push(comment);
+				$scope.search();
+			}).error(function (err) {
+				$scope.error = err;
+			});
+			
+		}
+		$scope.convertToDate = function (stringDate){
+		  var dateOut = new Date(stringDate);
+		  return dateOut;
+		};
 		//datepicker
 		$scope.today = function() {
 		    $scope.event.publishDate = new Date($scope.event.publishDate);
@@ -438,10 +459,87 @@ event.controller('EventCtrl', [
 			$scope.event.imageUrl.splice(index, 1);
 			console.log(index);
 		}
+		//Pagination Table
+		$scope.currentPage = 0;
+	    $scope.pageSize = 10;
+    	$scope.allItems = $scope.event.comments;
+    	$scope.reverse = true;
+
+    	$scope.init = function () {
+    		$scope.sort('created');
+    	}
+
+    	$scope.search = function () {
+    		console.log('search'); 
+	        $scope.filteredList = $scope.allItems;
+	        
+	        if ($scope.searchText == '') {
+	            $scope.filteredList = $scope.allItems;
+	        }
+	        $scope.pagination(); 
+	    }
+
+    	$scope.resetAll = function () {
+	        $scope.filteredList = $scope.allItems;
+	        $scope.searchText = '';
+	        $scope.currentPage = 0;
+	        $scope.Header = ['','',''];
+	    }
+
+	    $scope.pagination = function () {
+	        $scope.ItemsByPage = paged( $scope.filteredList, $scope.pageSize );  
+	        console.log($scope.ItemsByPage);       
+	    };
+
+	    $scope.setPage = function () {
+	        $scope.currentPage = this.n;
+	    };
+
+	    $scope.firstPage = function () {
+	        $scope.currentPage = 0;
+	    };
+
+	    $scope.lastPage = function () {
+	        $scope.currentPage = $scope.ItemsByPage.length - 1;
+	    };
+
+	    $scope.range = function (input, total) {
+	        var ret = [];
+	        if (!total) {
+	            total = input;
+	            input = 0;
+	        }
+	        console.log("total:"+total);
+	        for (var i = input; i < total; i++) {
+	            if (i != 0 && i != total - 1) {
+	                ret.push(i);
+	            }
+	        }
+	        console.log("ret:"+ret);
+	        return ret;
+	    };
+
+	    $scope.sort = function(sortBy){
+	        $scope.resetAll();  
+	        
+	        $scope.columnToOrder = sortBy; 
+	             
+	        //$Filter - Standard Service
+	        $scope.filteredList = $filter('orderBy')($scope.filteredList, $scope.columnToOrder, $scope.reverse); 
+
+	        if($scope.reverse)
+	             iconName = 'glyphicon glyphicon-chevron-up';
+	         else
+	             iconName = 'glyphicon glyphicon-chevron-down';
+	         
+	        $scope.reverse = !$scope.reverse;   
+	        
+	        $scope.pagination();    
+	    };
+		//Pagination Table
 }]);
+
 //Pagination table
-
-
 function paged (valLists,pageSize)
 {
     retVal = [];
@@ -455,9 +553,5 @@ function paged (valLists,pageSize)
     return retVal;
 };
 
-function searchUtil(item, toSearch) {
-    /* Search Text in all 3 fields */
-    return (item.title.toLowerCase().indexOf(toSearch.toLowerCase()) > -1) ? true : false;
-}
 //Pagination table
 angular.module('meanWebApp').requires.push('event');

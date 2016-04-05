@@ -7,16 +7,17 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Event = mongoose.model('Event');
 var Shop = mongoose.model('Shop');
+var Comment = mongoose.model('Comment');
 var jwt = require('express-jwt');
 
 var auth = jwt({secret: config.secret, userEvent: 'payload'});
 
 router.param('eventId', function(req, res, next, eventId) {
-	var query = Event.findById(eventId);
+	var query = Event.findById(eventId).populate({path:'comments', select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}});;
 	query.exec(function(err, event){
 		if (err) {return next(err);}
 		if (!event) {return next(new Error('cannot find eventInfo'));}
-		
+		console.log(event);
 		req.event = event;
 		return next();
 	});
@@ -106,6 +107,31 @@ router.put('/:eventId', function (req, res, next) {
 	});	
 		
 	
+});
+
+router.post('/:eventId/comments', function (req, res, next) {
+	if(!req.body.sender || !req.body.message) {
+    	return res.status(400).json({message: 'Please fill out all fields'});
+  	}
+  	var comment = new Comment(req.body);
+  	comment.event = req.event._id;
+  	comment.save(function (err, savedComment) {
+  		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		req.event.comments.push(savedComment);
+		req.event.save(function (err, savedEvent) {
+			if (err) {
+				console.log(err);
+				return next(err);
+			}
+
+				console.log('savedEvent:');
+				console.log(savedEvent);
+			return res.json(savedComment);
+		});
+  	});
 });
 
 router.delete('/:eventId', function (req, res, next) {

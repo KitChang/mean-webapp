@@ -13,7 +13,8 @@ var EventSchema = new mongoose.Schema({
 		type: String
 	},
 	rules: [{
-		type: String
+		type: String,
+		default: []
 	}],
 	business: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -29,8 +30,13 @@ var EventSchema = new mongoose.Schema({
 	link: {
 		type: String
 	},
-	imageUrl: [{
-		type: String
+	imageUrl: {
+		type: [String],
+		default: []
+	},
+	comments: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Comment'
 	}],
 	likes: [{
 		type: mongoose.Schema.Types.ObjectId,

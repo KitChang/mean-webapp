@@ -18,6 +18,7 @@ require('./models/Shops');
 require('./models/Cards');
 require('./models/Logs');
 require('./models/Events');
+require('./models/Comments');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 

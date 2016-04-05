@@ -88,11 +88,11 @@
         </div>
 		<table class="table table-striped" ng-init="init()">
 		    <thead>
-		      <tr>
-		      	<th><a ng-click="sort('created')" >時間</a></th>
-		      	<th><a ng-click="sort('action')" >動作</a></th>
-		      	<th><a ng-click="sort('detail')" >內容</a></th>
-		      </tr>
+		      	<tr>
+		      		<th><a ng-click="sort('created')" >時間</a></th>
+		      		<th><a ng-click="sort('action')" >動作</a></th>
+		      		<th><a ng-click="sort('detail')" >內容</a></th>
+		      	</tr>
 		    </thead>
 		    <tbody>
 		      <tr ng-repeat="log in ItemsByPage[currentPage]">
