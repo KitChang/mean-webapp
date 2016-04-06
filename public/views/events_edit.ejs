@@ -126,7 +126,15 @@
 		      <tr ng-repeat="comment in ItemsByPage[currentPage]">
 		      	<td>{{convertToDate(comment.created) | date:'medium'}}</td>
 		      	<td>{{comment.sender.username}}</td>
-		      	<td>{{comment.message}}</td>
+		      	<td ng-hide="isEditing(comment._id)">{{comment.message}}</td>
+		      	<td ng-show="isEditing(comment._id)"><input type="text" class="form-control" placeholder="Edit comment..." ng-model="comment.message">
+		      		<a ng-show="isSender(comment.sender)" role="button" class="btn btn-info pull-right" ng-click="updateComment(comment)">save</a></td>
+		      	<td><a ng-show="isSender(comment.sender)" role="button" class="btn btn-info pull-right" ng-click="editComment(comment._id)">edit</a>
+		      		<a ng-show="isSender(comment.sender)" role="button" class="btn btn-danger pull-right" ng-click="removeComment(comment._id)">Delete</a></td>
+
+		      	
+		      		
+		      	
 		      </tr>
 		    </tbody>
 		</table>

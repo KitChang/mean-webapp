@@ -13,12 +13,22 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userEvent: 'payload'});
 
 router.param('eventId', function(req, res, next, eventId) {
-	var query = Event.findById(eventId).populate({path:'comments', select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}});;
+	var query = Event.findById(eventId).populate({path:'comments', match: { deleted: false}, select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}});
 	query.exec(function(err, event){
 		if (err) {return next(err);}
 		if (!event) {return next(new Error('cannot find eventInfo'));}
-		console.log(event);
 		req.event = event;
+		return next();
+	});
+});
+
+router.param('commentId', function(req, res, next, commentId) {
+	var query = Comment.findById(commentId);
+	query.exec(function(err, comment){
+		if (err) {return next(err);}
+		if (!comment) {return next(new Error('cannot find commentInfo'));}
+		console.log(comment);
+		req.comment = comment;
 		return next();
 	});
 });
@@ -132,6 +142,27 @@ router.post('/:eventId/comments', function (req, res, next) {
 			return res.json(savedComment);
 		});
   	});
+});
+
+router.put('/:eventId/comments/:commentId', function (req, res, next) {
+	if (!req.body.message) {
+		return res.status(400).json({message: 'Please fill out all fields'});
+	}
+	req.comment.message = req.body.message;
+	req.comment.save(function (err, savedComment) {
+		if (err) {return next(err);}
+		console.log(savedComment);
+		return res.json(savedComment);
+	})
+});
+
+router.delete('/:eventId/comments/:commentId', function (req, res, next) {
+	console.log('id: '+ req.comment._id);
+	req.comment.deleted = true;
+	req.comment.save(function (err, comment) {
+		if (err) {return next(err);}
+		return res.json(comment);
+	});
 });
 
 router.delete('/:eventId', function (req, res, next) {

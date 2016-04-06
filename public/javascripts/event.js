@@ -81,9 +81,6 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 			
 		});
 	};
-	oEvents.addComment = function (event, sender, message) {	
-		return $http.post('/events/'+event._id+'/comments',{sender:sender, message:message});
-	};
 	oEvents.remove = function (eventId) {
 		return $http.delete('/events/'+eventId)
 		.success(function (data) {
@@ -91,6 +88,15 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 			index = oEvents.events.indexOf(data);
 			oEvents.events.splice(index, 1);
 		});
+	};
+	oEvents.addComment = function (event, sender, message) {	
+		return $http.post('/events/'+event._id+'/comments',{sender:sender, message:message});
+	};
+	oEvents.updateComment = function (event, comment) {
+		return $http.put('/events/'+event._id+'/comments/'+comment._id, comment);
+	}
+	oEvents.removeComment = function (event, commentId) {
+		return $http.delete('/events/'+event._id+'/comments/'+commentId);
 	};
 
 	return oEvents;
@@ -351,15 +357,15 @@ event.controller('EventCtrl', [
 			// body...
 			$scope.event.rules.push($scope.newRule);
 			$scope.newRule = "";
-		}
+		};
 		$scope.removeRule = function (index) {
 			$scope.event.rules.splice(index, 1);
 			console.log(index);
-		}
+		};
 		$scope.addComment = function () {
 			// body...
 			events.addComment($scope.event, auth.currentUser()._id, $scope.newComment).success(function (data) {
-				var comment = {sender:{_id:data,username:auth.currentUser().username}, message:data.message, created: data.created};
+				var comment = {_id:data._id, sender:{_id:auth.currentUser()._id,username:auth.currentUser().username}, message:data.message, created: data.created};
 				console.log(comment);
 				$scope.event.comments.push(comment);
 				$scope.search();
@@ -367,6 +373,45 @@ event.controller('EventCtrl', [
 				$scope.error = err;
 			});
 			
+		};
+		$scope.updateComment = function (comment) {
+			console.log(comment);
+			events.updateComment($scope.event, comment).success(function (data) {
+				console.log(data);
+				$scope.editingCommentId = undefined;
+			}).error(function (err) {
+				$scope.error = err;
+				$scope.editingCommentId = undefined;
+			});
+		}
+		$scope.removeComment = function (commentId) {
+			console.log('remove: ' + commentId);
+			events.removeComment($scope.event, commentId).success(function (data) {
+				console.log(data);
+				console.log($scope.event.comments);
+				var index;
+				$scope.event.comments.some(function( obj, idx ) {
+				    if( obj._id === data._id ) {
+				        index = idx;
+				        return true;
+				    }
+				});
+				$scope.event.comments.splice(index, 1);
+				$scope.sort('created');
+			}).error(function (err) {
+				$scope.error = err;
+			});
+		};
+		$scope.editComment = function (commentId) {
+			console.log('edit: ' + commentId);
+			if ($scope.editingCommentId) { $scope.editingCommentId = undefined;}
+			else $scope.editingCommentId = commentId
+		};
+		$scope.isEditing = function (commentId) {
+			return commentId == $scope.editingCommentId;
+		}
+		$scope.isSender = function (userId) {
+			return userId._id == auth.currentUser()._id
 		}
 		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);
