@@ -7,7 +7,7 @@ var config = require('../config/env');
 var UserSchema = new mongoose.Schema({
   username: {
     type: String,
-    //unique: 'Username already exists',
+    unique: 'Username already exists',
     //required: 'Please fill in a username',
     lowercase: true,
     trim: true

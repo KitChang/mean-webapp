@@ -61,10 +61,13 @@
 	</div>
 	<div>
 		<div class="input-group">
-            <input class="form-control" ng-model="searchText" placeholder="Search" type="search"/> <span class="input-group-addon">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search"/> 
+            <span class="input-group-addon">
 			      <span class="glyphicon glyphicon-search"></span>
 			</span>
+			<a ui-sref="cardscreate" role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right"></a>
         </div>
+
 		<table class="table table-striped" ng-init="init()">
 		    <thead>
 		      <tr>

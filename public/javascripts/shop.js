@@ -46,7 +46,7 @@ function($stateProvider, $urlRouterProvider) {
 					return shops.get($stateParams.shopId);
 				}]
 			}
-	});
+	})
 }]);
 shop.factory('shops', ['$state', '$http', 'auth', function ($state, $http, auth) {
 	var oShops = {

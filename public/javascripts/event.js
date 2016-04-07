@@ -141,7 +141,7 @@ event.controller('EventCtrl', [
 			$scope.event.rules.splice(index, 1);
 			console.log(index);
 		}
-				$scope.convertToDate = function (stringDate){
+		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);
 		  return dateOut;
 		};

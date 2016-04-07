@@ -42,15 +42,85 @@ router.get('/:cardId', function(req, res){
 });
 
 router.post('/', function (req, res, next) {
-	if(!req.body.business || !req.body.type || !req.body.region || !req.body.serialNumber){
+	if(!req.body.business || !req.body.user.username || !req.body.user.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
-	var card = new Card(req.body);
-	console.log(card);
-	card.save(function (err, savedCard) {
-		if (err) {return next(err);}
-			return res.json(savedCard);
+  var user = new User();
+
+  user.username = req.body.user.username;
+  user.roles = ['user'];
+  user.registType = 'local';
+  user.setPassword(req.body.user.password);
+  if (!req.body.user.birthday) { user.birthday = undefined;}
+  else user.birthday = new Date(req.body.user.birthday);
+  if (!req.body.user.sex) { user.sex = undefined;}
+  else user.sex = new Date(req.body.user.sex);
+  if (!req.body.user.name) { user.name = undefined;}
+  else user.name = new Date(req.body.user.name);
+
+  user.save(function (err, savedUser){
+    if(err) {return next(err);}
+    console.log(savedUser);
+    Card.findOne({owner: savedUser._id, business: req.body.business}, function (err, foundCard) {
+		if (err) {
+			console.log(err);
+			return res.status(500).json(err);
+		}
+		if (!foundCard) {
+			console.log('create card')
+			Shop.findById(req.body.business).exec(function (err, foundShop) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				var serialNumber = foundShop.serialNumber.toString();
+				
+				var card = new Card();
+				var today = new Date();
+				today.setHours(0,0,0,0);
+			    var exp = new Date(today);
+			    exp.setDate(today.getDate() + foundShop.initMemberExp);
+			    card.exp = exp;
+			    card.cardImage = foundShop.tierImages[0];
+			    card.business = foundShop._id;
+			    card.owner = savedUser._id;
+			    card.tier = foundShop.tiers[0];
+			    card.number = serialNumber;
+			    card.save(function (err, savedCard) {
+			    	if (err) {
+						console.log(err);
+						return res.status(500).json(err);
+					}
+					foundShop.members.push(savedCard);
+					foundShop.serialNumber++;
+					foundShop.save(function (err, savedShop) {
+						// body...
+					});
+					var owner = {};
+					owner._id = savedUser._id;
+					owner.username = savedUser.username;
+					var result = {};
+					result._id = savedCard._id;
+					result.number = savedCard.number;
+					result.exp = savedCard.exp;
+					result.cardImage = savedCard.cardImage;
+					result.owner = owner;
+					result.tier = savedCard.tier;
+					result.valid = savedCard.valid;
+					result.point = savedCard.point
+					return res.json(result);
+			    });
+				
+				
+			});	
+		
+		} else {
+			return res.status(400).json({message: 'User already have this membership.'});
+		}
+		
 	});
+  });
+	
 	
 });
 

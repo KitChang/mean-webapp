@@ -1,4 +1,4 @@
-var card = angular.module('card',['ui.router']);
+var card = angular.module('card',['ui.router','ui.bootstrap']);
 
 card.config([
 '$stateProvider',
@@ -84,11 +84,9 @@ card.factory('cards', ['$state', '$http', 'auth', function ($state, $http, auth)
 			angular.copy(data, oCards.admins);
 		});
 	};
-	oCards.create = function (card) {
+	oCards.create = function (user, businessId) {
 		
-		return $http.post('/cards', card).success(function (data) {
-			$state.go('cardslist');
-		});
+		return $http.post('/cards', {user:user, business:businessId});
 	};
 	oCards.update = function (card) {
 		console.log(card);
@@ -128,21 +126,18 @@ card.controller('CardCtrl', [
 	'auth',
 	'cards',
 	function ($scope, $state, auth, cards) {
-		$scope.types = types.types;
 		$scope.cards = cards.cards;
 		$scope.create = function () {
 
-			if (!$scope.card || !$scope.card.business ||
-				!$scope.card.type || !$scope.card.region || !$scope.card.serialNumber) {
+			if (!$scope.user || !$scope.user.username || !$scope.user.password) {
 				$scope.error = {message: 'Please fill all blank field'};
 				return;
 			}
-			if (isNaN(parseInt($scope.card.serialNumber,10)) || parseInt($scope.card.serialNumber,10) > 100000 || parseInt($scope.card.serialNumber,10) <= 0) {
-				$scope.error = {message: 'Serial Number should between 1 ~ 100000'};
-				return;
-			}
-			
-			cards.create($scope.card).error(function (err) {
+
+			cards.create($scope.user, auth.currentUser().business).success(function (data) {
+				console.log(data);
+				$state.go('shopsedit({shopId:auth.currentUser().business})');
+			}).error(function (err) {
 				$scope.error = err;
 			});
 		};
@@ -152,6 +147,40 @@ card.controller('CardCtrl', [
 				$scope.error = err;
 			});
 		};
+		//datepicker
+
+		  $scope.clear = function() {
+		    $scope.publishDate = null;
+		  };
+
+		  $scope.dateOptions = {
+		    dateDisabled: disabled,
+		    formatYear: 'yy',
+		    maxDate: new Date(),
+		    minDate: new Date(1916, 1, 11),
+		    startingDay: 1
+		  };
+
+		  // Disable weekend selection
+		  function disabled(data) {
+		    var date = data.date,
+		      mode = data.mode;
+		    return mode === 'day' && (date.getDay() === 0 && date.getDay() === 6);
+		  }
+
+		  $scope.open1 = function() {
+		    $scope.popup1.opened = true;
+		  };
+
+		  $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+		  $scope.format = $scope.formats[0];
+		  $scope.altInputFormats = ['M!/d!/yyyy'];
+
+		  $scope.popup1 = {
+		    opened: false
+		  };
+
+		//datepicker
 }])
 .controller('CardEditCtrl', [
 	'$scope',
