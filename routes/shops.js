@@ -11,7 +11,7 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userShop: 'payload'});
 
 router.param('shopId', function(req, res, next, shopId) {
-	var query = Shop.findById(shopId).populate({path:'members', select:'_id owner tier valid number point', populate:{path: 'owner', select:'_id username', model:'User'}});
+	var query = Shop.findById(shopId).populate({path:'members', match: {deleted: false}, select:'_id owner tier valid number point', populate:{path: 'owner', select:'_id username', model:'User'}});
 	query.exec(function(err, shop){
 		if (err) {return next(err);}
 		if (!shop) {return next(new Error('cannot find shopInfo'));}

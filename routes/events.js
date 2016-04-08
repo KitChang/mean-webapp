@@ -13,10 +13,12 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userEvent: 'payload'});
 
 router.param('eventId', function(req, res, next, eventId) {
-	var query = Event.findById(eventId).populate({path:'comments', match: { deleted: false}, select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}});
+	var query = Event.findById(eventId).populate({path:'comments', match: { deleted: false}, select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}})
+										.populate({path: 'likes', select:'_id username name', model:'User'});
 	query.exec(function(err, event){
 		if (err) {return next(err);}
 		if (!event) {return next(new Error('cannot find eventInfo'));}
+		console.log(event);
 		req.event = event;
 		return next();
 	});
@@ -38,6 +40,7 @@ router.get('/', function(req, res, next) {
 	if (req.query.business) {
 		options.business = req.query.business;
 	}
+	options.deleted = false;
 	Event.find(options, function (err, events) {
 		if (err) {return next(err);}
 
@@ -107,6 +110,7 @@ router.put('/:eventId', function (req, res, next) {
 	req.event.link = (req.body.link)?req.body.link:undefined;
 	req.event.condition = (req.body.condition)?req.body.condition:undefined;
   	req.event.imageUrl = req.body.imageUrl;
+  	req.event.rules = req.body.rules;
   	console.log(req.event);
 	req.event.save(function (err, event) {
 			// body...

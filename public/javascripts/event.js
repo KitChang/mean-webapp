@@ -27,9 +27,12 @@ function($stateProvider, $urlRouterProvider) {
       }],
       resolve: {
 			eventPromise : ['auth', 'events', function (auth, events) {
-					
-					return events.getAll(auth.currentUser().business);
-				}]
+				return events.getAll(auth.currentUser().business);
+			}],
+			shopinfo: ['auth', 'events', function(auth, events){
+				console.log('shopInfo: '+auth.currentUser().business);
+				return events.getShop(auth.currentUser().business);
+			}]
 		}
     })
     .state('eventsedit', {
@@ -52,6 +55,12 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 	oEvents.get = function (id) {
 		// body...
 		return $http.get('/events/'+id).then(function (res) {
+			return res.data;
+		});
+	};
+	oEvents.getShop = function (id) {
+		// body...
+		return $http.get('/shops/'+id).then(function (res) {
 			return res.data;
 		});
 	};
@@ -82,12 +91,7 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 		});
 	};
 	oEvents.remove = function (eventId) {
-		return $http.delete('/events/'+eventId)
-		.success(function (data) {
-			// body...
-			index = oEvents.events.indexOf(data);
-			oEvents.events.splice(index, 1);
-		});
+		return $http.delete('/events/'+eventId);
 	};
 	oEvents.addComment = function (event, sender, message) {	
 		return $http.post('/events/'+event._id+'/comments',{sender:sender, message:message});
@@ -107,13 +111,35 @@ event.controller('EventCtrl', [
 	'$state',
 	'auth',
 	'events',
-	'Upload', '$timeout', '$filter',
-	function ($scope, $state, auth, events, Upload, $timeout, $filter) {
+	'Upload', '$timeout', '$filter', 'shopinfo',
+	function ($scope, $state, auth, events, Upload, $timeout, $filter, shopinfo) {
+		$scope.shop = shopinfo;
+		console.log(shopinfo);
 		$scope.events = events.events;
 		$scope.event = {};
 		$scope.event.imageUrl = [];
 		$scope.event.rules = [];
 		$scope.event.link = "http://";
+		$scope.showModal = false;
+	    $scope.showLikes = function(eventId){
+	    	
+	    	events.get(eventId).then(function (data) {
+	    		$scope.likes = data.likes;
+	    		$scope.showModal = !$scope.showModal;
+	    	});
+	    	
+	    };
+	    $scope.isMember = function (userId) {
+	    	// body...
+	    	var index = -1;
+			$scope.shop.members.some(function( obj, idx ) {
+			    if( obj.owner._id === userId ) {
+			        index = idx;
+			        return true;
+			    }
+			});
+			return index != -1;
+	    };
 		$scope.create = function () {
 
 			if (!$scope.event || !$scope.event.title ||
@@ -128,7 +154,19 @@ event.controller('EventCtrl', [
 		};
 		$scope.remove = function (eventId) {
 			console.log('remove: ' + eventId);
-			events.remove(eventId).error(function (err) {
+			events.remove(eventId).success(function (data) {
+			// body...
+				var index;
+				$scope.events.some(function( obj, idx ) {
+				    if( obj._id === data._id ) {
+				        index = idx;
+				        return true;
+				    }
+				});
+				$scope.events.splice(index, 1);
+				$scope.reverse = !$scope.reverse; 
+				$scope.sort('created');
+			}).error(function (err) {
 				$scope.error = err;
 			});
 		};
@@ -291,13 +329,11 @@ event.controller('EventCtrl', [
 	            total = input;
 	            input = 0;
 	        }
-	        console.log("total:"+total);
 	        for (var i = input; i < total; i++) {
 	            if (i != 0 && i != total - 1) {
 	                ret.push(i);
 	            }
 	        }
-	        console.log("ret:"+ret);
 	        return ret;
 	    };
 
