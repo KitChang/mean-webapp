@@ -42,6 +42,10 @@ var EventSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
+	coupons: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Coupon'
+	}],
 	published: {
 		type: Boolean,
 		default: false
