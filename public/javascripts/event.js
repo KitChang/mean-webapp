@@ -377,6 +377,12 @@ event.controller('EventCtrl', [
 	function ($scope, $state, auth, events, eventinfo, Upload, $timeout, $filter) {
 		console.log(eventinfo);
 		$scope.event = eventinfo;
+		$scope.newCoupon = {};
+		$scope.newCoupon.missions = [];
+		$scope.showModal = false;
+	    $scope.toggleModal = function(){
+	        $scope.showModal = !$scope.showModal;
+	    };
 		$scope.update = function () {
 			console.log(event);
 			if (!$scope.event || !$scope.event.title ||
@@ -449,6 +455,14 @@ event.controller('EventCtrl', [
 		$scope.isSender = function (userId) {
 			return userId._id == auth.currentUser()._id
 		}
+		$scope.createCoupon = function () {
+			console.log($scope.newCoupon.mission);
+			$scope.newCoupon.missions[0] = $scope.newCoupon.mission;
+			$scope.newCoupon.event = $scope.event._id;
+			$scope.newCoupon.invalidate = $scope.event.invalidate;
+			console.log($scope.newCoupon);
+		}
+
 		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);
 		  return dateOut;

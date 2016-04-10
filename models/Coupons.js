@@ -18,11 +18,26 @@ var CouponSchema = new mongoose.Schema({
 		ref: 'Event',
 		required: true
 	},
-	owner: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User',
-		required: true
+	users: [{
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User'
+		},
+		times: {
+			type: Number,
+			default: 0
+		}
+	}],
+	limitPerUser: {
+		type: Number,
+		default: 1
 	},
+	limitUsage: Number,
+	invalidate: Date,
+	missions: [{
+		missionType: String,
+		missionRepeat: Number
+	}],
 	created: {
 		type: Date,
 		default: Date.now
