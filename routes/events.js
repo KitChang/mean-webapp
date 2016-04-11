@@ -8,6 +8,7 @@ var User = mongoose.model('User');
 var Event = mongoose.model('Event');
 var Shop = mongoose.model('Shop');
 var Comment = mongoose.model('Comment');
+var Coupon = mongoose.model('Coupon');
 var jwt = require('express-jwt');
 
 var auth = jwt({secret: config.secret, userEvent: 'payload'});
@@ -168,6 +169,32 @@ router.delete('/:eventId/comments/:commentId', function (req, res, next) {
 		return res.json(comment);
 	});
 });
+
+router.post('/:eventId/conpous', function (req, res, next) {
+	if(!req.body.title || !req.body.detail || !req.body.event || !req.body.condition) {
+    	return res.status(400).json({message: 'Please fill out all fields'});
+  	}
+  	var coupon = new Coupon(req.body);
+  	
+  	coupon.save(function (err, savedCoupon) {
+  		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		req.event.coupons.push(savedCoupon);
+		req.event.save(function (err, savedEvent) {
+			if (err) {
+				console.log(err);
+				return next(err);
+			}
+
+				console.log('savedEvent:');
+				console.log(savedEvent);
+			return res.json(savedCoupon);
+		});
+  	});
+});
+
 
 router.delete('/:eventId', function (req, res, next) {
 	console.log('id: '+ req.event._id);

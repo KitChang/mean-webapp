@@ -102,6 +102,10 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 	oEvents.removeComment = function (event, commentId) {
 		return $http.delete('/events/'+event._id+'/comments/'+commentId);
 	};
+	oEvents.createCoupon = function (coupon) {
+		// body...
+		return $http.post('/events/'+coupon.event+'/comments',coupon);
+	}
 
 	return oEvents;
 }]);
@@ -373,16 +377,21 @@ event.controller('EventCtrl', [
 	'auth',
 	'events',
 	'eventinfo',
-	'Upload', '$timeout', '$filter',
-	function ($scope, $state, auth, events, eventinfo, Upload, $timeout, $filter) {
+	'Upload', '$timeout', '$filter', 'types',
+	function ($scope, $state, auth, events, eventinfo, Upload, $timeout, $filter, types) {
 		console.log(eventinfo);
 		$scope.event = eventinfo;
+		$scope.missionTypes = types.missionTypes;
 		$scope.newCoupon = {};
 		$scope.newCoupon.missions = [];
+		$scope.mission = {};
 		$scope.showModal = false;
 	    $scope.toggleModal = function(){
 	        $scope.showModal = !$scope.showModal;
 	    };
+	    $scope.showMissionRepeat = function () {
+	    	return $scope.mission.missionType != undefined;
+	    }
 		$scope.update = function () {
 			console.log(event);
 			if (!$scope.event || !$scope.event.title ||
@@ -456,11 +465,17 @@ event.controller('EventCtrl', [
 			return userId._id == auth.currentUser()._id
 		}
 		$scope.createCoupon = function () {
-			console.log($scope.newCoupon.mission);
-			$scope.newCoupon.missions[0] = $scope.newCoupon.mission;
+			console.log($scope.mission);
+			$scope.newCoupon.missions[0] = $scope.mission;
 			$scope.newCoupon.event = $scope.event._id;
 			$scope.newCoupon.invalidate = $scope.event.invalidate;
 			console.log($scope.newCoupon);
+			events.createCoupon($scope.newCoupon).success(function (data) {
+				// body...
+				$scope.event.coupons.push(data);
+			}).error(function (err) {
+				$scope.error = err;
+			});
 		}
 
 		$scope.convertToDate = function (stringDate){
