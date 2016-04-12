@@ -32,7 +32,10 @@ var CouponSchema = new mongoose.Schema({
 		type: Number,
 		default: 1
 	},
-	limitUsage: Number,
+	limitUsage: {
+		type: Number,
+		default: 0
+	},
 	invalidate: Date,
 	missions: [{
 		missionType: String,

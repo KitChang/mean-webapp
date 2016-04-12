@@ -103,10 +103,17 @@ event.factory('events', ['$state', '$http', 'auth', function ($state, $http, aut
 		return $http.delete('/events/'+event._id+'/comments/'+commentId);
 	};
 	oEvents.createCoupon = function (coupon) {
-		// body...
-		return $http.post('/events/'+coupon.event+'/comments',coupon);
+		return $http.post('/events/'+coupon.event+'/coupons',coupon);
+	};
+	oEvents.getCoupon = function (event, couponId) {
+		return $http.get('/events/'+event._id+'/coupons/'+couponId);
+	};
+	oEvents.updateCoupon = function (coupon) {
+		return $http.put('/events/'+coupon.event+'/coupons/'+coupon._id, coupon);
+	};
+	oEvents.removeCoupon = function (event, couponId) {
+		return $http.delete('/events/'+event._id+'/coupons/'+couponId);
 	}
-
 	return oEvents;
 }]);
 
@@ -386,11 +393,12 @@ event.controller('EventCtrl', [
 		$scope.newCoupon.missions = [];
 		$scope.mission = {};
 		$scope.showModal = false;
+		$scope.showEditModal = false;
 	    $scope.toggleModal = function(){
 	        $scope.showModal = !$scope.showModal;
 	    };
-	    $scope.showMissionRepeat = function () {
-	    	return $scope.mission.missionType != undefined;
+	    $scope.showMissionRepeat = function (missionType) {
+	    	return missionType != undefined;
 	    }
 		$scope.update = function () {
 			console.log(event);
@@ -466,18 +474,61 @@ event.controller('EventCtrl', [
 		}
 		$scope.createCoupon = function () {
 			console.log($scope.mission);
-			$scope.newCoupon.missions[0] = $scope.mission;
+			if ($scope.mission.missionType != undefined) {
+				$scope.newCoupon.missions[0] = $scope.mission;
+			}
 			$scope.newCoupon.event = $scope.event._id;
 			$scope.newCoupon.invalidate = $scope.event.invalidate;
 			console.log($scope.newCoupon);
 			events.createCoupon($scope.newCoupon).success(function (data) {
 				// body...
+				console.log(data);
 				$scope.event.coupons.push(data);
+				$scope.showModal = false;
 			}).error(function (err) {
 				$scope.error = err;
 			});
 		}
-
+		$scope.editCoupon = function (couponId) {
+			
+			events.getCoupon($scope.event, couponId).success(function (data) {
+				$scope.coupon = data;
+				$scope.showEditModal = true;
+			}).error(function (err) {
+				$scope.error = err;
+			});
+		};
+		$scope.updateCoupon = function () {
+			console.log($scope.coupon);
+			events.updateCoupon($scope.coupon).success(function (data) {
+				var index;
+				$scope.event.coupons.some(function( obj, idx ) {
+				    if( obj._id === data._id ) {
+				        index = idx;
+				        return true;
+				    }
+				});
+				$scope.event.coupons[index] = data;
+				$scope.showEditModal = false;
+			}).error(function (err) {
+				$scope.error = err;
+				$scope.showEditModal = false;
+			});
+		};
+		$scope.removeCoupon = function (couponId) {
+			events.removeCoupon($scope.event, couponId).success(function (data) {
+				var index;
+				$scope.event.coupons.some(function( obj, idx ) {
+				    if( obj._id === data._id ) {
+				        index = idx;
+				        return true;
+				    }
+				});
+				$scope.event.coupons.splice(index, 1);
+			}).error(function (err) {
+				$scope.error = err;
+			});
+		}
 		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);
 		  return dateOut;
@@ -619,13 +670,11 @@ event.controller('EventCtrl', [
 	            total = input;
 	            input = 0;
 	        }
-	        console.log("total:"+total);
 	        for (var i = input; i < total; i++) {
 	            if (i != 0 && i != total - 1) {
 	                ret.push(i);
 	            }
 	        }
-	        console.log("ret:"+ret);
 	        return ret;
 	    };
 

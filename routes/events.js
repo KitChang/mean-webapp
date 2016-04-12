@@ -15,7 +15,8 @@ var auth = jwt({secret: config.secret, userEvent: 'payload'});
 
 router.param('eventId', function(req, res, next, eventId) {
 	var query = Event.findById(eventId).populate({path:'comments', match: { deleted: false}, select:'_id message sender created', populate:{path: 'sender', select:'_id username', model:'User'}})
-										.populate({path: 'likes', select:'_id username name', model:'User'});
+										.populate({path: 'likes', select:'_id username name', model:'User'})
+										.populate({path: 'coupons', match: {deleted: false}, select:'_id title limitUsage users', model:'Coupon'});
 	query.exec(function(err, event){
 		if (err) {return next(err);}
 		if (!event) {return next(new Error('cannot find eventInfo'));}
@@ -35,6 +36,17 @@ router.param('commentId', function(req, res, next, commentId) {
 		return next();
 	});
 });
+
+router.param('couponId', function (req, res, next, couponId) {
+	var query = Coupon.findById(couponId);
+	query.exec(function (err, coupon) {
+		if (err) {return next(err);}
+		if (!coupon) {return next(new Error('cannot find coupon'));}
+		console.log(coupon);
+		req.coupon = coupon;
+		return next();
+	});
+})
 
 router.get('/', function(req, res, next) {
 	var options = {};
@@ -170,7 +182,7 @@ router.delete('/:eventId/comments/:commentId', function (req, res, next) {
 	});
 });
 
-router.post('/:eventId/conpous', function (req, res, next) {
+router.post('/:eventId/coupons', function (req, res, next) {
 	if(!req.body.title || !req.body.detail || !req.body.event || !req.body.condition) {
     	return res.status(400).json({message: 'Please fill out all fields'});
   	}
@@ -195,6 +207,40 @@ router.post('/:eventId/conpous', function (req, res, next) {
   	});
 });
 
+router.get('/:eventId/coupons/:couponId', function (req, res, next) {
+	res.json(req.coupon);
+});
+
+router.put('/:eventId/coupons/:couponId', function (req, res, next) {
+	if (!req.body.title || !req.body.detail || !req.body.event || !req.body.condition) {
+		return res.status(400).json({message: 'Please fill out all fields'});
+	}
+
+	req.coupon.title = req.body.title;
+	req.coupon.detail = req.body.detail;
+	req.coupon.condition = req.body.condition;
+	req.coupon.limitUsage = req.body.limitUsage || 0;
+	req.coupon.limitPerUser = req.body.limitPerUser || 1;
+	req.coupon.missions = req.body.missions || undefined;
+
+	req.coupon.save(function (err, savedCoupon) {
+		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		console.log(savedCoupon);
+		return res.json(savedCoupon);
+	})
+});
+
+router.delete('/:eventId/coupons/:couponId', function (req, res, next) {
+	console.log('id: '+ req.coupon._id);
+	req.coupon.deleted = true;
+	req.coupon.save(function (err, coupon) {
+		if (err) {return next(err);}
+		return res.json(coupon);
+	});
+});
 
 router.delete('/:eventId', function (req, res, next) {
 	console.log('id: '+ req.event._id);

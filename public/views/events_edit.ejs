@@ -111,11 +111,16 @@
 		    <thead>
 		      	<tr>
 		      		<th>標題</th>
+		      		<th>領取量</th>
+		      		<th>餘量</th>
 		      	</tr>
 		    </thead>
 		    <tbody>
-		      <tr ng-repeat="coupon in coupons">
-				<td>{{coupon.title}}</td>
+		      <tr ng-repeat="coupon in event.coupons">
+				<td><a ng-click="editCoupon(coupon._id)">{{coupon.title}}</a></td>
+				<td>{{coupon.users.length}}</td>
+				<td>{{coupon.limitUsage-coupon.users.length}}</td>
+				<td><a role="button" class="btn btn-danger pull-right" ng-click="removeCoupon(coupon._id)">Delete</a></td>
 		      </tr>
 		    </tbody>
 		</table>
@@ -150,8 +155,50 @@
 			      ng-model="mission.missionType" ng-options="type for type in missionTypes">
 			      	<option value="" selected>選擇任務</option>
 			      </select>		      
-			      <div class="input-group" ng-show="showMissionRepeat()" >
+			      <div class="input-group" ng-show="showMissionRepeat(mission.missionType)" >
 				    	<input ng-model="mission.missionRepeat" type="text" class="form-control" id="missionRepeat" placeholder="missionRepeat" />
+				    		<span class="input-group-addon">
+				        		<span>次</span>
+				      		</span>
+				    </div>
+			    </div>
+	        	
+
+	      	</div>
+	      <button type="submit" class="btn btn-default">Submit</button>
+	    </form>
+	  </modal>
+	  <modal title="Edit Coupon" visible="showEditModal">
+	    <form ng-submit="updateCoupon()">
+	    	<div class="form-group">
+	        	<label for="point">Title</label>
+	        	<input ng-model="coupon.title" type="text" class="form-control" id="title" placeholder="Title" />
+	      	</div>
+			<div class="form-group">
+				<label class="control-label" for="username">Detail:</label>
+		    	<textarea class="form-control" rows="5" ng-model="coupon.detail"></textarea>
+		    </div>
+		    <div class="form-group">
+				<label class="control-label">Condition:</label>
+			    <textarea class="form-control" rows="5" ng-model="coupon.condition"></textarea>
+		    </div>
+		    <div class="form-group">
+	        	<label for="point">limitUsage</label>
+	        	<input ng-model="coupon.limitUsage" type="text" class="form-control" id="limitUsage" placeholder="limitUsage" />
+	      	</div>
+	      	<div class="form-group">
+	        	<label for="point">limitPerUser</label>
+	        	<input ng-model="coupon.limitPerUser" type="text" class="form-control" id="limitPerUser" placeholder="limitPerUser" />
+	      	</div>
+	      	<div class="form-group">
+	        	<label for="point">Missions</label>
+	        	<div class="form-inline">
+			      <select class="form-control" id="missionType"
+			      ng-model="coupon.missions[0].missionType" ng-options="type for type in missionTypes">
+			      	<option value="" selected>選擇任務</option>
+			      </select>		      
+			      <div class="input-group" ng-show="showMissionRepeat(coupon.missions[0].missionType)" >
+				    	<input ng-model="coupon.missions[0].missionRepeat" type="text" class="form-control" id="missionRepeat" placeholder="missionRepeat" />
 				    		<span class="input-group-addon">
 				        		<span>次</span>
 				      		</span>
