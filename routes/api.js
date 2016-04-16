@@ -3,12 +3,15 @@ var router = express.Router();
 var https = require('https');
 var eventEmitter = require('events').EventEmitter;
 var moment = require('moment');
+var apn = require('apn');
+var fs = require('fs');
 
 var passport = require('passport');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Card = mongoose.model('Card');
 var Shop = mongoose.model('Shop');
+var Chat = mongoose.model('Chat');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
@@ -1291,6 +1294,87 @@ router.post('/shops/qrCode', function (req, res, next) {
 	}
 });
 
+router.post('/chatrooms', function (req, res, next) {
+	longPolling(req, res, next, new Date());
+});
+
+router.post('/newChat', function (req, res, next) {
+	
+	var chat = new Chat(req.body);
+	chat.save(function (err, saveChat) {
+		return res.end();
+	});
+});
+
+router.post('/push', function (req, res, next) {
+	var options = {
+		'cert': __dirname + '/UMac.pem',
+		'key': __dirname + '/UMacKey.pem',
+		'production': false
+	};
+	var apnConnection = new apn.Connection(options);
+	var myDevice = new apn.Device("8d051de40937de7ef020a4f9c4b95502207df96b5fad5fea1395041ccd1f3737"); // ""裡面放欲推撥裝置的token
+	var note = new apn.Notification();
+	note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
+	note.badge = 3;
+	note.sound = "ping.aiff";
+	note.alert = "\uD83D\uDCE7 \u2709 You have a new message";
+	note.payload = {'messageFrom': 'Caroline'};
+
+	apnConnection.pushNotification(note, myDevice);
+	apnConnection.on('completed', function () {
+		console.log('completed');
+		res.status(200).end();
+	});
+	apnConnection.on('error', function (error) {
+		console.log('error');
+		console.log(error);
+	});
+	apnConnection.on('socketError', function (error) {
+		console.log('socketError');
+		console.log(error);
+	});
+	apnConnection.on('transmitted', function (notification, device) {
+		console.log('transmitted');
+		console.log(notification);
+		console.log(device);
+	});
+	apnConnection.on('connected', function (openSockets) {
+		console.log('connected');
+		console.log(openSockets);
+	});
+	apnConnection.on('disconnected', function (openSockets) {
+		console.log('disconnected');
+		console.log(openSockets);
+	});
+	apnConnection.on('timeout', function () {
+		console.log('timeout');
+	});
+	apnConnection.on('transmissionError', function (errorCode, notification, device) {
+		console.log('transmissionError');
+		console.log(errorCode);
+		console.log(notification);
+		console.log(device);
+	});
+
+	var options = {
+		'cert': __dirname + '/UMac.pem',
+		'key': __dirname + '/UMacKey.pem',
+		'production': false,
+	    "batchFeedback": true,
+	    "interval": 300
+	};
+
+	var feedback = new apn.Feedback(options);
+	feedback.on("feedback", function(devices) {
+	    devices.forEach(function(item) {
+	        // Do something with item.device and item.time;
+	        console.log(item);
+	    });
+	});
+	
+});
+
 router.get('/wxapi', function(req, res, next) {
 	console.log(req.query.code);
 	if (req.query.code) {
@@ -1347,6 +1431,24 @@ function accessTokenValidation(accessToken, cb) {
 
 		cb(null,userOne);
 	});
+};
+
+function longPolling(req, res, next, startTime) {
+	var date = new Date();
+	console.log(startTime);
+	if (date-startTime > 59999) {
+		console.log('end');
+		res.status(204);
+		return res.end();
+		
+	} 
+		console.log(new Date(req.body.start));
+		Chat.find({"created": {"$gte": new Date(req.body.start)}}).exec(function (err, chats) {
+			if (chats.length == 0) {setTimeout(function() { longPolling(req, res, next, startTime) }, 10000);}
+			else res.json(chats);
+		});
+	
+
 };
 
 module.exports = router;

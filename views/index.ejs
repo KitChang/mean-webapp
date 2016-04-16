@@ -21,7 +21,8 @@
     <script src="/javascripts/property.js"></script> 
     <script src="/javascripts/shop.js"></script> 
     <script src="/javascripts/card.js"></script> 
-    <script src="/javascripts/event.js"></script> 
+    <script src="/javascripts/event.js"></script>
+    <script src="/javascripts/chatrooms.js"></script>
     <style> .glyphicon-thumbs-up { cursor:pointer } </style>
     <style type='text/css'>
 		.fa.form-control-feedback {<!--from   w w  w.  j av a 2  s .  com-->
@@ -62,6 +63,8 @@
 			  </ul>
 			</li>
 	      	<li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+			<li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="chatroomslist">所有對話</a></li>
+	      	
 	      	<li class="navbar-nav-custom" ng-show="isClient()||isAdmin()"><a ui-sref="eventslist">所有活動</a></li>
 	      	<li class="navbar-nav-custom" ng-show="isLoggedIn()"><a href="/#/login" ng-click="logOut()">Log Out</a></li>
 	      	<li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>

@@ -20,6 +20,8 @@ require('./models/Logs');
 require('./models/Events');
 require('./models/Comments');
 require('./models/Coupons');
+require('./models/Chatrooms');
+require('./models/Chats');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 
@@ -32,6 +34,7 @@ var shops = require('./routes/shops');
 var cards = require('./routes/cards');
 var logs = require('./routes/logs');
 var events = require('./routes/events');
+var chatrooms = require('./routes/chatrooms');
 var app = express();
 
 // view engine setup
@@ -56,6 +59,7 @@ app.use('/shops', shops);
 app.use('/cards', cards);
 app.use('/logs', logs);
 app.use('/events', events);
+app.use('/chatrooms', chatrooms);
 app.use('/api', api);
 
 app.post('/upload', function(req, res) {

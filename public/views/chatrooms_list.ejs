@@ -1,0 +1,57 @@
+<div class="col-md-5 col-md-offset-1">
+	<div class="page-header">
+    	<h1>Chatroom List</h1>
+    	<a role="button" class="glyphicon glyphicon-plus btn btn-primary pull-right" ng-click="showMembers()"></a>
+  	</div>
+  	<div>
+		<table class="table table-striped" ng-init="init()">
+		    <thead>
+		      <tr>
+		      	<th>時間</th>
+		        <th>聯絡人</th>
+		        <th>對話</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="chatroom in ItemsByPage[currentPage]">
+		      	<td>{{convertToDate(chatroom.updated) | date:'medium'}}</td>
+		      	<td><a ng-click="getChatroom(chatroom._id)">{{showChatroomTitle(chatroom)}}</a></td>
+		      	<td>{{chatroom.conversations.length}}</td>
+		        <td>
+		        	<a ui-sref="chatroomsedit({chatroomId:'{{chatroom._id}}'})" role="button" class="btn btn-info" ng-show="false">Edit</a>
+		        	<a role="button" class="btn btn-danger" ng-click="remove(chatroom._id);">Delete</a></td>
+		        </td>
+		      </tr>
+		    </tbody>
+		</table>
+		<ul class="pagination pagination-sm">
+            <li ng-class="{active:0}"><a ng-click="firstPage()">First</a></li>
+            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a></li>
+            <li><a ng-click="lastPage()">Last</a></li>
+        </ul>
+	</div>
+	<modal title="Members" visible="showModal">
+		<div class="list-group">
+			<li class="list-group-item" ng-repeat="member in shop.members">
+				<p>{{member.owner.username}}<a role="button" class="btn btn-success pull-right" ng-click="showOrCreate(member.owner._id)">Chat</a></p>
+			</li>
+		</div>
+	</modal>
+</div>
+<div class="col-md-4 col-md-offset-1" ng-show="chats">
+	<div class="page-header">
+    	<h1>Chat</h1>
+  	</div>
+  	<div class="input-group">
+	    	<input type="text" class="form-control" placeholder="Add reply..." ng-model="newChat">
+	    		<span class="input-group-btn">
+	        	<button class="btn btn-success" type="button" ng-click="addChat()">Reply</button>
+	      	</span>
+	    </div>
+  	<div class="list-group">
+		<li class="list-group-item" ng-repeat="chat in chats"><span class="badge">{{convertToDate(chat.created) | date:'medium'}}</span>
+			<a>{{chat.sender}}</a> - {{chat.content}}
+		</li>
+	</div>
+	<p ng-show="chats.length<=0" style="text-align: center;">暫無記錄</p>
+</div>	
