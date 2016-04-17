@@ -89,6 +89,9 @@ chatroom.factory('chatrooms', ['$state', '$http', 'auth', function ($state, $htt
 	oChatrooms.remove = function (chatroomId) {
 		return $http.delete('/chatrooms/'+chatroomId);
 	};
+	oChatrooms.createChat = function (chat) {
+		return $http.post('/chatrooms/'+chat.chatroom+'/chats', chat);	
+	};
 
 	return oChatrooms;
 }]);
@@ -112,7 +115,7 @@ chatroom.controller('ChatroomCtrl', [
 	    $scope.getChatroom = function (chatroomId) {
 	    	chatrooms.get(chatroomId).success(function (data) {
 	    		console.log(data);
-	    		$scope.chats = data.conversations;
+	    		$scope.chatroom = data;
 	    	}).error(function (err) {
 	    		$scope.error = err;
 	    	})
@@ -166,6 +169,20 @@ chatroom.controller('ChatroomCtrl', [
 			}).error(function (err) {
 				$scope.error = err;
 			});
+		};
+		$scope.createChat = function () {
+			var chat = {};
+			chat.sender = auth.currentUser()._id;
+			chat.messageType = 'text';
+			chat.content = $scope.newChat;
+			chat.chatroom = $scope.chatroom._id;
+			chatrooms.createChat(chat).success(function (data) {
+				$scope.chatroom.conversations.push(data);
+				$scope.newChat = '';
+			}).error(function (err) {
+				$scope.error = err;
+			});
+
 		};
 		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);

@@ -15,9 +15,9 @@ var ChatSchema = new mongoose.Schema({
 		type: String,
 		require: true
 	},
-	chatRoom : {
+	chatroom : {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'ChatRoom',
+		ref: 'Chatroom',
 		require: true
 	},
 	created: {

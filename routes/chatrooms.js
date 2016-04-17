@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Chatroom = mongoose.model('Chatroom');
 var Shop = mongoose.model('Shop');
+var Chat = mongoose.model('Chat');
 var jwt = require('express-jwt');
 
 var auth = jwt({secret: config.secret, userChatroom: 'payload'});
@@ -107,18 +108,17 @@ router.put('/:chatroomId', function (req, res, next) {
 	
 });
 
-router.post('/:chatroomId/comments', function (req, res, next) {
-	if(!req.body.sender || !req.body.message) {
+router.post('/:chatroomId/chats', function (req, res, next) {
+	if(!req.body.sender || !req.body.messageType || !req.body.content || !req.body.chatroom) {
     	return res.status(400).json({message: 'Please fill out all fields'});
   	}
-  	var comment = new Comment(req.body);
-  	comment.chatroom = req.chatroom._id;
-  	comment.save(function (err, savedComment) {
+  	var chat = new Chat(req.body);
+  	chat.save(function (err, savedChat) {
   		if (err) {
 			console.log(err);
 			return next(err);
 		}
-		req.chatroom.comments.push(savedComment);
+		req.chatroom.conversations.push(savedChat);
 		req.chatroom.save(function (err, savedChatroom) {
 			if (err) {
 				console.log(err);
@@ -127,7 +127,7 @@ router.post('/:chatroomId/comments', function (req, res, next) {
 
 				console.log('savedChatroom:');
 				console.log(savedChatroom);
-			return res.json(savedComment);
+			return res.json(savedChat);
 		});
   	});
 });
