@@ -140,16 +140,23 @@ chatroom.controller('ChatroomCtrl', [
 		$scope.showOrCreate = function (memberId) {
 			var index = -1;
 			$scope.chatrooms.some(function( obj, idx ) {
-			    if( obj.users.indexOf(memberId) != -1 ) {
-			        index = idx;
-			        return true;
-			    }
+				obj.users.some(function (user, userIndex) {
+					if( user._id == memberId ) {
+				    	console.log(idx);
+				        index = idx;
+				        return true;
+				    }
+				});
+			    
 			});
 			if (index == -1) {
+				console.log('create chatroom:' + index);
 				$scope.create(memberId);
+
 			} else {
-				console.log('show chatroom');
-				$scope.create(memberId);
+				console.log('show chatroom' + index);
+				$scope.getChatroom($scope.chatrooms[index]._id);
+				$scope.showModal = false;
 			}
 		};
 		$scope.remove = function (chatroomId) {
@@ -187,6 +194,16 @@ chatroom.controller('ChatroomCtrl', [
 		$scope.convertToDate = function (stringDate){
 		  var dateOut = new Date(stringDate);
 		  return dateOut;
+		};
+		$scope.convertToUsername = function (userId) {
+			var index;
+			$scope.chatroom.users.some(function( obj, idx ) {
+			    if( obj._id == userId ) {
+			        index = idx;
+			        return true;
+			    }
+			});	
+			return $scope.chatroom.users[index].username;
 		};
 		$scope.showChatroomTitle = function (chatroom) {
 			var index;

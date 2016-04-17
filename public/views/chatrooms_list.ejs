@@ -49,9 +49,11 @@
 	      	</span>
 	    </div>
   	<div class="list-group">
-		<li class="list-group-item" ng-repeat="chat in chatroom.conversations"><span class="badge"><span am-time-ago="chat.created"></span></span>
-			<a>{{chat.sender}}</a> <br> {{chat.content}}
-		</li>
+
+  		<li class="list-group-item" ng-repeat="chat in chatroom.conversations"><span class="badge"><span am-time-ago="chat.created"></span></span>
+		    <a><h4 class="list-group-item-heading">{{convertToUsername(chat.sender)}}</h4></a>
+		    <p class="list-group-item-text">{{chat.content}}</p>
+		  </li>
 	</div>
 	<p ng-show="chatroom.conversations.length<=0" style="text-align: center;">暫無記錄</p>
 </div>	
