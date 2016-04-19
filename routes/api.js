@@ -12,6 +12,7 @@ var User = mongoose.model('User');
 var Card = mongoose.model('Card');
 var Shop = mongoose.model('Shop');
 var Chat = mongoose.model('Chat');
+var Event = mongoose.model('Event');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
@@ -1150,6 +1151,46 @@ router.post('/cards/point/redeem', function (req, res, next) {
 
 			});
 
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/events', function (req, res, next) {
+	if (req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Card.find({owner: userOne._id}, '_id business').exec(function (err, cards) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				var businesses = cards.map(function (card) {
+					return card.business;
+				});
+				Event.find({business: {$in: businesses}, 
+							published: true, 
+							publishDate:{"$lt": new Date()}, 
+							invalidate:{"$gte": new Date()},
+							deleted: false})
+					 		.populate('business', '_id business')
+					 		.populate({path: 'comments', select: '_id sender message created', match: {deleted: false}, options: {limit: 5, sort: {created: -1}}, 
+					 			populate: {path: 'sender', select: '_id username name'}})
+			 		.exec(function (err, events) {
+			 			if (err) {
+							console.log(err);
+							return res.status(500).json(err);
+						}
+						return res.json(events);
+					});
+			});
 		});
 	} else {
 		res.status(400);
