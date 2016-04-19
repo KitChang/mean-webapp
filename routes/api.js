@@ -1175,14 +1175,29 @@ router.post('/events', function (req, res, next) {
 				var businesses = cards.map(function (card) {
 					return card.business;
 				});
-				Event.find({business: {$in: businesses}, 
-							published: true, 
-							publishDate:{"$lt": new Date()}, 
-							invalidate:{"$gte": new Date()},
-							deleted: false})
+				var options = {business: {$in: businesses}, 
+								published: true, 
+								publishDate:{"$lt": new Date()}, 
+								invalidate:{"$gte": new Date()},
+								deleted: false}
+				if (req.body.skipDate) {
+					var skipDate = new Date(req.body.skipDate);
+					if (skipDate) {
+						options.publishDate = {"$lt": skipDate}
+					}
+				}
+				var limit = 0;
+				if (!isNaN(req.body.limit)) {
+					limit = parseInt(req.body.limit)
+				}
+
+				
+				Event.find(options)
 					 		.populate('business', '_id business')
 					 		.populate({path: 'comments', select: '_id sender message created', match: {deleted: false}, options: {limit: 5, sort: {created: -1}}, 
 					 			populate: {path: 'sender', select: '_id username name'}})
+					.sort({'publishDate': -1})
+					.limit(limit)
 			 		.exec(function (err, events) {
 			 			if (err) {
 							console.log(err);
