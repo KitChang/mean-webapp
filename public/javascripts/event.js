@@ -591,7 +591,8 @@ event.controller('EventCtrl', [
 	              var file = files[i];
 	              if (!file.$error) {
 	                Upload.upload({
-	                    url: 'http://localhost/upload',
+	                    //url: 'http://localhost/upload',
+	                    url: 'http://api.ibeacon-macau.com/upload',
 	                    data: {
 	                    	channel: '123',
 	                    	file: file  
