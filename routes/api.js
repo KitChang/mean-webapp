@@ -1191,7 +1191,6 @@ router.post('/events', function (req, res, next) {
 				if (!isNaN(req.body.limit)) {
 					limit = parseInt(req.body.limit)
 				}
-
 				
 				Event.find(options)
 					 		.populate('business', '_id business')
@@ -1213,6 +1212,44 @@ router.post('/events', function (req, res, next) {
 		res.json({message: "Bad parameters"});
 	}
 });
+
+router.post('/events/comments', function (req, res, next) {
+	if (req.body.accessToken || req.body.event) {
+		var accessToken = req.body.accessToken;
+		userToBusinesses(accessToken, function (err, businesses) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (businesses == null) { return res.status(401); }
+			Event.findById(req.body.event).exec(function (err, event) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!event) { return res.status(404).json({message: 'Event not found.'});}
+				if (businesses.indexOf(event.business) == -1) {
+					return res.status(404).json({message: 'Event not found.'});
+				} else {
+					if (req.body.skipDate) {
+						var skipDate = new Date(req.body.skipDate);
+						if (skipDate) {
+							options.publishDate = {"$lt": skipDate}
+						}
+					}
+					Event.populate(event, {path: 'comments', match: {created: {$lt: skipDate}}, select: '_id sender message created', match: {deleted: false}, options: {limit: 5, sort: {created: -1}}, 
+					 			populate: {path: 'sender', select: '_id profileImageURL username name'}}, function (err, event) {
+						if (err) {return res.status(500).json(err);}
+						return res.json(event.comments);
+					});
+				}
+			})
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+}
 
 router.post('/events/comments/postComment', function (req, res, next) {
 	if (req.body.accessToken || req.body.event) {
@@ -1506,6 +1543,29 @@ function accessTokenValidation(accessToken, cb) {
 		cb(null,userOne);
 	});
 };
+
+function userToBusinesses(accessToken, cb) {
+	if (accessToken) {
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				cb(err, null);
+			}
+			if (!userOne) {cb(null,null);}
+			Card.find({owner: userOne._id}, '_id business').exec(function (err, cards) {
+				if (err) {
+					console.log(err);
+					cb(err, null);
+				}
+				var businesses = cards.map(function (card) {
+					return card.business;
+				});
+				cb(null, businesses);
+			});
+		});
+	}
+
+}
 
 function longPolling(req, res, next, startTime) {
 	var date = new Date();
