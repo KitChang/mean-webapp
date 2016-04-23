@@ -1228,16 +1228,24 @@ router.post('/events/comments', function (req, res, next) {
 					return res.status(500).json(err);
 				}
 				if (!event) { return res.status(404).json({message: 'Event not found.'});}
-				if (businesses.indexOf(event.business) == -1) {
-					return res.status(404).json({message: 'Event not found.'});
+				var index = -1;
+
+				if (businesses.some(function(business) {
+						return business == event.business;
+					})) {
+					console.log(businesses);
+					return res.status(403).json({message: 'Event not found.', businesses:businesses});
 				} else {
+					var options = {};
+					options.deleted = false;
 					if (req.body.skipDate) {
 						var skipDate = new Date(req.body.skipDate);
 						if (skipDate) {
-							options.publishDate = {"$lt": skipDate}
+							options.created = {"$lt": skipDate};
+							console.log(options);
 						}
 					}
-					Event.populate(event, {path: 'comments', match: {created: {$lt: skipDate}}, select: '_id sender message created', match: {deleted: false}, options: {limit: 5, sort: {created: -1}}, 
+					Event.populate(event, {path: 'comments', match: options, select: '_id sender message created', options: {limit: 5, sort: {created: -1}}, 
 					 			populate: {path: 'sender', select: '_id profileImageURL username name'}}, function (err, event) {
 						if (err) {return res.status(500).json(err);}
 						return res.json(event.comments);
