@@ -1249,7 +1249,7 @@ router.post('/events/comments', function (req, res, next) {
 		res.status(400);
 		res.json({message: "Bad parameters"});
 	}
-}
+});
 
 router.post('/events/comments/postComment', function (req, res, next) {
 	if (req.body.accessToken || req.body.event) {
