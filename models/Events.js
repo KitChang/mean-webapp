@@ -38,10 +38,12 @@ var EventSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Comment'
 	}],
+	commentCount: Number,
 	likes: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
+	likeCount: Number,
 	coupons: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Coupon'
@@ -62,6 +64,13 @@ var EventSchema = new mongoose.Schema({
 		default: false
 	}
 
+});
+
+EventSchema.pre('save', function (next) {
+	this.commentCount = this.comments.length;
+	this.likeCount = this.likes.length;
+	this.updated = new Date();
+	next();
 });
 
 mongoose.model('Event', EventSchema);

@@ -13,6 +13,7 @@ var Card = mongoose.model('Card');
 var Shop = mongoose.model('Shop');
 var Chat = mongoose.model('Chat');
 var Event = mongoose.model('Event');
+var Comment = mongoose.model('Comment');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
@@ -1195,7 +1196,7 @@ router.post('/events', function (req, res, next) {
 				Event.find(options)
 					 		.populate('business', '_id business')
 					 		.populate({path: 'comments', select: '_id sender message created', match: {deleted: false}, options: {limit: 5, sort: {created: -1}}, 
-					 			populate: {path: 'sender', select: '_id username name'}})
+					 			populate: {path: 'sender', select: '_id profileImageURL username name'}})
 					.sort({'publishDate': -1})
 					.limit(limit)
 			 		.exec(function (err, events) {
@@ -1206,6 +1207,23 @@ router.post('/events', function (req, res, next) {
 						return res.json(events);
 					});
 			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/events/comments/postComment', function (req, res, next) {
+	if (req.body.accessToken || req.body.event) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+
 		});
 	} else {
 		res.status(400);
