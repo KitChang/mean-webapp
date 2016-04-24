@@ -1214,43 +1214,36 @@ router.post('/events', function (req, res, next) {
 });
 
 router.post('/events/comments', function (req, res, next) {
-	if (req.body.accessToken || req.body.event) {
+	if (req.body.accessToken && req.body.event) {
 		var accessToken = req.body.accessToken;
-		userToBusinesses(accessToken, function (err, businesses) {
+		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
 				console.log(err);
 				return res.status(500).json(err);
 			}
-			if (businesses == null) { return res.status(401); }
-			Event.findById(req.body.event).exec(function (err, event) {
+			if (!userOne) {return res.status(401);}
+			Event.findById(req.body.event).populate({path:'comments', match: { deleted: false}, select:'_id message sender created'})
+				.exec(function (err, event) {
 				if (err) {
 					console.log(err);
 					return res.status(500).json(err);
 				}
 				if (!event) { return res.status(404).json({message: 'Event not found.'});}
-				var index = -1;
-
-				if (businesses.some(function(business) {
-						return business == event.business;
-					})) {
-					console.log(businesses);
-					return res.status(403).json({message: 'Event not found.', businesses:businesses});
-				} else {
-					var options = {};
-					options.deleted = false;
-					if (req.body.skipDate) {
-						var skipDate = new Date(req.body.skipDate);
-						if (skipDate) {
-							options.created = {"$lt": skipDate};
-							console.log(options);
-						}
+				
+				var options = {};
+				options.deleted = false;
+				if (req.body.skipDate) {
+					var skipDate = new Date(req.body.skipDate);
+					if (skipDate) {
+						options.created = {"$lt": skipDate};
 					}
-					Event.populate(event, {path: 'comments', match: options, select: '_id sender message created', options: {limit: 5, sort: {created: -1}}, 
-					 			populate: {path: 'sender', select: '_id profileImageURL username name'}}, function (err, event) {
-						if (err) {return res.status(500).json(err);}
-						return res.json(event.comments);
-					});
 				}
+				Event.populate(event, {path: 'comments', match: options, select: '_id sender message created', options: {limit: 5, sort: {created: -1}}, 
+				 			populate: {path: 'sender', select: '_id profileImageURL username name'}}, function (err, event) {
+					if (err) {return res.status(500).json(err);}
+					return res.json(event.comments);
+				});
+				
 			})
 		});
 	} else {
@@ -1259,8 +1252,8 @@ router.post('/events/comments', function (req, res, next) {
 	}
 });
 
-router.post('/events/comments/postComment', function (req, res, next) {
-	if (req.body.accessToken || req.body.event) {
+router.post('/events/comments/post', function (req, res, next) {
+	if (req.body.accessToken && req.body.event && req.body.comment) {
 		var accessToken = req.body.accessToken;
 		accessTokenValidation(accessToken, function (err, userOne) {
 			if (err) {
@@ -1268,7 +1261,42 @@ router.post('/events/comments/postComment', function (req, res, next) {
 				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
-
+			Event.findById(req.body.event).populate({path:'comments', match: { deleted: false}, select:'_id message sender created'})
+				.exec(function (err, foundEvent) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundEvent) {return res.status(404).json({message: 'Event not found.'});}
+				var comment = new Comment({sender: userOne, 
+										message:req.body.comment, 
+										event: req.body.event});
+				comment.save(function (err, savedComment) {
+					if (err) {
+						console.log(err);
+						return res.status(500).json(err);
+					}
+					foundEvent.comments.push(savedComment);
+					foundEvent.save(function (err, savedEvent) {
+						if (err) {
+							console.log(err);
+							return res.status(500).json(err);
+						}
+						var comment = {};
+						var sender = {};
+						sender._id = savedComment.sender._id;
+						sender.name = savedComment.sender.name;
+						sender.profileImageURL = savedComment.sender.profileImageURL;
+						sender.username = savedComment.sender.username;
+						comment._id = savedComment._id;
+						comment.created = savedComment.created;
+						comment.message = savedComment.message;
+						comment.sender = sender;
+						return res.json(comment);
+					});
+				});
+			});
+			
 		});
 	} else {
 		res.status(400);
