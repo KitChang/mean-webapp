@@ -124,6 +124,7 @@ router.put('/:eventId', function (req, res, next) {
 	req.event.condition = (req.body.condition)?req.body.condition:undefined;
   	req.event.imageUrl = req.body.imageUrl;
   	req.event.rules = req.body.rules;
+  	req.event.published = req.body.published;
   	console.log(req.event);
 	req.event.save(function (err, event) {
 			// body...

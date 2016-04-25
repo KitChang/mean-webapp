@@ -62,7 +62,12 @@ var UserSchema = new mongoose.Schema({
   business: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Shop'
-  }
+  },
+  eventLikes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    default: []
+  }]
 });
 
 UserSchema.methods.setPassword = function(password){

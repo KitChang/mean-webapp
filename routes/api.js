@@ -43,6 +43,7 @@ router.post('/auth/local', function(req, res, next) {
 			results.fbName = user.fbName;
 			results.wxId = user.wxId;
 			results.wxName = user.wxName;
+			results.eventLikes = user.eventLikes;
 			return res.json(results)
 		} else {
 			return res.status(400).json({ message: 'Incorrect password.' });
@@ -1301,6 +1302,51 @@ router.post('/events/comments/post', function (req, res, next) {
 	} else {
 		res.status(400);
 		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/events/like', function (req, res, next) {
+	if (req.body.accessToken && req.body.event) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Event.findById(req.body.event).populate({path:'comments', match: { deleted: false}, select:'_id message sender created'})
+				.exec(function (err, foundEvent) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundEvent) {return res.status(404).json({message: 'Event not found.'});}
+				console.log(userOne._id.toString());
+				if (foundEvent.likes.some(function (userId) {
+					console.log(userId.toString());
+					return userOne._id.toString() == userId.toString();
+				})) {
+					return res.status(204).end();
+				} else {
+					console.log(foundEvent.likes);
+					foundEvent.likes.push(userOne._id);
+					foundEvent.save(function (err, savedEvent) {
+						if (err) {
+							console.log(err);
+							return res.status(500).json(err);
+						}
+						userOne.eventLikes.push(savedEvent._id);
+						userOne.save(function (err, savedUser) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json(err);
+							}
+							return res.status(201).end();
+						});
+					});
+				}
+			});
+		});
 	}
 });
 
