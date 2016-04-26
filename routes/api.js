@@ -1188,6 +1188,13 @@ router.post('/events', function (req, res, next) {
 						options.publishDate = {"$lt": skipDate}
 					}
 				}
+				if (req.body.updateDate) {
+					var updateDate = new Date(req.body.updateDate);
+					if (updateDate) {
+						options.publishDate = {"$gt": updateDate}
+					}
+				}
+
 				var limit = 0;
 				if (!isNaN(req.body.limit)) {
 					limit = parseInt(req.body.limit)
