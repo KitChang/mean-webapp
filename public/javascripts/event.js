@@ -14,7 +14,14 @@ function($stateProvider, $urlRouterProvider) {
       	if (!auth.isLoggedIn()) {
       		$state.go('login');
       	};
-      }]
+      }],
+      resolve: {
+		shopinfo: ['auth', 'events', function(auth, events){
+			console.log('shopInfo: '+auth.currentUser().business);
+			return events.getShop(auth.currentUser().business);
+		}]
+	  }
+
     })
     .state('eventslist', {
       url: '/events',
@@ -26,14 +33,14 @@ function($stateProvider, $urlRouterProvider) {
       	};
       }],
       resolve: {
-			eventPromise : ['auth', 'events', function (auth, events) {
-				return events.getAll(auth.currentUser().business);
-			}],
-			shopinfo: ['auth', 'events', function(auth, events){
-				console.log('shopInfo: '+auth.currentUser().business);
-				return events.getShop(auth.currentUser().business);
-			}]
-		}
+		eventPromise : ['auth', 'events', function (auth, events) {
+			return events.getAll(auth.currentUser().business);
+		}],
+		shopinfo: ['auth', 'events', function(auth, events){
+			console.log('shopInfo: '+auth.currentUser().business);
+			return events.getShop(auth.currentUser().business);
+		}]
+	  }
     })
     .state('eventsedit', {
 			url: '/events/:eventId/edit',
