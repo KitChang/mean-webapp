@@ -870,7 +870,7 @@ router.post('/cards', function (req, res, next) {
 				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
-			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage').populate('business', '_id business').exec(function (err, cards) {
+			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage point').populate('business', '_id business').exec(function (err, cards) {
 				return res.json(cards);
 			});
 		});
