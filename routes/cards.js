@@ -354,7 +354,7 @@ function longPolling(req, res, next, startTime) {
 			setTimeout(function() { longPolling(req, res, next, startTime) }, 1000);
 
 		}
-		if (qrAuth.authroized == false) {console.log('try again');setTimeout(function() { longPolling(req, res, next, startTime) }, 1000);}
+		if (qrAuth.authroized == false) {setTimeout(function() { longPolling(req, res, next, startTime) }, 1000);}
 		else res.json(qrAuth);
 	});
 };

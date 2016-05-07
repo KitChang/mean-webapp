@@ -1565,7 +1565,7 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 				return res.status(500).json(err);
 			}
 			if (!cards) {return res.status(401);}
-			console.log(cards);
+			//console.log(cards);
 			if (cards.length == 0) {}
 			QRAuth.findOne({_id:req.body.qrString, deleted:false}).populate('card').exec(function (err, foundQRAuth) {
 				if (err) {
@@ -1575,7 +1575,7 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 				if (!foundQRAuth) {
 					return res.status(400).json({message: 'Incorrect QR Code.'});
 				}
-				console.log(foundQRAuth);
+				//console.log(foundQRAuth);
 				if (cards.some(function (item) {
 					return item._id.toString() == foundQRAuth.card._id.toString();
 				})) {
@@ -1614,8 +1614,8 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 											console.log(err);
 											return res.status(500).json(err);
 										}
-										QRAuth.populate(savedQRAuth, {path: 'card', select: '_id exp cardImage business owner tier number valid usage point',
-												populate:{path:'business', select:'_id business'}}, function (err, qrAuth) {
+										console.log(savedQRAuth);
+										QRAuth.populate(savedQRAuth, {path: 'card', select: '_id point'}, function (err, qrAuth) {
 											if (err) {
 												console.log(err);
 												return res.status(500).json(err);
