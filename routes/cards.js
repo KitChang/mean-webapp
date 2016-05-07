@@ -8,6 +8,7 @@ var User = mongoose.model('User');
 var Card = mongoose.model('Card');
 var Shop = mongoose.model('Shop');
 var Log = mongoose.model('Log');
+var QRAuth = mongoose.model('QRAuth');
 var jwt = require('express-jwt');
 
 var auth = jwt({secret: config.secret, userCard: 'payload'});
@@ -19,6 +20,17 @@ router.param('cardId', function(req, res, next, cardId) {
 		if (!card) {return next(new Error('cannot find cardInfo'));}
 		
 		req.card = card;
+		return next();
+	});
+});
+
+router.param('qrAuthId', function (req, res, next, qrAuthId) {
+	var query = QRAuth.findById(qrAuthId).populate('log');
+	query.exec(function(err, qrAuth){
+		if (err) {return next(err);}
+		if (!qrAuth) {return next(new Error('cannot find qrAuth'));}
+		
+		req.qrAuth = qrAuth;
 		return next();
 	});
 });
@@ -293,6 +305,34 @@ router.put('/:cardId/tierDown', function (req, res, next) {
   	});
 });
 
+router.post('/qrGen', function (req, res, next) {
+	console.log(req.body);
+	if(!req.body.card || !req.body.actionType || !req.body.detail){
+    	return res.status(400).json({message: 'Please fill out all fields'});
+	}
+	QRAuth.update({card: req.body.card, authroized: false}, {deleted: true}, {multi: true}, function (err, qrAuths) {
+		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		var qrAuth = new QRAuth(req.body);
+
+		qrAuth.save(function (err, savedQRAuth) {
+			if (err) {
+				console.log(err);
+				return next(err);}
+			return res.json(savedQRAuth);
+		});
+	});
+
+	
+});
+
+router.get('/qrAuth/:qrAuthId', function (req, res, next) {
+	//res.json(req.qrAuth);
+	longPolling(req, res, next, new Date());
+});
+
 router.delete('/:cardId', function (req, res, next) {
 	console.log('id: '+ req.card._id);
 	req.card.deleted = true;
@@ -301,4 +341,22 @@ router.delete('/:cardId', function (req, res, next) {
 		res.json(card);
 	});
 });
+
+function longPolling(req, res, next, startTime) {
+	var date = new Date();
+	if (date-startTime > 60000) {
+		console.log('end');
+		return res.json(req.qrAuth);	
+	} 
+	QRAuth.findById(req.qrAuth._id).populate('log').exec(function (err, qrAuth) {
+		if (err) {
+			console.log(err);
+			setTimeout(function() { longPolling(req, res, next, startTime) }, 1000);
+
+		}
+		if (qrAuth.authroized == false) {console.log('try again');setTimeout(function() { longPolling(req, res, next, startTime) }, 1000);}
+		else res.json(qrAuth);
+	});
+};
+
 module.exports = router;

@@ -14,6 +14,8 @@ var Shop = mongoose.model('Shop');
 var Chat = mongoose.model('Chat');
 var Event = mongoose.model('Event');
 var Comment = mongoose.model('Comment');
+var QRAuth = mongoose.model('QRAuth');
+var Log = mongoose.model('Log');
 var atob = require('atob');
 
 router.post('/auth/local', function(req, res, next) {
@@ -1177,6 +1179,7 @@ router.post('/events', function (req, res, next) {
 				var businesses = cards.map(function (card) {
 					return card.business;
 				});
+
 				var options = {business: {$in: businesses}, 
 								published: true, 
 								publishDate:{"$lt": new Date()}, 
@@ -1193,6 +1196,10 @@ router.post('/events', function (req, res, next) {
 					if (updateDate) {
 						options.publishDate = {"$gt": updateDate}
 					}
+				}
+
+				if (req.body.business) {
+					options.business = req.body.business;
 				}
 
 				var limit = 0;
@@ -1494,6 +1501,140 @@ router.post('/shops/qrCode', function (req, res, next) {
 	}
 });
 
+router.post('/qrAuth', function (req, res, next) {
+	if (req.body.accessToken && req.body.qrString) {
+		var accessToken = req.body.accessToken;
+		userToCards(accessToken, function (err, cards) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!cards) {return res.status(401);}
+			console.log(cards);
+			if (cards.length == 0) {}
+			QRAuth.findOne({_id:req.body.qrString, deleted:false}).populate('card').exec(function (err, foundQRAuth) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundQRAuth) {
+					return res.status(400).json({message: 'Incorrect QR Code.'});
+				}
+				console.log(foundQRAuth);
+				if (cards.some(function (item) {
+					return item._id.toString() == foundQRAuth.card._id.toString();
+				})) {
+					console.log('Owner');
+					var created = new Date(foundQRAuth.created);
+					if (Date.now() > created.getTime()+foundQRAuth.timelife) {
+						return res.status(400).json({message: 'QR Code expired.'});
+					}
+					else if (foundQRAuth.authroized == true) {
+						return res.status(400).json({message: 'QR Code used.'});
+					} else {
+						if (foundQRAuth.actionType == 'redeem') {
+							if (foundQRAuth.card.point < parseInt(foundQRAuth.detail)) {
+								return res.status(400).json({message: 'Point is not enough.'});
+							}
+							return res.json({_id: foundQRAuth._id, 
+										actionType: foundQRAuth.actionType, 
+										detail: foundQRAuth.detail})
+						} else {
+							return res.status(400).json({message: 'Not redeem QR Code.'});
+						}
+					}
+				} else {
+					console.log('Not Owner');
+					return res.status(401);
+				}
+			})
+
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/qrAuth/redeem', function (req, res, next) {
+	if (req.body.accessToken && req.body.qrString) {
+		var accessToken = req.body.accessToken;
+		userToCards(accessToken, function (err, cards) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!cards) {return res.status(401);}
+			console.log(cards);
+			if (cards.length == 0) {}
+			QRAuth.findOne({_id:req.body.qrString, deleted:false}).populate('card').exec(function (err, foundQRAuth) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundQRAuth) {
+					return res.status(400).json({message: 'Incorrect QR Code.'});
+				}
+				console.log(foundQRAuth);
+				if (cards.some(function (item) {
+					return item._id.toString() == foundQRAuth.card._id.toString();
+				})) {
+					console.log('Owner');
+					var created = new Date(foundQRAuth.created);
+					if (Date.now() > created.getTime()+foundQRAuth.timelife) {
+						return res.status(400).json({message: 'QR Code expired.'});
+					}
+					else if (foundQRAuth.authroized == true) {
+						return res.status(400).json({message: 'QR Code used.'});
+					} else {
+						if (foundQRAuth.actionType == 'redeem') {
+							if (foundQRAuth.card.point < parseInt(foundQRAuth.detail)) {
+								return res.status(400).json({message: 'Point is not enough.'});
+							}
+							foundQRAuth.card.point -= parseInt(foundQRAuth.detail);
+							foundQRAuth.card.save(function (err, savedCard) {
+								if (err) {
+									console.log(err);
+									return res.status(500).json(err);
+								}
+								var log = new Log();
+								log.subject = savedCard._id;
+								log.subjectType = 'Card';
+								log.action = "redeemPoint";
+								log.detail = foundQRAuth.detail;
+								log.save(function (err, log) {
+									if (err) {
+										console.log(err);
+										return res.status(500).json(err);
+									}
+									foundQRAuth.authroized = true;
+									foundQRAuth.log = log;
+									foundQRAuth.save(function (err, savedQRAuth) {
+										if (err) {
+											console.log(err);
+											return res.status(500).json(err);
+										}
+										return res.json(savedQRAuth);
+									});
+								});
+							});
+						} else {
+							return res.status(400).json({message: 'Not redeem QR Code.'});
+						}
+					}
+				} else {
+					console.log('Not Owner');
+					return res.status(401);
+				}
+			})
+
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
 router.post('/chatrooms', function (req, res, next) {
 	longPolling(req, res, next, new Date());
 });
@@ -1633,6 +1774,27 @@ function accessTokenValidation(accessToken, cb) {
 	});
 };
 
+function userToCards(accessToken, cb) {
+	if (accessToken) {
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				cb(err, null);
+			}
+			if (!userOne) {cb(null,null);}
+			Card.find({owner: userOne._id}, '_id business').exec(function (err, cards) {
+				if (err) {
+					console.log(err);
+					cb(err, null);
+				}
+
+				cb(null, cards);
+			});
+		});
+	}
+
+};
+
 function userToBusinesses(accessToken, cb) {
 	if (accessToken) {
 		accessTokenValidation(accessToken, function (err, userOne) {
@@ -1654,7 +1816,7 @@ function userToBusinesses(accessToken, cb) {
 		});
 	}
 
-}
+};
 
 function longPolling(req, res, next, startTime) {
 	var date = new Date();

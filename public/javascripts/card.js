@@ -116,7 +116,12 @@ card.factory('cards', ['$state', '$http', 'auth', function ($state, $http, auth)
 			oCards.cards.splice(index, 1);
 		});
 	};
-
+	oCards.qrGen = function (cardId, actionType, detail) {
+		return $http.post('/cards/qrGen',{card: cardId, actionType:actionType, detail: detail});	
+	};
+	oCards.checkQRAuth = function (qrAuthId) {
+		return $http.get('/cards/qrAuth/'+qrAuthId);	
+	};
 	return oCards;
 }]);
 
@@ -185,18 +190,66 @@ card.controller('CardCtrl', [
 .controller('CardEditCtrl', [
 	'$scope',
 	'$state',
+	'$interval',
 	'auth',
 	'cards',
 	'cardinfo',
-	function ($scope, $state, auth, cards, cardinfo) {
+	function ($scope, $state, $interval, auth, cards, cardinfo) {
+		var checkPromise;
 		$scope.card = cardinfo;
 		$scope.logs = cards.logs;
 		$scope.point = "0";
-		$scope.showModal = false;
-	    $scope.toggleModal = function(){
-	        $scope.showModal = !$scope.showModal;
+		$scope.showGain = false;
+	    $scope.plusModal = function(){
+	        $scope.showGain = !$scope.showGain;
+	    };
+	    $scope.showRedeem = false;
+	    $scope.redeemModal = function(){
+	    	$scope.qr = undefined;
+	    	$scope.point = "0";
+	    	$scope.showRedeem = !$scope.showRedeem;
+	        
+	    };
+	    $scope.checkQRAuth = function (qrId) {
+	    	cards.checkQRAuth(qrId).success(function (data) {
+	    		console.log(data);
+	    		
+	    		if (data.authroized == false && $scope.showRedeem == true) {
+	    			//$interval.cancel(checkPromise);
+	    			
+	    			var created = new Date(data.created);
+					if (Date.now() > created.getTime()+data.timelife) { 
+						console.log('exp');
+						$scope.qrExpire = true; 
+					}	
+					else {
+						console.log('alife');
+						$scope.qrExpire = false;
+						$scope.checkQRAuth(qrId);
+					}
+	    		} else if (data.authroized == true) {
+	    			$scope.qr = data;
+	    			$scope.card.point -= parseInt(data.detail);
+	    			cards.logs.unshift({created:new Date(), action:'redeemPoint', detail:parseInt(data.detail) });
+	    			$scope.search();
+	    		}
+	    	}).error(function (err) {
+	    		//$interval.cancel(checkPromise);
+	    		$scope.error = err;
+	    	});
 	    };
 
+	    $scope.$on('$destroy', function() {
+	    	$interval.cancel(checkPromise);
+	    });
+	    $scope.$watch(function () {
+	    	return $scope.showRedeem;
+	    }, function (newValue, old) {
+	    	if (old == true && newValue == false) {
+	    		$interval.cancel(checkPromise);
+
+	    	}
+	    });
 	    //Pagination Table
 		$scope.currentPage = 0;
 	    $scope.pageSize = 10;
@@ -225,7 +278,7 @@ card.controller('CardCtrl', [
 	    }
 
 	    $scope.pagination = function () {
-	        $scope.ItemsByPage = paged( $scope.allItems, $scope.pageSize );  
+	        $scope.ItemsByPage = paged( $scope.filteredList, $scope.pageSize );  
 	        console.log($scope.ItemsByPage);       
 	    };
 
@@ -247,13 +300,11 @@ card.controller('CardCtrl', [
 	            total = input;
 	            input = 0;
 	        }
-	        console.log("total:"+total);
 	        for (var i = input; i < total; i++) {
 	            if (i != 0 && i != total - 1) {
 	                ret.push(i);
 	            }
 	        }
-	        console.log("ret:"+ret);
 	        return ret;
 	    };
 
@@ -276,6 +327,34 @@ card.controller('CardCtrl', [
 			}).error(function (err) {
 				$scope.error = err;
 			});
+		}
+
+		$scope.redeemPoint = function (point) {
+			if (isNaN(point)) {
+				$scope.showRedeem = false;
+				$scope.error = {message: '請輸入數值'};
+			}
+			else if (parseInt(point) <= 0) {
+				$scope.showRedeem = false;
+				$scope.error = {message: '數值需為正數'};
+			}
+			else if (parseInt($scope.card.point) < parseInt(point)) {
+				$scope.showRedeem = false;
+				$scope.error = {message: '積分不足'};
+			}
+	    	else {
+	    		cards.qrGen($scope.card._id, 'redeem', point).success(function (data) {
+		    		
+		    		$scope.qr = data;
+		    		// checkPromise = $interval(function () {
+		    		// 	$scope.checkQRAuth($scope.qr._id);
+		    		// }, 3000);
+		    		$scope.checkQRAuth($scope.qr._id);
+		    	}).error(function (err) {
+		    		$scope.showRedeem = false;
+		    		$scope.error = err;
+		    	});
+		    }
 		}
 
 		$scope.validCard = function () {
@@ -364,7 +443,7 @@ function paged (valLists,pageSize)
 card.directive('modal', function () {
     return {
       template: '<div class="modal fade">' + 
-          '<div class="modal-dialog">' + 
+          '<div class="modal-dialog modal-sm">' + 
             '<div class="modal-content">' + 
               '<div class="modal-header">' + 
                 '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 

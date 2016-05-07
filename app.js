@@ -22,6 +22,7 @@ require('./models/Comments');
 require('./models/Coupons');
 require('./models/Chatrooms');
 require('./models/Chats');
+require('./models/QRAuths');
 mongoose.connect('mongodb://' + config.mongolab.uri);
 console.log('mongodb:' + config.mongolab.uri);
 

@@ -59,13 +59,15 @@
 	        </button>
 	        </div>
 	    </div>
-	    <button type="button" class="btn btn-info btn-sm" ng-click="toggleModal()">
+	    <button type="button" class="btn btn-info btn-sm" ng-click="plusModal()">
           <span class="glyphicon glyphicon-plus"></span> 增加積分
         </button>
-        
+        <button type="button" class="btn btn-warning btn-sm" ng-click="redeemModal()">
+          <span class="glyphicon glyphicon-minus"></span> 消費積分
+        </button>
 	  </form>
 
-	  <modal title="Gain Point" visible="showModal">
+	  <modal title="Gain Point" visible="showGain">
 	    <form ng-submit="gainPoint(point)">
 	      <div class="form-group">
 	        <label for="point">Gain Point</label>
@@ -73,6 +75,27 @@
 	      </div>
 
 	      <button type="submit" class="btn btn-default">Submit</button>
+	    </form>
+	  </modal>
+	  <modal title="消費積分" visible="showRedeem">
+	    <form ng-submit="redeemPoint(point)">
+	      <div ng-show="qr" class="text-center">
+	      	<img src="http://chart.apis.google.com/chart?cht=qr&chl={{qr._id}}&chs=250x250"></img>
+	      	<br>
+	      	<label>掃描QR碼消費</label>
+	      	<br>
+	      	<h3 class="text-danger">{{qr.detail}} 分</h2>
+	      	<hr>
+	      	<label style="color: #00EC00;" ng-show="qr.authroized">驗證成功</label>
+	      	<label style="color: red;" ng-show="qrExpire">QR碼已過期，請重新申請。</label>
+	      </div>
+	      <div ng-hide="qr" class="form-group">      	
+	        <label for="point">消費積分</label>
+	        <input ng-model="point" type="text" class="form-control" id="point" placeholder="積分數量" />
+
+	      </div>
+			<button ng-hide="qr" type="submit" class="btn btn-default">確認</button>
+	     
 	    </form>
 	  </modal>
 </div>
@@ -106,7 +129,7 @@
             <li ng-class="{active:0}"><a ng-click="firstPage()">First</a>
 
             </li>
-            <li ng-repeat="n in range(ItemsByPage.length)"> <a href="#" ng-click="setPage()" ng-bind="n+1">1</a>
+            <li ng-repeat="n in range(ItemsByPage.length)"> <a ng-click="setPage()" ng-bind="n+1">1</a>
 
             </li>
             <li><a ng-click="lastPage()">Last</a>
