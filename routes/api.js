@@ -1622,7 +1622,6 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 											}
 											return res.json(qrAuth);
 										});
-			});
 
 										
 									});
