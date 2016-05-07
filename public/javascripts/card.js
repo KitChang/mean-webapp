@@ -206,6 +206,7 @@ card.controller('CardCtrl', [
 	    $scope.showRedeem = false;
 	    $scope.redeemModal = function(){
 	    	$scope.qr = undefined;
+	    	$scope.qrExpire = false;
 	    	$scope.point = "0";
 	    	$scope.showRedeem = !$scope.showRedeem;
 	        

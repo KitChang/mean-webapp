@@ -1614,7 +1614,17 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 											console.log(err);
 											return res.status(500).json(err);
 										}
-										return res.json(savedQRAuth);
+										QRAuth.populate(savedQRAuth, {path: 'card', select: '_id exp cardImage business owner tier number valid usage point',
+												populate:{path:'business', select:'_id business'}}, function (err, qrAuth) {
+											if (err) {
+												console.log(err);
+												return res.status(500).json(err);
+											}
+											return res.json(qrAuth);
+										});
+			});
+
+										
 									});
 								});
 							});
