@@ -10,7 +10,7 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userProperty: 'payload'});
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('starter', { title: 'Express' });
 });
 
 router.post('/register', function(req, res, next){

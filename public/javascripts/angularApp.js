@@ -8,7 +8,7 @@ function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('home', {
       url: '/home',
-      templateUrl: 'views/home.ejs',
+      templateUrl: 'views/home_lte.ejs',
       controller: 'MainCtrl',
       onEnter: ['$state', 'auth', function ($state, auth) {
       	if (!auth.isLoggedIn()) {
@@ -25,6 +25,7 @@ function($stateProvider, $urlRouterProvider) {
 	      $state.go('home');
 	    }
 	  }]
+	  
 	})
 	.state('register', {
 	  url: '/register',
@@ -323,11 +324,11 @@ app.controller('MainCtrl',[
 	}])
 .controller('AuthCtrl', [
 	'$scope',
+	'$rootScope',
 	'$state',
 	'auth',
-	function($scope, $state, auth){
+	function($scope, $rootScope, $state, auth){
 	  $scope.user = {};
-
 	  $scope.register = function(){
 	    auth.register($scope.user).error(function(error){
 	      $scope.error = error;
