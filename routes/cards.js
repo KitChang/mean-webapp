@@ -307,7 +307,7 @@ router.put('/:cardId/tierDown', function (req, res, next) {
 
 router.post('/qrGen', function (req, res, next) {
 	console.log(req.body);
-	if(!req.body.card || !req.body.actionType || !req.body.detail){
+	if(!req.body.card || !req.body.actionType || !req.body.detail || !req.body.sender){
     	return res.status(400).json({message: 'Please fill out all fields'});
 	}
 	QRAuth.update({card: req.body.card, authroized: false}, {deleted: true}, {multi: true}, function (err, qrAuths) {
@@ -344,7 +344,7 @@ router.delete('/:cardId', function (req, res, next) {
 
 function longPolling(req, res, next, startTime) {
 	var date = new Date();
-	if (date-startTime > 60000) {
+	if (date-startTime > 120000) {
 		console.log('end');
 		return res.json(req.qrAuth);	
 	} 

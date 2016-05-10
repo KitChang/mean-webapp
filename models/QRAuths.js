@@ -8,10 +8,17 @@ var QRAuthSchema = new mongoose.Schema({
 	},
 	actionType: {
 		type: String,
+		enum: ['redeemPoint'],
+		require: true
+	},
+	sender: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
 		require: true
 	},
 	detail: {
-		type: mongoose.Schema.Types.Mixed
+		type: mongoose.Schema.Types.Mixed,
+		require: true
 	},
 	log: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -23,7 +30,7 @@ var QRAuthSchema = new mongoose.Schema({
 	},
 	timelife: {
 		type: Number,
-		default: 60000
+		default: 120000
 	},
 	created: {
 		type: Date,

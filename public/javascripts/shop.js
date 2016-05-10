@@ -33,17 +33,23 @@ function($stateProvider, $urlRouterProvider) {
 		}
     })
     .state('shopsedit', {
-			url: '/shops/:shopId/edit',
+			url: '/shops/edit',
 			templateUrl: 'views/shops_edit.ejs',
 			controller: 'ShopEditCtrl',
+			onEnter: ['$state', 'auth', 'pageHeader', function ($state, auth, pageHeader) {
+				pageHeader.title = 'Memebers';
+		      	if (!auth.isLoggedIn()) {
+		      		$state.go('login');
+		      	};
+		    }],
 			resolve: {
 				shopPromise : ['shops', function (shops) {
 					console.log('getAdmins');
 					return shops.getAdmins();
 				}],
-				shopinfo: ['$stateParams', 'shops', function($stateParams, shops){
+				shopinfo: ['$stateParams', 'shops', 'auth', function($stateParams, shops, auth){
 					console.log('edit: '+$stateParams.shopId);
-					return shops.get($stateParams.shopId);
+					return shops.get(auth.currentUser().business);
 				}]
 			}
 	})

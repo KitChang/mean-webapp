@@ -165,6 +165,21 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   </li>
                 </ul>
               </li>
+              
+              <li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+              <li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="chatroomslist">所有對話</a></li>
+              <li class="navbar-nav-custom" ng-show="isClient()||isAdmin()"><a ui-sref="eventslist">所有活動</a></li>
+              <li><a ui-sref="shopslist" ng-show="isAdmin()">Shop</a></li>
+                <li><a ui-sref="propertyslist" ng-show="isAdmin()">Property</a></li>
+                <li class="dropdown navbar-nav-custom" ng-show="isAdmin()">
+                <a class="dropdown-toggle link-white" type="button" data-toggle="dropdown">Admin
+                <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a ui-sref="userslist">User</a></li>
+                  
+                  <li><a ui-sref="stopslist">Bus Stop</a></li>
+                </ul>
+              </li>
               <li class="navbar-nav-custom" ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
               <!-- User Account Menu -->
               <li class="dropdown user user-menu" ng-show="isLoggedIn()">
@@ -232,7 +247,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
               <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
           </div>
-
+  
           <!-- search form (Optional) -->
           <form action="#" method="get" class="sidebar-form">
             <div class="input-group">
@@ -265,9 +280,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <!-- Content Wrapper. Contains page content -->
       <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <section class="content-header" ng-controller="PageHeaderCtrl">
           <h1>
-            title
+            {{title}}
             <small>Optional description</small>
           </h1>
           <ol class="breadcrumb">
@@ -275,7 +290,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <li class="active">Here</li>
           </ol>
         </section>
-
+        <hr>
         <!-- Main content -->
         <section class="content">
 

@@ -20,7 +20,8 @@ function($stateProvider, $urlRouterProvider) {
 	  url: '/login',
 	  templateUrl: 'views/login_login.ejs',
 	  controller: 'AuthCtrl',
-	  onEnter: ['$state', 'auth', function($state, auth){
+	  onEnter: ['$state', 'auth', 'pageHeader', function($state, auth, pageHeader){
+	  	pageHeader.title = 'Login';
 	    if(auth.isLoggedIn()){
 	      $state.go('home');
 	    }
@@ -173,6 +174,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   		$window.localStorage.removeItem('meanwebapp-token');
 	};
   	return auth;
+}])
+.factory('pageHeader', ['$state', function ($state) {
+	var pageHeader = {
+		title: 'Test'
+	};
+
+	return pageHeader;
 }])
 .factory('users', ['$state', '$http', 'auth', function($state, $http, auth){
 	var o = {
@@ -358,6 +366,17 @@ app.controller('MainCtrl',[
 	  $scope.appTitle = 'MEAN Example Web';
 
 	  
+}])
+.controller('PageHeaderCtrl', [
+	'$scope',
+	'pageHeader',
+	function ($scope, pageHeader) {	
+		$scope.title = pageHeader.title;
+		$scope.$watch(function () {
+	    	return pageHeader.title;
+	    }, function (newValue, old) {
+	    	$scope.title = pageHeader.title;
+	    });
 }])
 .controller('UserListCtrl', [
 	'$scope',

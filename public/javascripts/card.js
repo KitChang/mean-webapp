@@ -117,7 +117,7 @@ card.factory('cards', ['$state', '$http', 'auth', function ($state, $http, auth)
 		});
 	};
 	oCards.qrGen = function (cardId, actionType, detail) {
-		return $http.post('/cards/qrGen',{card: cardId, actionType:actionType, detail: detail});	
+		return $http.post('/cards/qrGen',{card: cardId, actionType:actionType, detail: detail, sender: auth.currentUser()._id});	
 	};
 	oCards.checkQRAuth = function (qrAuthId) {
 		return $http.get('/cards/qrAuth/'+qrAuthId);	
