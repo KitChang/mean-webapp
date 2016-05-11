@@ -367,6 +367,16 @@ app.controller('MainCtrl',[
 
 	  
 }])
+.controller('SideBarCtrl', [
+	'$scope',
+	'auth',
+	'users',
+	function ($scope, auth, users) {
+	  $scope.isLoggedIn = auth.isLoggedIn;
+	  $scope.isAdmin = auth.isAdmin;
+	  $scope.isClient = auth.isClient;
+	  $scope.currentUser = auth.currentUser;
+}])
 .controller('PageHeaderCtrl', [
 	'$scope',
 	'pageHeader',
@@ -479,3 +489,35 @@ app.controller('MainCtrl',[
 
 		
 	}]);
+
+app.directive( 'emTarget', function() {
+    return {
+        link: function( scope, elem, attrs ) {
+        	console.log('emTarget');
+            scope.$watch( '__height', function( newHeight, oldHeight ) {
+                console.log("height"+newHeight);
+                elem.attr( 'style', 'min-height: ' + (100+newHeight) + 'px' );
+            } );
+        }
+    }
+} )
+.directive( 'emSource', function() {
+
+    return {
+        link: function( scope, elem, attrs ) {
+        	
+            scope.$watch( function() {
+            	if (elem.height() != 0) {
+            		scope.__height = elem.height();
+            		console.log("height: src "+elem.height());
+            		scope.myStyle = {'min-height': elem.height()};
+            		var target = angular.element(document.getElementById('content'));
+					target.attr( 'style', 'min-height: ' + (100+elem.height()) + 'px' );            	
+				}
+                
+                
+            } );
+        }
+    }
+
+} );

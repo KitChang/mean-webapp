@@ -27,7 +27,8 @@ function($stateProvider, $urlRouterProvider) {
       url: '/events',
       templateUrl: 'views/events_list.ejs',
       controller: 'EventCtrl',
-      onEnter: ['$state', 'auth', function ($state, auth) {
+      onEnter: ['$state', 'auth', 'pageHeader', function ($state, auth, pageHeader) {
+      	pageHeader.title = 'Event List';
       	if (!auth.isLoggedIn()) {
       		$state.go('login');
       	};
@@ -705,6 +706,7 @@ event.controller('EventCtrl', [
 	    };
 		//Pagination Table
 }]);
+
 
 //Pagination table
 function paged (valLists,pageSize)

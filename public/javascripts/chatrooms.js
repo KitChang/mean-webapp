@@ -20,7 +20,8 @@ function($stateProvider, $urlRouterProvider) {
       url: '/chatrooms',
       templateUrl: 'views/chatrooms_list.ejs',
       controller: 'ChatroomCtrl',
-      onEnter: ['$state', 'auth', function ($state, auth) {
+      onEnter: ['$state', 'auth', 'pageHeader', function ($state, auth, pageHeader) {
+      	pageHeader.title = 'Chatroom List';
       	if (!auth.isLoggedIn()) {
       		$state.go('login');
       	};
