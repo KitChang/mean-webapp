@@ -216,7 +216,11 @@ chatroom.controller('ChatroomCtrl', [
 			});
 			return chatroom.users[index].username;
 		};
-
+		$scope.isSender = function (chat) {
+			if (chat.sender == auth.currentUser()._id) {
+				return 'direct-chat-msg right';
+			} else return 'direct-chat-msg';
+		}
 
 		//Pagination Table
 		$scope.currentPage = 0;

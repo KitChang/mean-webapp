@@ -263,9 +263,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <ul class="sidebar-menu">
             <li class="header">HEADER</li>
             <!-- Optionally, you can add icons to the links -->
-            <li class="active" ng-show="isClient()"><a ui-sref="shopsedit"><i class="fa fa-link"></i> <span>所有會員</span></a></li>
-            <li ng-show="isClient()"><a ui-sref="chatroomslist"><i class="fa fa-link"></i><span>所有對話</span></a></li>
-            <li ng-show="isClient()||isAdmin()"><a ui-sref="eventslist"><i class="fa fa-link"></i><span>所有活動</span></a></li>
+            <li ng-class="{active: sideBarActive=='0'}" ng-show="isClient()"><a ui-sref="shopsedit" ng-click="sideBarActive='0'"><i class="fa fa-link"></i> <span>所有會員</span></a></li>
+            <li ng-class="{active: sideBarActive=='1'}" ng-show="isClient()"><a ui-sref="chatroomslist" ng-click="sideBarActive='1'"><i class="fa fa-link"></i><span>所有對話</span></a></li>
+            <li ng-class="{active: sideBarActive=='2'}" ng-show="isClient()||isAdmin()"><a ui-sref="eventslist" ng-click="sideBarActive='2'"><i class="fa fa-link"></i><span>所有活動</span></a></li>
             <li class="treeview">
               <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span> <i class="fa fa-angle-left pull-right"></i></a>
               <ul class="treeview-menu">

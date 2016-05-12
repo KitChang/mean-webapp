@@ -1145,7 +1145,7 @@ router.post('/cards/point/redeem', function (req, res, next) {
 								console.log(err);
 								return res.status(500).json(err);
 							} else {
-								return res.json({message: 'Gain point success.', redeemPoint: req.body.point, totalPoint: savedCard.point.toString()});
+								return res.json({message: 'Redeem point success.', redeemPoint: req.body.point, totalPoint: savedCard.point.toString()});
 							}
 
 						});
@@ -1532,7 +1532,7 @@ router.post('/qrAuth', function (req, res, next) {
 					else if (foundQRAuth.authroized == true) {
 						return res.status(400).json({message: 'QR Code used.'});
 					} else {
-						if (foundQRAuth.actionType == 'redeem') {
+						if (foundQRAuth.actionType == 'redeemPoint') {
 							if (foundQRAuth.card.point < parseInt(foundQRAuth.detail)) {
 								return res.status(400).json({message: 'Point is not enough.'});
 							}
@@ -1587,7 +1587,7 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 					else if (foundQRAuth.authroized == true) {
 						return res.status(400).json({message: 'QR Code used.'});
 					} else {
-						if (foundQRAuth.actionType == 'redeem') {
+						if (foundQRAuth.actionType == 'redeemPoint') {
 							if (foundQRAuth.card.point < parseInt(foundQRAuth.detail)) {
 								return res.status(400).json({message: 'Point is not enough.'});
 							}

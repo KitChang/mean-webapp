@@ -344,7 +344,7 @@ card.controller('CardCtrl', [
 				$scope.error = {message: '積分不足'};
 			}
 	    	else {
-	    		cards.qrGen($scope.card._id, 'redeem', point).success(function (data) {
+	    		cards.qrGen($scope.card._id, 'redeemPoint', point).success(function (data) {
 		    		
 		    		$scope.qr = data;
 		    		// checkPromise = $interval(function () {

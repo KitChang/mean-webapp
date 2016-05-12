@@ -38,19 +38,58 @@
 	</modal>
 </div>
 <div class="col-md-6 col-md-offset-1" ng-show="chatroom.conversations">
+	<div ng-show="false">
+	  	<div class="input-group">
+		    	<input type="text" class="form-control" placeholder="add reply..." ng-model="newChat">
+		    		<span class="input-group-btn">
+		        	<button class="btn btn-success" type="button" ng-click="createChat()">Reply</button>
+		      	</span>
+		    </div>
+	  	<div class="list-group">
 
-  	<div class="input-group">
-	    	<input type="text" class="form-control" placeholder="add reply..." ng-model="newChat">
-	    		<span class="input-group-btn">
-	        	<button class="btn btn-success" type="button" ng-click="createChat()">Reply</button>
-	      	</span>
-	    </div>
-  	<div class="list-group">
-
-  		<li class="list-group-item" ng-repeat="chat in chatroom.conversations"><span class="badge"><span am-time-ago="chat.created"></span></span>
-		    <a><h4 class="list-group-item-heading">{{convertToUsername(chat.sender)}}</h4></a>
-		    <p class="list-group-item-text">{{chat.content}}</p>
-		  </li>
+	  		<li class="list-group-item" ng-repeat="chat in chatroom.conversations"><span class="badge"><span am-time-ago="chat.created"></span></span>
+			    <a><h4 class="list-group-item-heading">{{convertToUsername(chat.sender)}}</h4></a>
+			    <p class="list-group-item-text">{{chat.content}}</p>
+			  </li>
+		</div>
+		<p ng-show="chatroom.conversations.length<=0" style="text-align: center;">暫無記錄</p>
 	</div>
-	<p ng-show="chatroom.conversations.length<=0" style="text-align: center;">暫無記錄</p>
+	<div class="box box-primary direct-chat direct-chat-primary">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">Direct Chat</h3>
+	      <div class="box-tools pull-right">
+	        <span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span>
+	        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+	        <button class="btn btn-box-tool" data-toggle="tooltip" title="Contacts" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>
+	        <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+	      </div>
+	    </div><!-- /.box-header -->
+	    <div class="box-body">
+	      <!-- Conversations are loaded here -->
+	      <div class="direct-chat-messages">
+	        <!-- Message. Default to the left -->
+	        <div ng-class="isSender(chat)" ng-repeat="chat in chatroom.conversations">
+	          <div class="direct-chat-info clearfix">
+	            <span class="direct-chat-name pull-left">{{convertToUsername(chat.sender)}}</span>
+	            <span class="direct-chat-timestamp pull-right">{{chat.created}}</span>
+	          </div><!-- /.direct-chat-info -->
+	          <img class="direct-chat-img" src="../dist/img/user1-128x128.jpg" alt="message user image"><!-- /.direct-chat-img -->
+	          <div class="direct-chat-text">
+	            {{chat.content}}
+	          </div><!-- /.direct-chat-text -->
+	        </div><!-- /.direct-chat-msg -->
+
+	      </div><!-- /.direct-chat-pane -->
+	    </div><!-- /.box-body -->
+	    <div class="box-footer">
+	      <form action="#" method="post">
+	        <div class="input-group">
+	          <input type="text" name="message" placeholder="Type Message ..." class="form-control" ng-model="newChat">
+	          <span class="input-group-btn">
+	            <button type="button" class="btn btn-primary btn-flat" ng-click="createChat()">Send</button>
+	          </span>
+	        </div>
+	      </form>
+	    </div><!-- /.box-footer-->
+	  </div><!--/.direct-chat -->
 </div>	
