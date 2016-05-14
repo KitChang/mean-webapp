@@ -24,4 +24,9 @@ var ChatroomSchema = new mongoose.Schema({
 
 });
 
+ChatroomSchema.pre('save', function (next) {
+	this.updated = new Date();
+	next();
+});
+
 mongoose.model('Chatroom', ChatroomSchema);

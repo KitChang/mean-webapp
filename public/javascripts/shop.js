@@ -33,7 +33,7 @@ function($stateProvider, $urlRouterProvider) {
 		}
     })
     .state('shopsedit', {
-			url: '/shops/edit',
+			url: '/shops/:shopId/edit',
 			templateUrl: 'views/shops_edit.ejs',
 			controller: 'ShopEditCtrl',
 			onEnter: ['$state', 'auth', 'pageHeader', function ($state, auth, pageHeader) {
@@ -49,7 +49,7 @@ function($stateProvider, $urlRouterProvider) {
 				}],
 				shopinfo: ['$stateParams', 'shops', 'auth', function($stateParams, shops, auth){
 					console.log('edit: '+$stateParams.shopId);
-					return shops.get(auth.currentUser().business);
+					return shops.get($stateParams.shopId);
 				}]
 			}
 	})

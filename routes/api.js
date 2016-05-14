@@ -11,6 +11,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Card = mongoose.model('Card');
 var Shop = mongoose.model('Shop');
+var Chatroom = mongoose.model('Chatroom');
 var Chat = mongoose.model('Chat');
 var Event = mongoose.model('Event');
 var Comment = mongoose.model('Comment');
@@ -1829,19 +1830,79 @@ function userToBusinesses(accessToken, cb) {
 
 function longPolling(req, res, next, startTime) {
 	var date = new Date();
-	console.log(startTime);
+	console.log(date-startTime);
 	if (date-startTime > 59999) {
 		console.log('end');
 		res.status(204);
 		return res.end();
 		
 	} 
-		console.log(new Date(req.body.start));
-		Chat.find({"created": {"$gte": new Date(req.body.start)}}).exec(function (err, chats) {
-			if (chats.length == 0) {setTimeout(function() { longPolling(req, res, next, startTime) }, 10000);}
-			else res.json(chats);
-		});
-	
+	console.log(new Date(req.body.start));
+
+	if (req.body.accessToken) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!userOne) {return res.status(401).end();}
+				Chatroom.find({users: userOne._id, deleted: false}).exec(function (err, result) {
+					if (err) {
+						console.log(err);
+						return res.status(500).json(err);
+					}
+					if (result.length == 0) {
+						return res.status(204).end();
+					} else {
+						var chatrooms = result.map(function (chatroom) {
+							return chatroom._id;
+						});
+						Chat.find({chatroom: {$in: chatrooms}, created: {"$gt": new Date(req.body.start)}, deleted: false}).exec(function (err, chats) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json(err);
+							}
+							if (chats.length == 0) {setTimeout(function() { longPolling(req, res, next, startTime) }, 5000);}
+							else {
+								var groupChats = {};
+								chats.forEach(function (chat, index, array) {
+									//console.log(chat); // 1, 2, 3
+									if (groupChats[chat.chatroom] == undefined) {
+										groupChats[chat.chatroom] = [chat];
+									}
+								    else groupChats[chat.chatroom].push(chat);
+								});
+								var keys = [];  
+								for (var key in groupChats) {
+								   if (groupChats.hasOwnProperty(key)) {
+								      keys.push(key);
+								   }
+								}
+
+								Chatroom.find({_id: {$in: keys}}, '_id updated users').populate('users', '_id username name profileImageURL').exec(function (err, foundChatrooms) {
+									if (err) {
+										console.log(err);
+										return res.status(500).json(err);
+									}
+									res.json({chats:chats, chatrooms: foundChatrooms});
+								});
+
+								
+							}
+						});
+					}
+					
+
+					
+				});
+			});
+
+		
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
 
 };
 

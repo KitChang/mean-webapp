@@ -179,6 +179,7 @@ chatroom.controller('ChatroomCtrl', [
 			});
 		};
 		$scope.createChat = function () {
+			if (!$scope.newChat) {return;}
 			var chat = {};
 			chat.sender = auth.currentUser()._id;
 			chat.messageType = 'text';
