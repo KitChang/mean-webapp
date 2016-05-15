@@ -1879,7 +1879,7 @@ function userToBusinesses(accessToken, cb) {
 function longPolling(req, res, next, startTime) {
 	var date = new Date();
 	console.log(date-startTime);
-	if (date-startTime > 59999) {
+	if (date-startTime > 29999) {
 		console.log('end');
 		res.status(204);
 		return res.end();
