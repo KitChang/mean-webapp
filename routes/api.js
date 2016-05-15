@@ -1938,6 +1938,7 @@ function longPolling(req, res, next, startTime) {
 										newItem._id = item._id;
 										newItem.updated = item.updated;
 										newItem.users = item.users;
+										newItem.badge = groupChats[item._id.toString()].length;
 										newItem.lastChat = groupChats[item._id.toString()][0];
 										return newItem;
 									});
