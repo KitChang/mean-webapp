@@ -1650,11 +1650,59 @@ router.post('/chatrooms', function (req, res, next) {
 });
 
 router.post('/newChat', function (req, res, next) {
-	
-	var chat = new Chat(req.body);
-	chat.save(function (err, saveChat) {
-		return res.end();
-	});
+	var money = 1000;
+	var win = 0;
+	var draw = 0;
+	var lose = 0;
+	var times = 0;
+	var maxMoney = 0;
+	var maxTime = 0;
+	for (i = 0; i < 10000; i++) {
+		money = money - 20;
+	    var d1 = Math.floor((Math.random() * 6) + 1);
+		var d2 = Math.floor((Math.random() * 6) + 1);
+		var d3 = Math.floor((Math.random() * 6) + 1);
+		
+		var winCount1 = 0;
+		if (d1 == 1) { winCount1++;}
+		if (d2 == 1) { winCount1++;}
+		if (d3 == 1) { winCount1++;}
+
+		var winCount2 = 0;
+		if (d1 == 2) { winCount2++;}
+		if (d2 == 2) { winCount2++;}
+		if (d3 == 2) { winCount2++;}
+
+		if (winCount1 > 0) { money = money + 10 + 10*(winCount1); }
+		if (winCount2 > 0) { money = money + 10 + 10*(winCount2); }
+
+		if (winCount1+winCount2 == 0) {
+			lose++;
+
+			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => lose "+(winCount1+winCount2)+": money="+money)}
+		} else if (winCount1+winCount2 == 1) {
+			draw++;
+
+			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => draw "+(winCount1+winCount2)+": money="+money)}
+		} 
+		else {
+			win++;
+
+			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => win "+(winCount1+winCount2)+": money="+money)}
+		}
+		if (money > maxMoney) {
+			maxMoney = money;
+			maxTime = i;
+		}
+		if (money < 0) { times = i;break;}
+	}
+
+	return res.json({win:win, draw: draw, lose: lose, money: money, times: times, maxMoney: maxMoney, maxTime: maxTime});
+
+	// var chat = new Chat(req.body);
+	// chat.save(function (err, saveChat) {
+	// 	return res.end();
+	// });
 });
 
 router.post('/push', function (req, res, next) {
@@ -1858,7 +1906,7 @@ function longPolling(req, res, next, startTime) {
 						var chatrooms = result.map(function (chatroom) {
 							return chatroom._id;
 						});
-						Chat.find({chatroom: {$in: chatrooms}, created: {"$gt": new Date(req.body.start)}, deleted: false}).exec(function (err, chats) {
+						Chat.find({chatroom: {$in: chatrooms}, created: {"$gt": new Date(req.body.start)}, deleted: false}, '_id sender messageType content chatroom created').sort({'created': -1}).exec(function (err, chats) {
 							if (err) {
 								console.log(err);
 								return res.status(500).json(err);
@@ -1885,7 +1933,16 @@ function longPolling(req, res, next, startTime) {
 										console.log(err);
 										return res.status(500).json(err);
 									}
-									res.json({chats:chats, chatrooms: foundChatrooms});
+									var resultChatrooms = foundChatrooms.map(function (item) {
+										var newItem = {};
+										newItem._id = item._id;
+										newItem.updated = item.updated;
+										newItem.users = item.users;
+										newItem.lastChat = groupChats[item._id.toString()][0];
+										return newItem;
+									});
+									console.log(resultChatrooms);
+									res.json({chats:chats, chatrooms: resultChatrooms});
 								});
 
 								
