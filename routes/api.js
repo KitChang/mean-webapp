@@ -1646,59 +1646,46 @@ router.post('/qrAuth/redeem', function (req, res, next) {
 });
 
 router.post('/chatrooms', function (req, res, next) {
-	longPolling(req, res, next, new Date());
+	getChatLongPolling(req, res, next, new Date());
 });
 
 router.post('/newChat', function (req, res, next) {
-	var money = 1000;
-	var win = 0;
-	var draw = 0;
-	var lose = 0;
-	var times = 0;
-	var maxMoney = 0;
-	var maxTime = 0;
-	for (i = 0; i < 10000; i++) {
-		money = money - 20;
-	    var d1 = Math.floor((Math.random() * 6) + 1);
-		var d2 = Math.floor((Math.random() * 6) + 1);
-		var d3 = Math.floor((Math.random() * 6) + 1);
-		
-		var winCount1 = 0;
-		if (d1 == 1) { winCount1++;}
-		if (d2 == 1) { winCount1++;}
-		if (d3 == 1) { winCount1++;}
-
-		var winCount2 = 0;
-		if (d1 == 2) { winCount2++;}
-		if (d2 == 2) { winCount2++;}
-		if (d3 == 2) { winCount2++;}
-
-		if (winCount1 > 0) { money = money + 10 + 10*(winCount1); }
-		if (winCount2 > 0) { money = money + 10 + 10*(winCount2); }
-
-		if (winCount1+winCount2 == 0) {
-			lose++;
-
-			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => lose "+(winCount1+winCount2)+": money="+money)}
-		} else if (winCount1+winCount2 == 1) {
-			draw++;
-
-			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => draw "+(winCount1+winCount2)+": money="+money)}
-		} 
-		else {
-			win++;
-
-			if (i < 1000) { console.log("dices:"+d1+","+d2+","+d3+" => win "+(winCount1+winCount2)+": money="+money)}
-		}
-		if (money > maxMoney) {
-			maxMoney = money;
-			maxTime = i;
-		}
-		if (money < 0) { times = i;break;}
+	if (req.body.accessToken && req.body.messageType && req.body.content && req.body.chatroom) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Chatroom.findOne({_id: req.body.chatroom, users: userOne._id}).exec(function (err, foundChatroom) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundChatroom) {
+					res.status(400);
+					return res.json({message: "Invalid chatroom"});
+				}
+				var chat = new Chat();
+				chat.sender = userOne._id;
+				chat.messageType = req.body.messageType;
+				chat.content = req.body.content;
+				chat.chatroom = foundChatroom._id;
+				chat.save(function (err, saveChat) {
+					if (err) {
+						console.log(err);
+						return res.status(500).json(err);
+					}
+					return res.status(200).end();
+				});
+			});
+			
+		});
+	} else {
+		res.status(400);
+		return res.json({message: "Bad parameters"});
 	}
-
-	return res.json({win:win, draw: draw, lose: lose, money: money, times: times, maxMoney: maxMoney, maxTime: maxTime});
-
 	// var chat = new Chat(req.body);
 	// chat.save(function (err, saveChat) {
 	// 	return res.end();
@@ -1876,7 +1863,7 @@ function userToBusinesses(accessToken, cb) {
 
 };
 
-function longPolling(req, res, next, startTime) {
+function getChatLongPolling	(req, res, next, startTime) {
 	var date = new Date();
 	console.log(date-startTime);
 	if (date-startTime > 29999) {
