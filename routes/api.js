@@ -1898,7 +1898,7 @@ function getChatLongPolling	(req, res, next, startTime) {
 								console.log(err);
 								return res.status(500).json(err);
 							}
-							if (chats.length == 0) {setTimeout(function() { longPolling(req, res, next, startTime) }, 5000);}
+							if (chats.length == 0) {setTimeout(function() { getChatLongPolling(req, res, next, startTime) }, 5000);}
 							else {
 								var groupChats = {};
 								chats.forEach(function (chat, index, array) {
