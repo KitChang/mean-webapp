@@ -1672,12 +1672,21 @@ router.post('/newChat', function (req, res, next) {
 				chat.messageType = req.body.messageType;
 				chat.content = req.body.content;
 				chat.chatroom = foundChatroom._id;
-				chat.save(function (err, saveChat) {
+				chat.save(function (err, savedChat) {
 					if (err) {
 						console.log(err);
 						return res.status(500).json(err);
 					}
-					return res.status(200).end();
+					foundChatroom.conversations.push(savedChat);
+					foundChatroom.save(function (err, savedChatroom) {
+						if (err) {
+							console.log(err);
+							return next(err);
+						}
+
+						return res.status(200).end();
+					});
+					
 				});
 			});
 			
