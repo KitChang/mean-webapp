@@ -1568,7 +1568,6 @@ router.post('/shops/fbShare', function (req, res, next) {
 								});
 							});
 						});
-					return res.json(sunday);
 				}
 			});
 		});
