@@ -25,6 +25,20 @@
 	      	<option value="" selected>選擇地區</option>
 	      </select>
 	    </div>
+	    <div class="form-group">
+	      <label class="control-label">Facebook分享專頁:</label>
+	      <input type="text"
+	      class="form-control"
+	      placeholder="Facebook專頁連結..."
+	      ng-model="shop.fbShare.content"></input>
+	    </div>
+	    <div class="form-group">
+	      <label class="control-label">每次Facebook分享可獲積分:</label>
+	      <input type="text"
+	      class="form-control"
+	      placeholder="積分數..."
+	      ng-model="shop.fbShare.pointPerShare"></input>
+	    </div>
 	    <div ng-show="isAdmin()" class="form-group">
 	      <input type="text"
 	      class="form-control"

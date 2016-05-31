@@ -264,11 +264,30 @@ shop.controller('ShopCtrl', [
 			$scope.subRegions = selectedRegion.subRegions;
 
 		$scope.update = function () {
-
+			$scope.error = undefined;
 			if (!$scope.shop || !$scope.shop.business ||
 				!$scope.shop.type || !$scope.shop.region) {
 				$scope.error = {message: 'Please fill all blank field'};
 				return;
+			}
+
+			if ($scope.shop.fbShare.content) {
+				$scope.shop.fbShare.content = $scope.shop.fbShare.content.trim();
+				if (!($scope.shop.fbShare.content.startsWith('https://www.facebook.com/') || $scope.shop.fbShare.content.startsWith('http://www.facebook.com/'))) {
+					$scope.error = {message: '請輸入正確FB專頁連結'};
+					return;
+				}
+			}
+
+			if ($scope.shop.fbShare.pointPerShare) {
+				if (isNaN($scope.shop.fbShare.pointPerShare)) {
+					$scope.error = {message: '積分請輸入數字'};
+					return;
+				}
+				if (parseInt($scope.shop.fbShare.pointPerShare) <= 0) {
+					$scope.error = {message: '積分請輸入數字 > 0'};
+					return;
+				}
 			}
 			
 			shops.update($scope.shop).error(function (err) {

@@ -30,6 +30,10 @@ var ShopSchema = new mongoose.Schema({
 		required: true,
 		default: ['Silver', 'Gold', 'Platinum']
 	},
+	tierPrivileges: {
+		type: [String],
+		default: ['', '', '']
+	},
 	members: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Card'
@@ -49,6 +53,14 @@ var ShopSchema = new mongoose.Schema({
 	admin: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
+	},
+	fbShare: {
+		content: String,
+		pointPerShare: Number,
+		sharePeriod: {
+			type: Number,
+			default: 7
+		}
 	},
 	created: {
 		type: Date,

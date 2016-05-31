@@ -873,7 +873,7 @@ router.post('/cards', function (req, res, next) {
 				return res.status(500).json(err);
 			}
 			if (!userOne) {return res.status(401);}
-			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage point').populate('business', '_id business').exec(function (err, cards) {
+			Card.find({owner: userOne._id}, '_id exp cardImage business owner tier number valid usage point').populate('business', '_id business fbShare').exec(function (err, cards) {
 				return res.json(cards);
 			});
 		});
@@ -1494,6 +1494,82 @@ router.post('/shops/qrCode', function (req, res, next) {
 				}
 
 				return res.json({shop:foundShop});
+			});
+		});
+	} else {
+		res.status(400);
+		res.json({message: "Bad parameters"});
+	}
+});
+
+router.post('/shops/fbShare', function (req, res, next) {
+	if (req.body.accessToken && req.body.business) {
+		var accessToken = req.body.accessToken;
+		accessTokenValidation(accessToken, function (err, userOne) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json(err);
+			}
+			if (!userOne) {return res.status(401);}
+			Card.findOne({owner: userOne._id, business: req.body.business}, '_id exp cardImage business owner tier number valid usage point').populate('business', '_id business fbShare').exec(function (err, foundCard) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json(err);
+				}
+				if (!foundCard) {
+					return res.status(400).json({message: "Do not have membership yet."});
+				} else {
+					var today = new Date();
+					today.setHours(23,59,59,999);
+					console.log(today);
+					var start = new Date(today.getTime()-today.getDay()*86400000);
+					Log.find({subject: foundCard._id, action: 'fbShare', deleted: false, created: {$gt: start}})
+						.exec(function (err, logs) {
+							if (err) {
+								console.log(err);
+								return res.status(500).json(err);
+							}
+							if (logs.length > 0) {
+								return res.status(400).json({message: "Share once per week."});
+							}
+
+							var shareLog = new Log();
+							shareLog.subject = foundCard._id;
+							shareLog.subjectType = 'Card';
+							shareLog.action = 'fbShare';
+							shareLog.detail = req.body.business;
+							shareLog.save(function (err, savedLog) {
+								if (err) {
+									console.log(err);
+									return res.status(500).json(err);
+								}
+								var addPoint = 1;
+								if (foundCard.business.fbShare.pointPerShare) {
+									addPoint = foundCard.business.fbShare.pointPerShare;
+								}
+								foundCard.point += addPoint;
+								foundCard.save(function (err, savedCard) {
+									if (err) {
+										console.log(err);
+										return res.status(500).json(err);
+									}
+									var log = new Log();
+									log.subject = savedCard._id;
+									log.subjectType = 'Card';
+									log.action = "gainPoint";
+									log.detail = addPoint;
+									log.save(function (err, log) {
+										if (err) {
+											console.log(err);
+											return res.status(500).json(err);
+										}
+										return 
+									});
+								});
+							});
+						});
+					return res.json(sunday);
+				}
 			});
 		});
 	} else {

@@ -11,7 +11,7 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: config.secret, userShop: 'payload'});
 
 router.param('shopId', function(req, res, next, shopId) {
-	var query = Shop.findById(shopId).populate({path:'members', match: {deleted: false}, select:'_id owner tier valid number point', populate:{path: 'owner', select:'_id username', model:'User'}});
+	var query = Shop.findById(shopId).populate({path:'members', match: {deleted: false}, select:'_id owner tier valid number point fbShare', populate:{path: 'owner', select:'_id username', model:'User'}});
 	query.exec(function(err, shop){
 		if (err) {return next(err);}
 		if (!shop) {return next(new Error('cannot find shopInfo'));}
@@ -60,6 +60,11 @@ router.put('/:shopId', function (req, res, next) {
   	req.shop.business = req.body.business;
   	req.shop.type = req.body.type;
   	req.shop.region = req.body.region;
+  	if (!req.body.fbShare.content) { req.shop.fbShare.content = undefined;}
+  	else req.shop.fbShare.content = req.body.fbShare.content;
+  	if (!req.body.fbShare.pointPerShare) { req.shop.fbShare.pointPerShare = undefined;}
+  	else req.shop.fbShare.pointPerShare = req.body.fbShare.pointPerShare;
+
   	if (!req.body.major) { req.shop.major = undefined;}
   	else req.shop.major = req.body.major;
   	if (!req.body.minor) { req.shop.minor = undefined;}

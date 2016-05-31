@@ -166,7 +166,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 </ul>
               </li>
               
-              <li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="shopsedit({shopId:'{{currentUser().business}}'})">{{ currentUser().username }}</a></li>
+              <li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="shopsedit({shopId:currentUser().business})">{{ currentUser().username }}</a></li>
               <li class="navbar-nav-custom" ng-show="isClient()"><a ui-sref="chatroomslist">所有對話</a></li>
               <li class="navbar-nav-custom" ng-show="isClient()||isAdmin()"><a ui-sref="eventslist">所有活動</a></li>
               <li><a ui-sref="shopslist" ng-show="isAdmin()">Shop</a></li>
